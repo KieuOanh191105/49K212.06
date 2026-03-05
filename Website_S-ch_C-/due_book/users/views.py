@@ -1,27 +1,58 @@
-# due_book/users/views.py
 
-from django.shortcuts import render
-from django.views.generic import TemplateView
+"""
+Views for Users App - CHỨC NĂNG ĐĂNG KÝ
+"""
+from django.shortcuts import render, redirect
+from django.contrib.auth import login, logout
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib import messages
+from django.urls import reverse_lazy
+from django.views.generic import CreateView
+from django.contrib.auth.models import User
 
-# ==================== REGISTER (UI-ONLY) ====================
+from .forms import UserRegisterForm
 
-class RegisterView(TemplateView):
-    """
-    View hiển thị form đăng ký - UI ONLY (chưa xử lý backend)
-    Sprint FE: Chỉ render template
-    Sprint BE: Sẽ thêm logic xử lý form
-    """
+
+# ==================== REGISTER ====================
+class RegisterView(CreateView):
+    """Đăng ký tài khoản mới"""
+    model = User
+    form_class = UserRegisterForm
     template_name = 'users/user_register.html'
+    success_url = reverse_lazy('user_login')
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'Đăng ký tài khoản'
-        return context
+    def form_valid(self, form):
+        """Xử lý khi form hợp lệ"""
+        response = super().form_valid(form)
+        messages.success(
+            self.request,
+            f'Chào mừng {self.object.username}! Đăng ký thành công.'
+        )
+        return response
 
 
-# Hoặc sử dụng function-based view:
-def user_register(request):
-    """View hiển thị form đăng ký - UI ONLY"""
-    return render(request, 'users/user_register.html', {
-        'title': 'Đăng ký tài khoản'
-    })
+# ==================== LOGIN (OPTIONAL) ====================
+def user_login(request):
+    """Đăng nhập"""
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            messages.success(request, f'Chào mừng trở lại, {user.username}!')
+            next_url = request.GET.get('next', reverse_lazy('home'))
+            return redirect(next_url)
+        else:
+            messages.error(request, 'Tên đăng nhập hoặc mật khẩu không đúng!')
+    else:
+        form = AuthenticationForm()
+
+    return render(request, 'users/user_login.html', {'form': form})
+
+# Làm cho phần đăng xuất không nằm trong phần đăng ký 
+# ==================== LOGOUT (OPTIONAL) ====================
+def user_logout(request):
+    """Đăng xuất"""
+    logout(request)
+    messages.info(request, 'Bạn đã đăng xuất!')
+    return redirect('home')
