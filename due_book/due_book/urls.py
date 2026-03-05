@@ -23,7 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     # ===== USERS APP =====
-    path('users/', include('users.urls')),  # ✅ BẮT BUỘC
+    path('users/', include('users.urls', namespace='users')),  # ✅ BẮT BUỘC
 
     # ===== HOME (tạo view home cơ bản) =====
     # path('', views.home, name='home'),

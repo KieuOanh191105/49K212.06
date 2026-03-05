@@ -45,7 +45,7 @@
                         <strong>Thông tin liên hệ bắt buộc:</strong> Để người mua có thể liên hệ với bạn, vui lòng cung cấp số điện thoại, Facebook và Zalo.
                     </div>
 
-                    <form method="post" action="{% url 'user_register' %}" id="registerForm">
+                    <form method="post" action="{% url 'users:user_register' %}" id="registerForm">
                         {% csrf_token %}
 
                         <!-- ===== THÔNG TIN TÀI KHOẢN ===== -->

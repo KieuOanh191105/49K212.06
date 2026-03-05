@@ -4,6 +4,8 @@ URLs for Users App - CHỈ CHỨC NĂNG ĐĂNG KÝ
 from django.urls import path
 from . import views
 
+app_name = 'users'
+
 urlpatterns = [
     # Authentication - ĐĂNG KÝ (BẮT BUỘC)
     path('dang-ky/', views.RegisterView.as_view(), name='user_register'),
