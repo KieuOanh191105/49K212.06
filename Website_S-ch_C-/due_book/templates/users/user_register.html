@@ -1,0 +1,206 @@
+{% extends 'base.html' %}
+
+{% block title %}Đăng ký - DUE Book{% endblock %}
+
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-7">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4 class="mb-0"><i class="fas fa-user-plus me-2"></i>Đăng ký tài khoản</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info mb-4">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Thông tin liên hệ bắt buộc:</strong> Để người mua có thể liên hệ với bạn, vui lòng cung cấp số điện thoại, Facebook và Zalo.
+                    </div>
+
+                    <form method="post" id="registerForm">
+                        {% csrf_token %}
+
+                        <!-- ===== THÔNG TIN TÀI KHOẢN ===== -->
+                        <h6 class="text-primary mb-3 border-bottom pb-2">
+                            <i class="fas fa-user me-1"></i>Thông tin tài khoản
+                        </h6>
+
+                        <!-- Username -->
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-user me-1 text-muted"></i>Tên đăng nhập <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" class="form-control" id="username" name="username" 
+                                   placeholder="Nhập tên đăng nhập" required minlength="3" maxlength="30">
+                            <small class="form-text text-muted">3-30 ký tự, không chứa ký tự đặc biệt</small>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-envelope me-1 text-muted"></i>Email
+                            </label>
+                            <input type="email" class="form-control" id="email" name="email" 
+                                   placeholder="VD: 231121521224@due.udn.vn">
+                        </div>
+
+                        <!-- Họ và Tên -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    <i class="fas fa-user-tag me-1 text-muted"></i>Họ và đệm
+                                </label>
+                                <input type="text" class="form-control" id="first_name" name="first_name" 
+                                       placeholder="Nhập họ và đệm">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    <i class="fas fa-user-tag me-1 text-muted"></i>Tên
+                                </label>
+                                <input type="text" class="form-control" id="last_name" name="last_name" 
+                                       placeholder="Nhập tên">
+                            </div>
+                        </div>
+
+                        <!-- Password -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    <i class="fas fa-lock me-1 text-muted"></i>Mật khẩu <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="password" name="password" 
+                                           placeholder="Nhập mật khẩu" required minlength="6">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('password')">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <small class="form-text text-muted">Tối thiểu 6 ký tự</small>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    <i class="fas fa-lock me-1 text-muted"></i>Xác nhận mật khẩu <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="confirm_password" name="confirm_password" 
+                                           placeholder="Nhập lại mật khẩu" required minlength="6">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('confirm_password')">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- ===== THÔNG TIN LIÊN HỆ (BẮT BUỘC) ===== -->
+                        <h6 class="text-primary mb-3 border-bottom pb-2">
+                            <i class="fas fa-address-book me-1"></i>Thông tin liên hệ <span class="text-danger">*</span>
+                        </h6>
+
+                        <!-- Số điện thoại -->
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-phone me-1 text-muted"></i>Số điện thoại <span class="text-danger">*</span>
+                            </label>
+                            <input type="tel" class="form-control" id="phone_number" name="phone_number" 
+                                   placeholder="VD: 0901234567" required pattern="[0-9]{10,11}">
+                            <small class="form-text text-muted">10-11 chữ số, dùng để người mua liên hệ</small>
+                        </div>
+
+                        <!-- Facebook -->
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fab fa-facebook me-1 text-muted"></i>Link Facebook <span class="text-danger">*</span>
+                            </label>
+                            <input type="url" class="form-control" id="facebook_link" name="facebook_link" 
+                                   placeholder="VD: https://facebook.com/username" required>
+                            <small class="form-text text-muted">Dùng để người mua nhắn tin liên hệ</small>
+                        </div>
+
+                        <!-- Zalo -->
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-comment me-1 text-muted"></i>Link Zalo <span class="text-danger">*</span>
+                            </label>
+                            <input type="url" class="form-control" id="zalo_link" name="zalo_link" 
+                                   placeholder="VD: https://zalo.me/0901234567" required>
+                            <small class="form-text text-muted">Dùng để người mua nhắn tin liên hệ</small>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- ===== THÔNG TIN TÙY CHỌN ===== -->
+                        <h6 class="text-secondary mb-3 border-bottom pb-2">
+                            <i class="fas fa-plus-circle me-1"></i>Thông tin thêm (tùy chọn)
+                        </h6>
+
+                        <!-- Mã sinh viên -->
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-id-card me-1 text-muted"></i>Mã sinh viên
+                            </label>
+                            <input type="text" class="form-control" id="student_id" name="student_id" 
+                                   placeholder="VD: 231121521224">
+                        </div>
+
+                        <!-- Địa chỉ -->
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-map-marker-alt me-1 text-muted"></i>Địa chỉ
+                            </label>
+                            <textarea class="form-control" id="address" name="address" rows="2" 
+                                      placeholder="VD: KTX Đại học Kinh tế, Đà Nẵng"></textarea>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-user-plus me-2"></i>Đăng ký tài khoản
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center bg-light">
+                    <small class="text-muted">
+                        Đã có tài khoản? <a href="#" class="fw-bold">Đăng nhập ngay</a>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function togglePassword(fieldId) {
+    const field = document.getElementById(fieldId);
+    const icon = field.nextElementSibling.querySelector('i');
+    if (field.type === 'password') {
+        field.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        field.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+
+// Form validation
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirm_password').value;
+    
+    if (password !== confirmPassword) {
+        e.preventDefault();
+        alert('Mật khẩu xác nhận không khớp!');
+    }
+});
+</script>
+{% endblock %}
