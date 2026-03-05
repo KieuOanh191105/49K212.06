@@ -38,13 +38,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'users',
+    
+    #===== LOCAL APPS =====
+    'users.apps.UsersConfig',
     'books',
     'ratings',
-    
-    #===== LOCAL APPS ===== 
-    #Nhung làm 
-    'users.apps.UsersConfig',
 ]
 
 MIDDLEWARE = [

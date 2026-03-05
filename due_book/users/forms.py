@@ -189,6 +189,8 @@ class UserRegisterForm(forms.ModelForm):
         1. Hash mật khẩu trước khi lưu
         2. Lưu thông tin vào UserProfile
         """
+        from .models import UserProfile
+        
         # 1. Lưu User với mật khẩu đã hash
         user = super().save(commit=False)
         user.set_password(self.cleaned_data['password'])
@@ -197,11 +199,11 @@ class UserRegisterForm(forms.ModelForm):
             user.save()
 
             # 2. Cập nhật UserProfile với thông tin liên hệ
-            # Signal đã tạo profile rỗng, giờ update thông tin thực
-            profile = user.profile
-            profile.phone_number = self.cleaned_data['phone_number']
-            profile.facebook_link = self.cleaned_data['facebook_link']
-            profile.zalo_link = self.cleaned_data['zalo_link']
+            # Lấy hoặc tạo profile nếu chưa có
+            profile, created = UserProfile.objects.get_or_create(user=user)
+            profile.phone_number = self.cleaned_data.get('phone_number', '')
+            profile.facebook_link = self.cleaned_data.get('facebook_link', '')
+            profile.zalo_link = self.cleaned_data.get('zalo_link', '')
             profile.student_id = self.cleaned_data.get('student_id', '')
             profile.address = self.cleaned_data.get('address', '')
             profile.save()
