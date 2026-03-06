@@ -22,11 +22,11 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
 
+    # ===== BOOKS APP (Trang chủ, danh sách sách) =====
+    path('', include('books.urls', namespace='books')),
+
     # ===== USERS APP =====
     path('users/', include('users.urls', namespace='users')),  # ✅ BẮT BUỘC
-
-    # ===== HOME (tạo view home cơ bản) =====
-    # path('', views.home, name='home'),
 ]
 
 # Serve media files in development
