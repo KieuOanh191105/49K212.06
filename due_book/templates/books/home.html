@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Trang chủ - DUE Book{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Hero Section -->
+    <div class="row align-items-center mb-5">
+        <div class="col-md-6">
+            <h1 class="display-4 text-primary">DUE Book</h1>
+            <p class="lead">Sàn mua bán, trao đổi sách cho sinh viên Đại học Kinh tế - ĐHĐN</p>
+            <p>Tiết kiệm chi phí, kết nối tri thức!</p>
+            <div class="mt-4">
+                <a href="{% url 'books:book_list' %}" class="btn btn-primary btn-lg me-2">
+                    <i class="fas fa-book me-2"></i>Xem danh sách sách
+                </a>
+                {% if not user.is_authenticated %}
+                <a href="{% url 'users:user_register' %}" class="btn btn-outline-primary btn-lg">
+                    <i class="fas fa-user-plus me-2"></i>Đăng ký ngay
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-md-6 text-center">
+            <i class="fas fa-book-open fa-10x text-primary opacity-25"></i>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <i class="fas fa-shopping-cart fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Mua sách giá rẻ</h5>
+                    <p class="card-text text-muted">Tìm mua sách cũ với giá tiết kiệm từ các sinh viên khác.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <i class="fas fa-hand-holding-usd fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Bán sách không dùng</h5>
+                    <p class="card-text text-muted">Đăng bán sách cũ để kiếm thêm thu nhập.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <i class="fas fa-exchange-alt fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Trao đổi sách</h5>
+                    <p class="card-text text-muted">Đổi sách với các sinh viên khác - win-win cho cả hai bên.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Call to Action -->
+    {% if not user.is_authenticated %}
+    <div class="alert alert-info text-center">
+        <i class="fas fa-info-circle me-2"></i>
+        <strong>Bạn chưa đăng nhập!</strong> 
+        <a href="{% url 'users:user_login' %}">Đăng nhập</a> hoặc 
+        <a href="{% url 'users:user_register' %}">Đăng ký</a> để bắt đầu mua bán sách.
+    </div>
+    {% else %}
+    <div class="alert alert-success text-center">
+        <i class="fas fa-check-circle me-2"></i>
+        <strong>Xin chào, {{ user.username }}!</strong> Chúc bạn có trải nghiệm tốt với DUE Book.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

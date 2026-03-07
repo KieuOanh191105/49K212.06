@@ -25,8 +25,8 @@ urlpatterns = [
     # ===== BOOKS APP (Trang chủ, danh sách sách) =====
     path('', include('books.urls', namespace='books')),
 
-    # ===== USERS APP =====
-    path('users/', include('users.urls', namespace='users')),  # ✅ BẮT BUỘC
+    # ===== USERS APP US2  =====
+    path('users/', include('users.urls', namespace='users')),   
 ]
 
 # Serve media files in development

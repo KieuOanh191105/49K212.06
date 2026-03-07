@@ -133,12 +133,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Nhung làm 4/3 - đăng ký 
-LOGIN_URL = 'user_login'
-LOGIN_REDIRECT_URL = 'home'
-LOGOUT_REDIRECT_URL = 'home'
-
-# Nhung làm 4/3
+# ==================== MESSAGE TAGS ====================
 MESSAGE_TAGS = {
     messages.DEBUG: 'alert-info',
     messages.INFO: 'alert-info',
@@ -146,3 +141,13 @@ MESSAGE_TAGS = {
     messages.WARNING: 'alert-warning',
     messages.ERROR: 'alert-danger',
 }
+
+# ==================== AUTHENTICATION SETTINGS ====================
+# URL để redirect khi user chưa đăng nhập nhưng truy cập trang @login_required
+LOGIN_URL = 'users:user_login'
+
+# URL để redirect sau khi đăng nhập thành công
+LOGIN_REDIRECT_URL = 'books:home'
+
+# URL để redirect sau khi đăng xuất
+LOGOUT_REDIRECT_URL = 'books:home'

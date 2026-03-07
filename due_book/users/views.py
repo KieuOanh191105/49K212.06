@@ -35,24 +35,58 @@ class RegisterView(CreateView):
         return super().form_invalid(form)
 
 
+# ==================== LOGIN ====================
 def user_login(request):
+    """
+    Xử lý đăng nhập người dùng
+    
+    Flow:
+    1. Nếu là GET request → Hiển thị form login
+    2. Nếu là POST request → Xử lý đăng nhập
+       - Validate form
+       - Authenticate user
+       - Kiểm tra user.is_active
+       - Login nếu hợp lệ
+       - Redirect đến trang chủ hoặc trang 'next'
+    """
     if request.method == 'POST':
+        # Tạo form với dữ liệu từ request
         form = AuthenticationForm(request, data=request.POST)
+        
         if form.is_valid():
+            # Lấy user đã được xác thực
             user = form.get_user()
+            
+            # Kiểm tra user có active không
+            if not user.is_active:
+                messages.error(request, 'Tài khoản của bạn đã bị khóa!')
+                return render(request, 'users/user_login.html', {'form': form})
+            
+            # Tạo session cho user
             login(request, user)
-            messages.success(request, 'Dang nhap thanh cong!')
-            next_url = request.GET.get('next', reverse_lazy('home'))
+            
+            # Hiển thị thông báo thành công
+            messages.success(request, f'Chào mừng trở lại, {user.username}!')
+            
+            # Redirect đến trang 'next' hoặc trang chủ
+            next_url = request.GET.get('next', reverse_lazy('books:home'))
             return redirect(next_url)
         else:
-            messages.error(request, 'Ten dang nhap hoac mat khau khong dung!')
+            # Form không hợp lệ - hiển thị lỗi theo AC2.3
+            messages.error(request, 'Vui lòng điền vào Tên đăng nhập và mật khẩu chính xác. Chú ý rằng cả hai khung thông tin đều phân biệt chữ hoa và chữ thường.')
     else:
+        # GET request - tạo form rỗng
         form = AuthenticationForm()
 
+    # Render template với form
     return render(request, 'users/user_login.html', {'form': form})
 
 
+# ==================== LOGOUT ====================
 def user_logout(request):
+    """
+    Xử lý đăng xuất người dùng
+    """
     logout(request)
-    messages.info(request, 'Ban da dang xuat!')
-    return redirect('home')
+    messages.info(request, 'Bạn đã đăng xuất!')
+    return redirect('books:home')

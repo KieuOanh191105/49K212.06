@@ -1,55 +1,81 @@
-{% extends 'base.html' %} {% block title %}Đăng nhập - DUE Book{% endblock %} {%
-block content %}
+{% extends 'base.html' %}
+
+{% block title %}Đăng nhập - DUE Book{% endblock %}
+
+{% block content %}
 <div class="container py-5">
-  <div class="row justify-content-center">
-    <div class="col-md-5">
-      <div class="card">
-        <div class="card-header bg-primary text-white text-center">
-          <h4 class="mb-0"><i class="fas fa-sign-in-alt me-2"></i>Đăng nhập</h4>
-        </div>
-        <div class="card-body">
-          <form method="post">
-            {% csrf_token %}
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4 class="mb-0"><i class="fas fa-sign-in-alt me-2"></i>Đăng nhập</h4>
+                </div>
+                <div class="card-body">
+                    <!-- Hiển thị Messages từ Backend -->
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% elif message.tags == 'info' %}info-circle{% else %}bell{% endif %} me-2"></i>
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
 
-            <div class="mb-3">
-              <label class="form-label">Tên đăng nhập</label>
-              <input
-                type="text"
-                name="username"
-                class="form-control"
-                required
-                autofocus
-              />
+                    <form method="post" id="loginForm">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label class="form-label">Tên đăng nhập</label>
+                            <input type="text" name="username" id="username" class="form-control" required autofocus />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Mật khẩu</label>
+                            <input type="password" name="password" id="password" class="form-control" required />
+                        </div>
+
+                        {% if form.errors %}
+                            <div class="alert alert-danger">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                Vui lòng điền vào Tên đăng nhập và mật khẩu chính xác. Chú ý rằng cả hai khung thông tin đều phân biệt chữ hoa và chữ thường.
+                            </div>
+                        {% endif %}
+
+                        <div class="d-grid">
+                            <button type="submit" id="submitBtn" class="btn btn-primary btn-lg" disabled>
+                                <i class="fas fa-sign-in-alt me-1"></i>Đăng nhập
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center">
+                    <small class="text-muted">
+                        Chưa có tài khoản? <a href="{% url 'users:user_register' %}">Đăng ký</a>
+                    </small>
+                </div>
             </div>
-
-            <div class="mb-3">
-              <label class="form-label">Mật khẩu</label>
-              <input
-                type="password"
-                name="password"
-                class="form-control"
-                required
-              />
-            </div>
-
-            {% if form.errors %}
-            <div class="alert alert-danger">{{ form.errors }}</div>
-            {% endif %}
-
-            <div class="d-grid">
-              <button type="submit" class="btn btn-primary btn-lg">
-                <i class="fas fa-sign-in-alt me-1"></i>Đăng nhập
-              </button>
-            </div>
-          </form>
         </div>
-        <div class="card-footer text-center">
-          <small class="text-muted">
-            Chưa có tài khoản? <a href="{% url 'user_register' %}">Đăng ký</a>
-          </small>
-        </div>
-      </div>
     </div>
-  </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var usernameInput = document.getElementById('username');
+    var passwordInput = document.getElementById('password');
+    var submitBtn = document.getElementById('submitBtn');
+
+    function checkFormValidity() {
+        var usernameValid = usernameInput.value.trim() !== '';
+        var passwordValid = passwordInput.value.trim() !== '';
+        submitBtn.disabled = !(usernameValid && passwordValid);
+    }
+
+    usernameInput.addEventListener('input', checkFormValidity);
+    passwordInput.addEventListener('input', checkFormValidity);
+    checkFormValidity();
+});
+</script>
 {% endblock %}
