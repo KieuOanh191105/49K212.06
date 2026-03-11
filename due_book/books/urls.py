@@ -1,5 +1,6 @@
 """
 URLs for Books App
+US4 - Đăng bài bán sách
 """
 from django.urls import path
 from . import views
@@ -13,9 +14,18 @@ urlpatterns = [
     # Danh sách sách
     path('sach/', views.book_list, name='book_list'),
     
-    # Các URL khác sẽ được thêm sau
-    # path('sach/cua-toi/', views.my_books, name='my_books'),
-    # path('sach/da-mua/', views.purchased_books, name='purchased_books'),
-    # path('sach/dang-ban/', views.book_create, name='book_create'),
-    # path('sach/<int:pk>/', views.book_detail, name='book_detail'),
+    # Sách của tôi - AC4.4
+    path('sach/cua-toi/', views.my_books, name='my_books'),
+    
+    # Chi tiết sách
+    path('sach/<int:pk>/', views.BookDetailView.as_view(), name='book_detail'),
+    
+    # US4 - ĐĂNG BÁN SÁCH
+    path('dang-ban-sach/', views.BookCreateView.as_view(), name='book_create'),
+    
+    # Chỉnh sửa bài đăng
+    path('sach/<int:pk>/chinh-sua/', views.BookUpdateView.as_view(), name='book_update'),
+    
+    # Xóa bài đăng
+    path('sach/<int:pk>/xoa/', views.BookDeleteView.as_view(), name='book_delete'),
 ]

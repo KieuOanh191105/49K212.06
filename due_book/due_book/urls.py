@@ -22,7 +22,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    # ===== BOOKS APP (Trang chủ, danh sách sách) =====
+    # ===== BOOKS APP US4 (Trang chủ, danh sách sách, đăng bán sách) =====
     path('', include('books.urls', namespace='books')),
 
     # ===== USERS APP US2  =====

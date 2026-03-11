@@ -17,20 +17,341 @@
     <!-- Custom CSS -->
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    
+    <style>
+        :root {
+            --navbar-gradient:  #004080;
+            --navbar-height: 65px;
+            --footer-bg: #1a1a2e;
+            --footer-text: #e0e0e0;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ==================== NAVBAR ==================== */
+        .navbar {
+            background: var(--navbar-gradient) !important;
+            min-height: var(--navbar-height);
+            padding: 0.8rem 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .navbar .container {
+            min-height: calc(var(--navbar-height) - 1.6rem);
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.6rem;
+            color: #fff !important;
+            letter-spacing: 0.5px;
+        }
+
+        .navbar-brand i {
+            color: #fff;
+        }
+
+        .navbar-brand:hover {
+            color: #fff !important;
+            transform: scale(1.02);
+        }
+
+        .navbar-nav .nav-link {
+            color: rgba(255,255,255,0.95) !important;
+            font-weight: 500;
+            padding: 0.6rem 1.2rem !important;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            margin: 0 2px;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: #fff !important;
+            background-color: rgba(255,255,255,0.15);
+            transform: translateY(-1px);
+        }
+
+        .navbar-nav .nav-link.active {
+            background-color: rgba(255,255,255,0.2);
+            color: #fff !important;
+        }
+
+        .navbar .search-form {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .navbar .search-input {
+            border-radius: 8px;
+            border: none;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            background-color: rgba(255,255,255,0.95);
+            min-width: 200px;
+            box-shadow: none;
+            transition: all 0.3s ease;
+        }
+
+        .navbar .search-input:focus {
+            box-shadow: 0 0 0 2px rgba(255,255,255,0.3);
+            background-color: #fff;
+        }
+
+        .navbar .search-input::placeholder {
+            color: #888;
+        }
+
+        .navbar .search-btn {
+            background: transparent;
+            color: #fff;
+            border: none;
+            padding: 0.5rem;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .navbar .search-btn:hover {
+            color: rgba(255,255,255,0.8);
+            transform: scale(1.1);
+        }
+
+        /* User Dropdown */
+        .navbar .nav-item.dropdown .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #fff !important;
+            padding: 0.5rem 0.75rem !important;
+        }
+
+        .navbar .nav-item.dropdown .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
+            border-radius: 8px;
+        }
+
+        .navbar .nav-item.dropdown .nav-link .user-icon {
+            font-size: 1.25rem;
+        }
+
+        .navbar .nav-item.dropdown .nav-link .username {
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .navbar .nav-item.dropdown .nav-link .dropdown-arrow {
+            font-size: 0.75rem;
+            opacity: 0.8;
+            margin-left: 2px;
+        }
+
+        .dropdown-menu {
+            border: none;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            border-radius: 12px;
+            margin-top: 10px;
+            padding: 8px 0;
+            min-width: 200px;
+        }
+
+        .dropdown-item {
+            padding: 0.7rem 1.3rem;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+            padding-left: 1.5rem;
+        }
+
+        .dropdown-item i {
+            width: 22px;
+            color: #0d5ea6;
+        }
+
+        .dropdown-item.text-danger i {
+            color: #dc3545;
+        }
+
+        .dropdown-divider {
+            margin: 8px 0;
+        }
+
+        /* Navbar toggler */
+        .navbar-toggler {
+            border: 2px solid rgba(255,255,255,0.5);
+            padding: 0.5rem 0.75rem;
+        }
+
+        .navbar-toggler:focus {
+            box-shadow: 0 0 0 3px rgba(255,255,255,0.3);
+        }
+
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.9%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        }
+
+        /* ==================== MAIN CONTENT ==================== */
+        .main-content {
+            flex: 1;
+            padding: 40px 0;
+            background-color: #f8f9fa;
+        }
+
+        /* Toast Messages */
+        .toast-container {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 1050;
+        }
+
+        .toast-container .alert {
+            min-width: 300px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-radius: 10px;
+        }
+
+        /* ==================== FOOTER ==================== */
+        footer {
+            background-color: var(--footer-bg);
+            color: var(--footer-text);
+            padding: 50px 0 20px;
+            margin-top: auto;
+        }
+
+        footer h5 {
+            color: #fff;
+            font-weight: 600;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+
+        footer .footer-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        footer .footer-brand i {
+            color:#ffffff;
+        }
+
+        footer .footer-description {
+            color: #a0a0a0;
+            line-height: 1.7;
+        }
+
+        footer .footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        footer .footer-links li {
+            margin-bottom: 12px;
+        }
+
+        footer .footer-links a {
+            color: #a0a0a0;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        footer .footer-links a:hover {
+            color: #fff;
+            padding-left: 5px;
+        }
+
+        footer .footer-links a i {
+            margin-right: 8px;
+            font-size: 0.9rem;
+        }
+
+        footer .contact-info p {
+            color: #a0a0a0;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        footer .contact-info i {
+            margin-right: 10px;
+            color:#ffffff;
+            width: 20px;
+        }
+
+        footer .contact-info a {
+            color: #a0a0a0;
+            text-decoration: none;
+        }
+
+        footer .contact-info a:hover {
+            color: #fff;
+        }
+
+        footer hr {
+            border-color: rgba(255,255,255,0.1);
+            margin: 30px 0 20px;
+        }
+
+        footer .copyright {
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar .search-form {
+                margin: 10px 0;
+                width: 100%;
+            }
+
+            footer .col-md-4 {
+                margin-bottom: 30px;
+            }
+        }
+    </style>
+    
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+
+    <!-- ==================== NAVBAR ==================== -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
+            <!-- Logo -->
             <a class="navbar-brand" href="{% url 'books:home' %}">
                 <i class="fas fa-book me-2"></i>DUE Book
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+
+            <!-- Mobile Toggle -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
+
+            <!-- Navbar Content -->
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <!-- Menu bên trái -->
+                <ul class="navbar-nav me-auto ms-3">
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'books:home' %}">
                             <i class="fas fa-home me-1"></i>Trang chủ
@@ -43,36 +364,50 @@
                     </li>
                 </ul>
 
-                <form class="d-flex me-3" action="{% url 'books:book_list' %}" method="get">
-                    <input class="form-control me-2" type="search" name="q" placeholder="Tìm kiếm sách..." value="{{ request.GET.q }}">
-                    <button class="btn btn-outline-light" type="submit">
+                <!-- Tìm kiếm -->
+                <form class="search-form me-3" action="{% url 'books:book_list' %}" method="get">
+                    <input class="search-input" type="search" name="q" placeholder="Tìm kiếm sách..." value="{{ request.GET.q|default:'' }}">
+                    <button class="search-btn" type="submit">
                         <i class="fas fa-search"></i>
                     </button>
                 </form>
 
+                <!-- User Menu -->
                 <ul class="navbar-nav">
                     {% if user.is_authenticated %}
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-user me-1"></i>{{ user.username }}
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user-circle user-icon"></i>
+                                <span class="username">{{ user.username|title }}</span>
+                                <i class="fas fa-chevron-down dropdown-arrow"></i>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="#">
-                                    <i class="fas fa-user me-2"></i>Hồ sơ
-                                </a></li>
-                                <li><a class="dropdown-item" href="#">
-                                    <i class="fas fa-book me-2"></i>Sách của tôi
-                                </a></li>
-                                <li><a class="dropdown-item" href="#">
-                                    <i class="fas fa-shopping-cart me-2"></i>Sách đã mua
-                                </a></li>
-                                <li><a class="dropdown-item" href="#">
-                                    <i class="fas fa-plus me-2"></i>Đăng bán sách
-                                </a></li>
+                                <li>
+                                    <a class="dropdown-item" href="#">
+                                        <i class="fas fa-user"></i>Hồ sơ
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#">
+                                        <i class="fas fa-book"></i>Sách của tôi
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#">
+                                        <i class="fas fa-shopping-bag"></i>Sách đã mua
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'books:book_create' %}">
+                                        <i class="fas fa-plus-circle"></i>Đăng bán sách
+                                    </a>
+                                </li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{% url 'users:user_logout' %}">
-                                    <i class="fas fa-sign-out-alt me-2"></i>Đăng xuất
-                                </a></li>
+                                <li>
+                                    <a class="dropdown-item text-danger" href="{% url 'users:user_logout' %}">
+                                        <i class="fas fa-sign-out-alt"></i>Đăng xuất
+                                    </a>
+                                </li>
                             </ul>
                         </li>
                     {% else %}
@@ -81,8 +416,8 @@
                                 <i class="fas fa-sign-in-alt me-1"></i>Đăng nhập
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link btn btn-outline-light ms-2" href="{% url 'users:user_register' %}">
+                        <li class="nav-item ms-2">
+                            <a class="nav-link btn btn-light px-3" href="{% url 'users:user_register' %}">
                                 <i class="fas fa-user-plus me-1"></i>Đăng ký
                             </a>
                         </li>
@@ -92,52 +427,83 @@
         </div>
     </nav>
 
-    <!-- Messages - Toast Notifications -->
+    <!-- ==================== MESSAGES ==================== -->
     {% if messages %}
         <div class="toast-container">
             {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                    <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %} me-2"></i>
                     {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             {% endfor %}
         </div>
     {% endif %}
 
-    <!-- Main Content -->
+    <!-- ==================== MAIN CONTENT ==================== -->
     <main class="main-content">
-        {% block content %}{% endblock %}
+        <div class="container">
+            {% block content %}{% endblock %}
+        </div>
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-dark text-white mt-5 py-4">
+    <!-- ==================== FOOTER ==================== -->
+    <footer>
         <div class="container">
             <div class="row">
-                <div class="col-md-4">
-                    <h5><i class="fas fa-book me-2"></i>DUE Book</h5>
-                    <p class="text-muted">Website mua bán/trao đổi sách cho sinh viên Đại học Kinh tế.</p>
+                <!-- Cột 1: Giới thiệu -->
+                <div class="col-md-4 mb-4">
+                    <span class="footer-brand">
+                        <i class="fas fa-book me-2"></i>DUE Book
+                    </span>
+                    <p class="footer-description">
+                        Website mua bán/trao đổi sách cho sinh viên Đại học Kinh tế.
+                    </p>
                 </div>
-                <div class="col-md-4">
+
+                <!-- Cột 2: Liên kết -->
+                <div class="col-md-4 mb-4">
                     <h5>Liên kết</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="{% url 'books:home' %}" class="text-muted">Trang chủ</a></li>
-                        <li><a href="{% url 'books:book_list' %}" class="text-muted">Danh sách sách</a></li>
-                        <li><a href="{% url 'users:user_register' %}" class="text-muted">Đăng ký</a></li>
+                    <ul class="footer-links">
+                        <li>
+                            <a href="{% url 'books:home' %}">
+                                <i class="fas fa-chevron-right"></i>Trang chủ
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'books:book_list' %}">
+                                <i class="fas fa-chevron-right"></i>Danh sách sách
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'users:user_register' %}">
+                                <i class="fas fa-chevron-right"></i>Đăng ký
+                            </a>
+                        </li>
                     </ul>
                 </div>
-                <div class="col-md-4">
+
+                <!-- Cột 3: Liên hệ -->
+                <div class="col-md-4 mb-4">
                     <h5>Liên hệ</h5>
-                    <p class="text-muted">
-                        <i class="fas fa-envelope me-2"></i>support@duebook.vn
-                    </p>
-                    <p class="text-muted">
-                        <i class="fas fa-phone me-2"></i>0123 456 789
-                    </p>
+                    <div class="contact-info">
+                        <p>
+                            <i class="fas fa-envelope"></i>
+                            <a href="mailto:support@duebook.vn">support@duebook.vn</a>
+                        </p>
+                        <p>
+                            <i class="fas fa-phone"></i>
+                            0123 456 789
+                        </p>
+                    </div>
                 </div>
             </div>
-            <hr class="bg-secondary">
-            <div class="text-center text-muted">
-                <small>&copy; 2025 DUE Book. All rights reserved.</small>
+
+            <hr>
+
+            <!-- Copyright -->
+            <div class="copyright">
+                &copy; 2025 DUE Book. All rights reserved.
             </div>
         </div>
     </footer>
@@ -147,6 +513,7 @@
 
     <!-- Custom JS -->
     <script src="{% static 'js/main.js' %}"></script>
+    
     {% block extra_js %}{% endblock %}
 </body>
 </html>
