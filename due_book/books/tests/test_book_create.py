@@ -8,10 +8,10 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib import messages
 import os
 
-from .models import Book, Subject
-from .forms import BookForm
+from books.models import Book, Subject
+from books.forms import BookForm
 
-# ===============EST ĐĂNG BÁN SÁCH========================================
+# ===============TEST ĐĂNG BÁN SÁCH========================================
 class BookCreateAccessTest(TestCase):
     """
     AC4.1 - Điều kiện thực hiện

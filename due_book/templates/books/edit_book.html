@@ -1,0 +1,327 @@
+{% extends 'base.html' %}
+
+{% block title %}Chỉnh sửa bài đăng - DUE Book{% endblock %}
+
+{% block extra_css %}
+<style>
+    .book-edit-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 5px 30px rgba(0,0,0,0.1);
+    }
+    
+    .book-edit-card .card-header {
+        background: linear-gradient(135deg, #004080, #0066cc);
+        border-radius: 15px 15px 0 0 !important;
+        padding: 20px 25px;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+    }
+    
+    .form-label .text-danger {
+        margin-left: 2px;
+    }
+    
+    .form-control, .form-select {
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 12px 15px;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #004080;
+        box-shadow: 0 0 0 3px rgba(0,64,128,0.1);
+    }
+    
+    .form-control.is-invalid, .form-select.is-invalid {
+        border-color: #dc3545;
+        background-image: none;
+    }
+    
+    .invalid-feedback {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 5px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .invalid-feedback::before {
+        content: '\f06a';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        margin-right: 6px;
+    }
+    
+    .btn-cancel {
+        background-color: #6c757d;
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        padding: 12px 25px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-cancel:hover {
+        background-color: #5a6268;
+        color: #fff;
+        transform: translateY(-2px);
+    }
+    
+    .btn-submit {
+        background: linear-gradient(135deg, #004080, #0066cc);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        padding: 12px 30px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,64,128,0.3);
+    }
+    
+    .file-upload-wrapper {
+        position: relative;
+    }
+    
+    .file-upload-info {
+        font-size: 0.85rem;
+        color: #666;
+        margin-top: 5px;
+    }
+    
+    .file-name {
+        background-color: #e7f3ff;
+        padding: 8px 12px;
+        border-radius: 8px;
+        margin-top: 8px;
+        font-size: 0.9rem;
+        color: #0d5ea6;
+    }
+    
+    .current-image {
+        margin-top: 10px;
+    }
+    
+    .current-image img {
+        max-width: 200px;
+        max-height: 200px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .current-image-label {
+        font-size: 0.85rem;
+        color: #666;
+        margin-bottom: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card book-edit-card">
+                <!-- Header -->
+                <div class="card-header text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-edit me-2"></i>Chỉnh sửa bài đăng
+                    </h4>
+                </div>
+                
+                <!-- Form -->
+                <div class="card-body p-4 p-md-5">
+                    <form method="post" enctype="multipart/form-data" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Tên sách - Bắt buộc -->
+                        <div class="mb-4">
+                            <label for="{{ form.title.id_for_label }}" class="form-label">
+                                {{ form.title.label }} <span class="text-danger">*</span>
+                            </label>
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.title.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Môn học -->
+                        <div class="mb-4">
+                            <label for="{{ form.subject.id_for_label }}" class="form-label">
+                                {{ form.subject.label }}
+                            </label>
+                            {{ form.subject }}
+                            {% if form.subject.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.subject.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Giá bán và Tình trạng -->
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label for="{{ form.price.id_for_label }}" class="form-label">
+                                    {{ form.price.label }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.price }}
+                                {% if form.price.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.price.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Tối thiểu: 1.000đ, Tối đa: 9.999.999.999đ</div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label for="{{ form.condition.id_for_label }}" class="form-label">
+                                    {{ form.condition.label }}
+                                </label>
+                                {{ form.condition }}
+                                {% if form.condition.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.condition.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Mô tả chi tiết -->
+                        <div class="mb-4">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">
+                                {{ form.description.label }}
+                            </label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.description.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Ghi chú -->
+                        <div class="mb-4">
+                            <label for="{{ form.notes.id_for_label }}" class="form-label">
+                                {{ form.notes.label }}
+                            </label>
+                            {{ form.notes }}
+                            {% if form.notes.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.notes.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Ảnh bìa -->
+                        <div class="mb-4">
+                            <label for="{{ form.cover_image.id_for_label }}" class="form-label">
+                                {{ form.cover_image.label }}
+                            </label>
+                            
+                            <!-- Hiển thị ảnh hiện tại -->
+                            {% if book.cover_image %}
+                                <div class="current-image">
+                                    <div class="current-image-label">
+                                        <i class="fas fa-image me-1"></i>Ảnh hiện tại:
+                                    </div>
+                                    <img src="{{ book.cover_image.url }}" alt="{{ book.title }}">
+                                </div>
+                            {% endif %}
+                            
+                            <div class="file-upload-wrapper mt-2">
+                                {{ form.cover_image }}
+                            </div>
+                            <div class="file-upload-info">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Chấp nhận: JPG, JPEG, PNG, GIF, WEBP, BMP. Kích thước tối đa 2.5MB.
+                                {% if book.cover_image %}
+                                    <br><i class="fas fa-exclamation-triangle me-1 text-warning"></i>
+                                    Chọn ảnh mới để thay thế ảnh hiện tại.
+                                {% endif %}
+                            </div>
+                            {% if form.cover_image.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.cover_image.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="d-flex justify-content-between pt-3">
+                            <a href="{% url 'books:my_books' %}" class="btn btn-cancel">
+                                <i class="fas fa-times me-2"></i>Hủy
+                            </a>
+                            <button type="submit" class="btn btn-submit">
+                                <i class="fas fa-save me-2"></i>Lưu thay đổi
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Hiển thị tên file khi chọn ảnh mới
+    document.getElementById('id_cover_image').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const wrapper = this.closest('.file-upload-wrapper');
+        
+        // Xóa thông tin file cũ
+        const oldFileName = wrapper.querySelector('.file-name');
+        if (oldFileName) {
+            oldFileName.remove();
+        }
+        
+        if (file) {
+            // Kiểm tra kích thước file (2.5MB)
+            if (file.size > 2.5 * 1024 * 1024) {
+                alert('File không được vượt quá 2.5MB!');
+                this.value = '';
+                return;
+            }
+            
+            // Kiểm tra định dạng file
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/bmp'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('File ảnh không hợp lệ. Chỉ chấp nhận: JPG, JPEG, PNG, GIF, WEBP, BMP');
+                this.value = '';
+                return;
+            }
+            
+            // Hiển thị tên file
+            const fileNameDiv = document.createElement('div');
+            fileNameDiv.className = 'file-name';
+            fileNameDiv.innerHTML = '<i class="fas fa-image me-2"></i>' + file.name;
+            wrapper.appendChild(fileNameDiv);
+        }
+    });
+    
+    // Tự động ẩn thông báo sau 3 giây
+    document.addEventListener('DOMContentLoaded', function() {
+        const alerts = document.querySelectorAll('.toast-container .alert');
+        alerts.forEach(function(alert) {
+            setTimeout(function() {
+                alert.classList.remove('show');
+                setTimeout(function() {
+                    alert.remove();
+                }, 300);
+            }, 3000);
+        });
+    });
+</script>
+{% endblock %}

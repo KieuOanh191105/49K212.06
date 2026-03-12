@@ -4,136 +4,272 @@
 
 {% block extra_css %}
 <style>
+    /* ========== PAGE HEADER ========== */
     .page-header {
         background: linear-gradient(135deg, #004080, #0066cc);
-        color: #fff;
-        padding: 30px 0;
-        margin: -40px 0 30px 0;
+        border-radius: 12px;
+        padding: 20px 25px;
+        margin-bottom: 20px;
+        color: white;
     }
     
     .page-header h1 {
+        font-size: 1.5rem;
         font-weight: 700;
-        margin-bottom: 10px;
+        margin-bottom: 4px;
     }
     
-    .stats-card {
-        background: #fff;
-        border-radius: 15px;
-        padding: 20px;
-        text-align: center;
-        box-shadow: 0 3px 15px rgba(0,0,0,0.08);
-    }
-    
-    .stats-card .number {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #004080;
-    }
-    
-    .stats-card .label {
-        color: #666;
+    .page-header p {
+        opacity: 0.9;
+        margin-bottom: 0;
         font-size: 0.9rem;
     }
     
-    .filter-section {
-        background: #fff;
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 25px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    .btn-add-book {
+        background: white;
+        color: #004080;
+        border: none;
+        border-radius: 10px;
+        padding: 12px 24px;
+        font-weight: 600;
+        transition: all 0.3s ease;
     }
     
-    .book-card {
-        background: #fff;
-        border-radius: 15px;
-        overflow: hidden;
-        box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+    .btn-add-book:hover {
+        background: #f0f7ff;
+        color: #004080;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    /* ========== FILTER SECTION ========== */
+    .filter-card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        margin-bottom: 25px;
+    }
+    
+    .filter-card .card-body {
+        padding: 20px;
+    }
+    
+    .filter-label {
+        font-weight: 500;
+        color: #333;
+    }
+    
+    .filter-select {
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 10px 15px;
+        font-size: 0.95rem;
         transition: all 0.3s ease;
+        min-width: 150px;
+    }
+    
+    .filter-select:focus {
+        border-color: #004080;
+        box-shadow: 0 0 0 3px rgba(0,64,128,0.1);
+    }
+
+    /* ========== RESULTS INFO ========== */
+    .results-info {
         margin-bottom: 20px;
+        color: #666;
+    }
+    
+    .results-info strong {
+        color: #004080;
+    }
+
+    /* ========== BOOK GRID ========== */
+    .book-card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        overflow: hidden;
+        height: 100%;
     }
     
     .book-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
     }
     
-    .book-image {
+    .book-card .card-img-wrapper {
+        position: relative;
+        height: 180px;
+        overflow: hidden;
+        background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
+    }
+    
+    .book-card .card-img-top {
         width: 100%;
-        height: 200px;
+        height: 100%;
         object-fit: cover;
-        background-color: #f0f0f0;
+        transition: transform 0.3s ease;
     }
     
-    .book-image-placeholder {
+    .book-card:hover .card-img-top {
+        transform: scale(1.05);
+    }
+    
+    .book-card .placeholder-image {
         width: 100%;
-        height: 200px;
-        background: linear-gradient(135deg, #e0e0e0, #f5f5f5);
+        height: 100%;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #999;
-        font-size: 3rem;
+        color: #bbb;
+        font-size: 4rem;
     }
     
-    .book-info {
-        padding: 20px;
+    /* Status Badge - positioned like condition badge */
+    .book-card .status-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 500;
     }
     
-    .book-title {
+    .status-available {
+        background-color: #28a745;
+        color: white;
+    }
+    
+    .status-sold {
+        background-color: #dc3545;
+        color: white;
+    }
+    
+    .status-reserved {
+        background-color: #ffc107;
+        color: #212529;
+    }
+    
+    /* View count badge */
+    .book-card .view-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(0,0,0,0.6);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+    }
+    
+    .book-card .card-body {
+        padding: 15px;
+    }
+    
+    .book-card .book-title {
+        font-size: 1rem;
         font-weight: 600;
-        font-size: 1.1rem;
         color: #333;
         margin-bottom: 8px;
+        line-height: 1.4;
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
     }
     
-    .book-price {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: #e74c3c;
+    .book-card .book-condition {
+        font-size: 0.8rem;
+        color: #888;
         margin-bottom: 10px;
     }
     
-    .book-meta {
-        font-size: 0.85rem;
-        color: #666;
+    .book-card .book-condition i {
+        color: #004080;
     }
     
-    .status-badge {
-        display: inline-block;
-        padding: 5px 12px;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: 500;
+    .book-card .book-price {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #e74c3c;
+        margin-bottom: 0;
     }
     
-    .status-available {
-        background-color: #d4edda;
-        color: #155724;
+    /* Meta info - small text */
+    .book-card .book-meta {
+        font-size: 0.75rem;
+        color: #999;
+        margin-top: 8px;
     }
     
-    .status-sold {
-        background-color: #f8d7da;
-        color: #721c24;
+    .book-card .card-footer {
+        background: white;
+        border-top: 1px solid #eee;
+        padding: 12px 15px;
     }
     
-    .status-reserved {
-        background-color: #fff3cd;
-        color: #856404;
-    }
-    
-    .book-actions .btn {
+    /* Action buttons */
+    .btn-view-detail {
+        width: 100%;
+        background: #0d4f8b;
+        color: white;
+        border: none;
         border-radius: 8px;
-        padding: 8px 15px;
-        font-size: 0.85rem;
+        padding: 10px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        margin-bottom: 8px;
     }
     
+    .btn-view-detail:hover {
+        background: #0a3f70;
+        color: white;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+    }
+    
+    .action-buttons .btn {
+        flex: 1;
+        border-radius: 8px;
+        padding: 8px 12px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-edit {
+        background: #6c757d;
+        color: white;
+        border: none;
+    }
+    
+    .btn-edit:hover {
+        background: #5a6268;
+        color: white;
+    }
+    
+    .btn-delete {
+        background: #dc3545;
+        color: white;
+        border: none;
+    }
+    
+    .btn-delete:hover {
+        background: #c82333;
+        color: white;
+    }
+
+    /* ========== EMPTY STATE ========== */
     .empty-state {
         text-align: center;
         padding: 60px 20px;
+        background: #f8f9fa;
+        border-radius: 15px;
     }
     
     .empty-state i {
@@ -148,164 +284,232 @@
     }
     
     .empty-state p {
-        color: #999;
-        margin-bottom: 20px;
+        color: #888;
+    }
+
+    /* ========== PAGINATION ========== */
+    .pagination-wrapper {
+        margin-top: 30px;
     }
     
-    .btn-add-book {
-        background: linear-gradient(135deg, #004080, #0066cc);
-        color: #fff;
+    .pagination {
+        gap: 5px;
+    }
+    
+    .pagination .page-link {
         border: none;
-        border-radius: 10px;
-        padding: 12px 25px;
-        font-weight: 500;
+        border-radius: 8px;
+        padding: 10px 16px;
+        color: #333;
+        background: #f8f9fa;
+        transition: all 0.3s ease;
     }
     
-    .btn-add-book:hover {
-        color: #fff;
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0,64,128,0.3);
+    .pagination .page-link:hover {
+        background: #e9ecef;
+        color: #004080;
+    }
+    
+    .pagination .page-item.active .page-link {
+        background: linear-gradient(135deg, #004080, #0066cc);
+        color: white;
+    }
+    
+    .pagination .page-item.disabled .page-link {
+        background: #f8f9fa;
+        color: #ccc;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Page Header -->
-<div class="page-header">
-    <div class="container">
+<div class="container py-2">
+    <!-- ========== BREADCRUMB ========== -->
+    <nav aria-label="breadcrumb" class="mb-2">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'books:home' %}">
+                    <i class="fas fa-home"></i> Trang chủ
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                Sách của tôi
+            </li>
+        </ol>
+    </nav>
+
+    <!-- ========== PAGE HEADER ========== -->
+    <div class="page-header">
         <div class="row align-items-center">
-            <div class="col-md-6">
+            <div class="col-md-8">
                 <h1><i class="fas fa-book me-2"></i>Sách của tôi</h1>
-                <p class="mb-0 opacity-75">Quản lý các bài đăng bán sách của bạn</p>
+                <p>Quản lý các bài đăng bán sách của bạn</p>
             </div>
-            <div class="col-md-6 text-md-end mt-3 mt-md-0">
-                <a href="{% url 'books:book_create' %}" class="btn btn-light">
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <a href="{% url 'books:book_create' %}" class="btn btn-add-book">
                     <i class="fas fa-plus me-2"></i>Đăng bán sách mới
                 </a>
             </div>
         </div>
     </div>
-</div>
 
-<div class="container">
-    <!-- Filter -->
-    <div class="filter-section">
-        <div class="row align-items-center">
-            <div class="col-md-6">
-                <form method="get" class="d-flex align-items-center">
-                    <label class="me-2 fw-medium">Lọc theo trạng thái:</label>
-                    <select name="status" class="form-select w-auto" onchange="this.form.submit()">
-                        <option value="">Tất cả</option>
-                        {% for code, label in status_choices %}
-                            <option value="{{ code }}" {% if status_filter == code %}selected{% endif %}>{{ label }}</option>
-                        {% endfor %}
-                    </select>
-                </form>
-            </div>
-            <div class="col-md-6 text-md-end mt-3 mt-md-0">
-                <span class="text-muted">
-                    {% if page_obj.object_list %}
-                        Hiển thị {{ page_obj.start_index }}-{{ page_obj.end_index }} trong {{ page_obj.paginator.count }} bài đăng
-                    {% else %}
-                        Chưa có bài đăng nào
-                    {% endif %}
-                </span>
+    <!-- ========== FILTER SECTION ========== -->
+    <div class="card filter-card">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <form method="get" class="d-flex align-items-center">
+                        <label class="filter-label me-2">Lọc theo trạng thái:</label>
+                        <select name="status" class="form-select filter-select w-auto" onchange="this.form.submit()">
+                            <option value="">Tất cả</option>
+                            {% for code, label in status_choices %}
+                                <option value="{{ code }}" {% if status_filter == code %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </form>
+                </div>
+                <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                    <span class="results-info">
+                        {% if page_obj.object_list %}
+                            Hiển thị <strong>{{ page_obj.paginator.count }}</strong> bài đăng
+                        {% else %}
+                            Chưa có bài đăng nào
+                        {% endif %}
+                    </span>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Book List -->
-    {% if page_obj.object_list %}
-        <div class="row">
-            {% for book in page_obj.object_list %}
-                <div class="col-md-6 col-lg-4">
-                    <div class="book-card">
-                        <!-- Image -->
+    <!-- ========== BOOK GRID ========== -->
+    <div class="row g-4">
+        {% for book in page_obj.object_list %}
+            <div class="col-6 col-md-4 col-lg-3">
+                <div class="card book-card">
+                    <!-- Ảnh bìa -->
+                    <div class="card-img-wrapper">
                         {% if book.cover_image %}
-                            <img src="{{ book.cover_image.url }}" alt="{{ book.title }}" class="book-image">
+                            <img src="{{ book.cover_image.url }}" class="card-img-top" alt="{{ book.title }}">
                         {% else %}
-                            <div class="book-image-placeholder">
+                            <div class="placeholder-image">
                                 <i class="fas fa-book"></i>
                             </div>
                         {% endif %}
                         
-                        <!-- Info -->
-                        <div class="book-info">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <span class="status-badge status-{{ book.status }}">
-                                    {{ book.get_status_display }}
-                                </span>
-                                <small class="text-muted">
-                                    <i class="fas fa-eye me-1"></i>{{ book.view_count }}
-                                </small>
-                            </div>
-                            
-                            <h5 class="book-title">{{ book.title }}</h5>
-                            
-                            <div class="book-price">
-                                {{ book.price|floatformat:0 }}đ
-                            </div>
-                            
-                            <div class="book-meta mb-3">
-                                <div><i class="fas fa-layer-group me-1"></i>{{ book.get_condition_display }}</div>
-                                <div><i class="fas fa-clock me-1"></i>{{ book.created_at|date:"d/m/Y H:i" }}</div>
-                            </div>
-                            
-                            <!-- Actions -->
-                            <div class="book-actions d-flex gap-2">
-                                <a href="{% url 'books:book_detail' book.pk %}" class="btn btn-outline-primary flex-grow-1">
-                                    <i class="fas fa-eye me-1"></i>Xem
-                                </a>
-                                <a href="{% url 'books:book_update' book.pk %}" class="btn btn-outline-secondary">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <button type="button" class="btn btn-outline-danger" onclick="confirmDelete({{ book.pk }})">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
+                        <!-- Status Badge -->
+                        {% if book.status == 'available' %}
+                            <span class="status-badge status-available">{{ book.get_status_display }}</span>
+                        {% elif book.status == 'sold' %}
+                            <span class="status-badge status-sold">{{ book.get_status_display }}</span>
+                        {% elif book.status == 'reserved' %}
+                            <span class="status-badge status-reserved">{{ book.get_status_display }}</span>
+                        {% else %}
+                            <span class="status-badge bg-secondary text-white">{{ book.get_status_display }}</span>
+                        {% endif %}
+
+                        <!-- View count badge -->
+                        <span class="view-badge">
+                            <i class="fas fa-eye me-1"></i>{{ book.view_count }}
+                        </span>
+                    </div>
+                    
+                    <!-- Thông tin sách -->
+                    <div class="card-body">
+                        <h5 class="book-title">{{ book.title }}</h5>
+                        
+                        <p class="book-condition">
+                            <i class="fas fa-layer-group me-1"></i>{{ book.get_condition_display }}
+                        </p>
+                        
+                        <p class="book-price">{{ book.price|floatformat:0 }}đ</p>
+                        
+                        <!-- Meta info -->
+                        <div class="book-meta">
+                            <i class="fas fa-clock me-1"></i>{{ book.created_at|date:"d/m/Y" }}
+                        </div>
+                    </div>
+                    
+                    <!-- Nút hành động -->
+                    <div class="card-footer">
+                        <a href="{% url 'books:book_detail' book.pk %}" class="btn btn-view-detail">
+                            <i class="fas fa-eye me-1"></i>Xem chi tiết
+                        </a>
+                        <div class="action-buttons">
+                            <a href="{% url 'books:book_update' book.pk %}" class="btn btn-edit">
+                                <i class="fas fa-edit me-1"></i>Edit
+                            </a>
+                            <button type="button" class="btn btn-delete" onclick="confirmDelete({{ book.pk }})">
+                                <i class="fas fa-trash me-1"></i>Delete
+                            </button>
                         </div>
                     </div>
                 </div>
-            {% endfor %}
-        </div>
+            </div>
+        {% empty %}
+            <!-- Empty State -->
+            <div class="col-12">
+                <div class="empty-state">
+                    <i class="fas fa-book-open"></i>
+                    <h4>Bạn chưa có bài đăng nào</h4>
+                    <p>Bắt đầu đăng bán sách ngay để tiếp cận hàng ngàn sinh viên!</p>
+                    <a href="{% url 'books:book_create' %}" class="btn btn-add-book mt-3">
+                        <i class="fas fa-plus me-2"></i>Đăng bán sách ngay
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
 
-        <!-- Pagination -->
-        {% if page_obj.has_other_pages %}
-            <nav class="mt-4">
+    <!-- ========== PAGINATION ========== -->
+    {% if page_obj.has_other_pages %}
+        <div class="pagination-wrapper">
+            <nav>
                 <ul class="pagination justify-content-center">
+                    <!-- Previous -->
                     {% if page_obj.has_previous %}
                         <li class="page-item">
                             <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}">
                                 <i class="fas fa-chevron-left"></i>
                             </a>
                         </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link"><i class="fas fa-chevron-left"></i></span>
+                        </li>
                     {% endif %}
                     
+                    <!-- Page Numbers -->
                     {% for num in page_obj.paginator.page_range %}
-                        <li class="page-item {% if page_obj.number == num %}active{% endif %}">
-                            <a class="page-link" href="?page={{ num }}{% if status_filter %}&status={{ status_filter }}{% endif %}">{{ num }}</a>
-                        </li>
+                        {% if page_obj.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}{% if status_filter %}&status={{ status_filter }}{% endif %}">{{ num }}</a>
+                            </li>
+                        {% endif %}
                     {% endfor %}
                     
+                    <!-- Next -->
                     {% if page_obj.has_next %}
                         <li class="page-item">
                             <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}">
                                 <i class="fas fa-chevron-right"></i>
                             </a>
                         </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link"><i class="fas fa-chevron-right"></i></span>
+                        </li>
                     {% endif %}
                 </ul>
             </nav>
-        {% endif %}
-    {% else %}
-        <!-- Empty State -->
-        <div class="empty-state">
-            <i class="fas fa-book-open"></i>
-            <h4>Bạn chưa có bài đăng nào</h4>
-            <p>Bắt đầu đăng bán sách ngay để tiếp cận hàng ngàn sinh viên!</p>
-            <a href="{% url 'books:book_create' %}" class="btn btn-add-book">
-                <i class="fas fa-plus me-2"></i>Đăng bán sách ngay
-            </a>
+            
+            <!-- Page Info -->
+            <p class="text-center text-muted mt-2">
+                Trang {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+            </p>
         </div>
     {% endif %}
 </div>

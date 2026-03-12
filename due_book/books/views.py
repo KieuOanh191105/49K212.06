@@ -159,39 +159,59 @@ class BookCreateView(LoginRequiredMixin, CreateView):
 
 
 # ==================== UPDATE BOOK (CHỈNH SỬA BÀI ĐĂNG) ====================
-class BookUpdateView(LoginRequiredMixin, UpdateView):
-    """Chỉnh sửa bài đăng"""
+# TODO: Phát triển chức năng chỉnh sửa ở phiên bản sau
+# class BookUpdateView(LoginRequiredMixin, UpdateView):
+#     """Chỉnh sửa bài đăng"""
+# 
+#     model = Book
+#     form_class = BookForm
+#     template_name = 'books/book_update.html'
+# 
+#     def get_queryset(self):
+#         """Chỉ cho phép seller chỉnh sửa sách của mình"""
+#         return super().get_queryset().filter(seller=self.request.user)
+# 
+#     def get_success_url(self):
+#         return reverse('books:my_books')
+# 
+#     def form_valid(self, form):
+#         messages.success(self.request, 'Cập nhật bài đăng thành công!')
+#         return super().form_valid(form)
 
-    model = Book
-    form_class = BookForm
-    template_name = 'books/book_update.html'
 
-    def get_queryset(self):
-        """Chỉ cho phép seller chỉnh sửa sách của mình"""
-        return super().get_queryset().filter(seller=self.request.user)
-
-    def get_success_url(self):
-        return reverse('books:my_books')
-
-    def form_valid(self, form):
-        messages.success(self.request, 'Cập nhật bài đăng thành công!')
-        return super().form_valid(form)
+@login_required
+def book_update(request, pk):
+    """
+    View tạm thời - chức năng chỉnh sửa sẽ được phát triển ở phiên bản sau
+    """
+    messages.info(request, "Chức năng chỉnh sửa sẽ được phát triển ở phiên bản sau.")
+    return redirect('books:my_books')
 
 
 # ==================== DELETE BOOK (XÓA BÀI ĐĂNG) ====================
-class BookDeleteView(LoginRequiredMixin, DeleteView):
-    """Xóa bài đăng"""
+# TODO: Phát triển chức năng xóa ở phiên bản sau
+# class BookDeleteView(LoginRequiredMixin, DeleteView):
+#     """Xóa bài đăng"""
+# 
+#     model = Book
+#     success_url = reverse_lazy('books:my_books')
+# 
+#     def get_queryset(self):
+#         """Chỉ cho phép seller xóa sách của mình"""
+#         return super().get_queryset().filter(seller=self.request.user)
+# 
+#     def delete(self, request, *args, **kwargs):
+#         messages.success(request, 'Đã xóa bài đăng thành công!')
+#         return super().delete(request, *args, **kwargs)
 
-    model = Book
-    success_url = reverse_lazy('books:my_books')
 
-    def get_queryset(self):
-        """Chỉ cho phép seller xóa sách của mình"""
-        return super().get_queryset().filter(seller=self.request.user)
-
-    def delete(self, request, *args, **kwargs):
-        messages.success(request, 'Đã xóa bài đăng thành công!')
-        return super().delete(request, *args, **kwargs)
+@login_required
+def book_delete(request, pk):
+    """
+    View tạm thời - chức năng xóa sẽ được phát triển ở phiên bản sau
+    """
+    messages.info(request, "Chức năng xóa bài đăng sẽ được phát triển ở phiên bản sau.")
+    return redirect('books:my_books')
 
 
 # ==================== BOOK DETAIL (CHI TIẾT SÁCH) ====================
