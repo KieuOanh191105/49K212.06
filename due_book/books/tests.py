@@ -11,7 +11,7 @@ import os
 from .models import Book, Subject
 from .forms import BookForm
 
-
+# ===============EST ĐĂNG BÁN SÁCH========================================
 class BookCreateAccessTest(TestCase):
     """
     AC4.1 - Điều kiện thực hiện
@@ -503,3 +503,4 @@ class BookModelTest(TestCase):
         
         self.assertTrue(book_available.is_available)
         self.assertFalse(book_sold.is_available)
+# ==========================END ĐĂNG BÁN SÁCH========================================

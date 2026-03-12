@@ -2,51 +2,447 @@
 
 {% block title %}Danh sách sách - DUE Book{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* ========== PAGE HEADER ========== */
+    .page-header {
+        background: linear-gradient(135deg, #004080, #0066cc);
+        border-radius: 12px;
+        padding: 20px 25px;
+        margin-bottom: 20px;
+        color: white;
+    }
+    
+    .page-header h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+    
+    .page-header p {
+        opacity: 0.9;
+        margin-bottom: 0;
+        font-size: 0.9rem;
+    }
+    
+    .btn-add-book {
+        background: white;
+        color: #004080;
+        border: none;
+        border-radius: 10px;
+        padding: 12px 24px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-add-book:hover {
+        background: #f0f7ff;
+        color: #004080;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    /* ========== SEARCH BAR ========== */
+    .search-card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        margin-bottom: 25px;
+    }
+    
+    .search-card .card-body {
+        padding: 20px;
+    }
+    
+    .search-input {
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 12px 20px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .search-input:focus {
+        border-color: #004080;
+        box-shadow: 0 0 0 3px rgba(0,64,128,0.1);
+    }
+    
+    .btn-search {
+        background: linear-gradient(135deg, #004080, #0066cc);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 12px 30px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+    }
+    
+    .btn-search:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,64,128,0.3);
+    }
+    
+    /* ========== RESULTS INFO ========== */
+    .results-info {
+        margin-bottom: 20px;
+        color: #666;
+    }
+    
+    .results-info strong {
+        color: #004080;
+    }
+    
+    /* ========== BOOK GRID ========== */
+    .book-card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        overflow: hidden;
+        height: 100%;
+    }
+    
+    .book-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .book-card .card-img-wrapper {
+        position: relative;
+        height: 180px;
+        overflow: hidden;
+        background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
+    }
+    
+    .book-card .card-img-top {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+    
+    .book-card:hover .card-img-top {
+        transform: scale(1.05);
+    }
+    
+    .book-card .placeholder-image {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #bbb;
+        font-size: 4rem;
+    }
+    
+    .book-card .condition-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+    
+    .book-card .card-body {
+        padding: 15px;
+    }
+    
+    .book-card .book-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .book-card .book-subject {
+        font-size: 0.85rem;
+        color: #666;
+        margin-bottom: 5px;
+    }
+    
+    .book-card .book-subject i {
+        color: #004080;
+    }
+    
+    .book-card .book-condition {
+        font-size: 0.8rem;
+        color: #888;
+        margin-bottom: 10px;
+    }
+    
+    .book-card .book-price {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #e74c3c;
+        margin-bottom: 0;
+    }
+    
+    .book-card .card-footer {
+        background: white;
+        border-top: 1px solid #eee;
+        padding: 12px 15px;
+    }
+    
+    .btn-view-detail {
+        width: 100%;
+        background: #0d4f8b;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 10px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-view-detail:hover {
+        background: #0a3f70;
+        color: white;
+    }
+    
+    /* ========== EMPTY STATE ========== */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: #f8f9fa;
+        border-radius: 15px;
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        color: #ddd;
+        margin-bottom: 20px;
+    }
+    
+    .empty-state h4 {
+        color: #666;
+        margin-bottom: 10px;
+    }
+    
+    .empty-state p {
+        color: #888;
+    }
+    
+    /* ========== PAGINATION ========== */
+    .pagination-wrapper {
+        margin-top: 30px;
+    }
+    
+    .pagination {
+        gap: 5px;
+    }
+    
+    .pagination .page-link {
+        border: none;
+        border-radius: 8px;
+        padding: 10px 16px;
+        color: #333;
+        background: #f8f9fa;
+        transition: all 0.3s ease;
+    }
+    
+    .pagination .page-link:hover {
+        background: #e9ecef;
+        color: #004080;
+    }
+    
+    .pagination .page-item.active .page-link {
+        background: linear-gradient(135deg, #004080, #0066cc);
+        color: white;
+    }
+    
+    .pagination .page-item.disabled .page-link {
+        background: #f8f9fa;
+        color: #ccc;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container py-5">
-    <h2 class="mb-4">
-        <i class="fas fa-book me-2"></i>Danh sách sách
-    </h2>
+<div class="container py-2">
+    <!-- ========== BREADCRUMB ========== -->
+    <nav aria-label="breadcrumb" class="mb-2">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'books:home' %}">
+                    <i class="fas fa-home"></i> Trang chủ
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                Danh sách sách
+            </li>
+        </ol>
+    </nav>
 
-    <!-- Search & Filter -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <form method="get" class="row g-3">
-                <div class="col-md-8">
-                    <input type="text" name="q" class="form-control" placeholder="Tìm kiếm sách..." value="{{ request.GET.q }}">
-                </div>
-                <div class="col-md-4">
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="fas fa-search me-2"></i>Tìm kiếm
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Book List -->
-    <div class="row g-4">
-        <!-- Placeholder - sẽ hiển thị sách từ database sau -->
-        <div class="col-12">
-            <div class="alert alert-info text-center">
-                <i class="fas fa-info-circle me-2"></i>
-                Chưa có sách nào được đăng bán. Hãy là người đầu tiên đăng bán sách!
+    <!-- ========== PAGE HEADER ========== -->
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1><i class="fas fa-book me-2"></i>Danh sách sách</h1>
+                <p>Tìm kiếm và mua sách từ cộng đồng sinh viên DUE</p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'books:book_create' %}" class="btn btn-add-book">
+                        <i class="fas fa-plus me-2"></i>Đăng sách mới
+                    </a>
+                {% else %}
+                    <a href="{% url 'users:user_login' %}" class="btn btn-add-book">
+                        <i class="fas fa-sign-in-alt me-2"></i>Đăng nhập để đăng sách
+                    </a>
+                {% endif %}
             </div>
         </div>
     </div>
 
-    <!-- Call to Action -->
-    {% if user.is_authenticated %}
-    <div class="text-center mt-4">
-        <a href="#" class="btn btn-primary btn-lg">
-            <i class="fas fa-plus me-2"></i>Đăng bán sách
-        </a>
+    <!-- ========== RESULTS INFO ========== -->
+    {% if query %}
+        <div class="results-info">
+            Tìm thấy <strong>{{ total_count }}</strong> kết quả cho từ khóa "<strong>{{ query }}</strong>"
+        </div>
+    {% elif total_count > 0 %}
+        <div class="results-info">
+            Hiện có <strong>{{ total_count }}</strong> sách đang được bán
+        </div>
+    {% endif %}
+
+    <!-- ========== BOOK GRID ========== -->
+    <div class="row g-4">
+        {% for book in page_obj %}
+            <div class="col-6 col-md-4 col-lg-3">
+                <div class="card book-card">
+                    <!-- Ảnh bìa -->
+                    <div class="card-img-wrapper">
+                        {% if book.cover_image %}
+                            <img src="{{ book.cover_image.url }}" class="card-img-top" alt="{{ book.title }}">
+                        {% else %}
+                            <div class="placeholder-image">
+                                <i class="fas fa-book"></i>
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Badge tình trạng -->
+                        {% if book.condition == 'new' %}
+                            <span class="condition-badge bg-success text-white">{{ book.get_condition_display }}</span>
+                        {% elif book.condition == 'like_new' %}
+                            <span class="condition-badge bg-primary text-white">{{ book.get_condition_display }}</span>
+                        {% elif book.condition == 'good' %}
+                            <span class="condition-badge bg-info text-white">{{ book.get_condition_display }}</span>
+                        {% elif book.condition == 'fair' %}
+                            <span class="condition-badge bg-warning text-dark">{{ book.get_condition_display }}</span>
+                        {% else %}
+                            <span class="condition-badge bg-secondary text-white">{{ book.get_condition_display }}</span>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Thông tin sách -->
+                    <div class="card-body">
+                        <h5 class="book-title">{{ book.title }}</h5>
+                        
+                        {% if book.subject %}
+                            <p class="book-subject">
+                                <i class="fas fa-book-open me-1"></i>{{ book.subject.name }}
+                            </p>
+                        {% endif %}
+                        
+                        <p class="book-price">{{ book.price|floatformat:0 }}đ</p>
+                    </div>
+                    
+                    <!-- Nút xem chi tiết -->
+                    <div class="card-footer">
+                        <a href="{% url 'books:book_detail' book.pk %}" class="btn btn-view-detail">
+                            <i class="fas fa-eye me-1"></i>Xem chi tiết
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <!-- Empty State -->
+            <div class="col-12">
+                <div class="empty-state">
+                    <i class="fas fa-book-open"></i>
+                    {% if query %}
+                        <h4>Không tìm thấy sách</h4>
+                        <p>Không có sách nào phù hợp với từ khóa "{{ query }}"</p>
+                        <a href="{% url 'books:book_list' %}" class="btn btn-outline-primary mt-3">
+                            <i class="fas fa-redo me-2"></i>Xem tất cả sách
+                        </a>
+                    {% else %}
+                        <h4>Chưa có sách nào</h4>
+                        <p>Chưa có sách nào được đăng bán. Hãy là người đầu tiên!</p>
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'books:book_create' %}" class="btn btn-primary mt-3">
+                                <i class="fas fa-plus me-2"></i>Đăng sách ngay
+                            </a>
+                        {% else %}
+                            <a href="{% url 'users:user_login' %}" class="btn btn-primary mt-3">
+                                <i class="fas fa-sign-in-alt me-2"></i>Đăng nhập để đăng sách
+                            </a>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
     </div>
-    {% else %}
-    <div class="alert alert-warning text-center mt-4">
-        <i class="fas fa-exclamation-triangle me-2"></i>
-        <a href="{% url 'users:user_login' %}">Đăng nhập</a> để đăng bán sách của bạn!
-    </div>
+
+    <!-- ========== PAGINATION ========== -->
+    {% if page_obj.has_other_pages %}
+        <div class="pagination-wrapper">
+            <nav>
+                <ul class="pagination justify-content-center">
+                    <!-- Previous -->
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link"><i class="fas fa-chevron-left"></i></span>
+                        </li>
+                    {% endif %}
+                    
+                    <!-- Page Numbers -->
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    <!-- Next -->
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link"><i class="fas fa-chevron-right"></i></span>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            
+            <!-- Page Info -->
+            <p class="text-center text-muted mt-2">
+                Trang {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+            </p>
+        </div>
     {% endif %}
 </div>
 {% endblock %}
