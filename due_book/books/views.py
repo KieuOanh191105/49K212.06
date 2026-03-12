@@ -23,10 +23,15 @@ def home(request):
 
 
 def book_list(request):
-    """Danh sách sách"""
+    """
+    Danh sách sách
+    - Tìm kiếm theo tên sách, mô tả, môn học
+    - Phân trang 20 sách/trang
+    - Dễ mở rộng thêm bộ lọc sau này
+    """
     books = Book.objects.filter(status='available').select_related('subject', 'seller')
     
-    # Tìm kiếm
+    # Tìm kiếm đơn giản (sẽ mở rộng thêm bộ lọc sau)
     query = request.GET.get('q', '')
     if query:
         books = books.filter(
@@ -35,14 +40,21 @@ def book_list(request):
             Q(subject__name__icontains=query)
         )
     
-    # Phân trang
-    paginator = Paginator(books, 12)
+    # Sắp xếp (mặc định mới nhất)
+    books = books.order_by('-created_at')
+    
+    # Phân trang - 20 sách/trang
+    paginator = Paginator(books, 20)
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
+    
+    # Tổng số sách (để hiển thị)
+    total_count = paginator.count
     
     context = {
         'page_obj': page_obj,
         'query': query,
+        'total_count': total_count,
     }
     return render(request, 'books/book_list.html', context)
 

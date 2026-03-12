@@ -17,15 +17,15 @@ urlpatterns = [
     # Sách của tôi - AC4.4
     path('sach/cua-toi/', views.my_books, name='my_books'),
     
-    # Chi tiết sách
+    # Chi tiết sách - chưa 
     path('sach/<int:pk>/', views.BookDetailView.as_view(), name='book_detail'),
     
-    # US4 - ĐĂNG BÁN SÁCH
+    # US4 - ĐĂNG BÁN SÁCH - done 
     path('dang-ban-sach/', views.BookCreateView.as_view(), name='book_create'),
     
-    # Chỉnh sửa bài đăng
+    # Chỉnh sửa bài đăng - chưa 
     path('sach/<int:pk>/chinh-sua/', views.BookUpdateView.as_view(), name='book_update'),
     
-    # Xóa bài đăng
+    # Xóa bài đăng - chưa 
     path('sach/<int:pk>/xoa/', views.BookDeleteView.as_view(), name='book_delete'),
 ]
