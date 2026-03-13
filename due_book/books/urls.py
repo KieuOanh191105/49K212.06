@@ -23,9 +23,14 @@ urlpatterns = [
     # US4 - ĐĂNG BÁN SÁCH - done 
     path('dang-ban-sach/', views.BookCreateView.as_view(), name='book_create'),
     
-    # Chỉnh sửa bài đăng - chưa phát triển
-    path('sach/<int:pk>/chinh-sua/', views.book_update, name='book_update'),
+    # Chỉnh sửa bài đăng
+    path('sach/<int:pk>/chinh-sua/', views.edit_book, name='edit_book'),
+    path('books/<int:pk>/edit/', views.edit_book, name='edit_book_alt'),
     
-    # Xóa bài đăng - chưa phát triển
-    path('sach/<int:pk>/xoa/', views.book_delete, name='book_delete'),
+    # Xóa bài đăng
+    path('sach/<int:pk>/xoa/', views.delete_book, name='delete_book'),
+    path('books/<int:pk>/delete/', views.delete_book, name='delete_book_alt'),
+    
+    # Routes cũ (redirect đến routes mới - tương thích ngược)
+    path('sach/<int:pk>/cap-nhat/', views.book_update, name='book_update'),
 ]

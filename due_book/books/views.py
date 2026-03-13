@@ -159,59 +159,86 @@ class BookCreateView(LoginRequiredMixin, CreateView):
 
 
 # ==================== UPDATE BOOK (CHỈNH SỬA BÀI ĐĂNG) ====================
-# TODO: Phát triển chức năng chỉnh sửa ở phiên bản sau
-# class BookUpdateView(LoginRequiredMixin, UpdateView):
-#     """Chỉnh sửa bài đăng"""
-# 
-#     model = Book
-#     form_class = BookForm
-#     template_name = 'books/book_update.html'
-# 
-#     def get_queryset(self):
-#         """Chỉ cho phép seller chỉnh sửa sách của mình"""
-#         return super().get_queryset().filter(seller=self.request.user)
-# 
-#     def get_success_url(self):
-#         return reverse('books:my_books')
-# 
-#     def form_valid(self, form):
-#         messages.success(self.request, 'Cập nhật bài đăng thành công!')
-#         return super().form_valid(form)
+@login_required
+def edit_book(request, pk):
+    """
+    Chỉnh sửa bài đăng sách
+    - Chỉ chủ bài đăng (seller) mới được sửa
+    - Sử dụng BookForm
+    """
+    book = get_object_or_404(Book, pk=pk)
+    
+    # Kiểm tra quyền: chỉ seller mới được sửa
+    if book.seller != request.user:
+        messages.error(request, "Bạn không có quyền chỉnh sửa bài đăng này.")
+        return redirect('books:my_books')
+    
+    if request.method == 'POST':
+        form = BookForm(request.POST, request.FILES, instance=book)
+        if form.is_valid():
+            try:
+                form.save()
+                messages.success(request, "Cập nhật bài đăng thành công!")
+                return redirect('books:my_books')
+            except Exception as e:
+                messages.error(request, "Có lỗi xảy ra. Vui lòng thử lại.")
+        else:
+            messages.error(request, "Có lỗi trong form. Vui lòng kiểm tra lại.")
+    else:
+        form = BookForm(instance=book)
+    
+    context = {
+        'form': form,
+        'book': book,
+        'title': 'Chỉnh sửa bài đăng',
+        'subjects': Subject.objects.all(),
+    }
+    return render(request, 'books/edit_book.html', context)
 
 
 @login_required
 def book_update(request, pk):
     """
-    View tạm thời - chức năng chỉnh sửa sẽ được phát triển ở phiên bản sau
+    Redirect đến edit_book (giữ lại để tương thích ngược)
     """
-    messages.info(request, "Chức năng chỉnh sửa sẽ được phát triển ở phiên bản sau.")
-    return redirect('books:my_books')
+    return redirect('books:edit_book', pk=pk)
 
 
 # ==================== DELETE BOOK (XÓA BÀI ĐĂNG) ====================
-# TODO: Phát triển chức năng xóa ở phiên bản sau
-# class BookDeleteView(LoginRequiredMixin, DeleteView):
-#     """Xóa bài đăng"""
-# 
-#     model = Book
-#     success_url = reverse_lazy('books:my_books')
-# 
-#     def get_queryset(self):
-#         """Chỉ cho phép seller xóa sách của mình"""
-#         return super().get_queryset().filter(seller=self.request.user)
-# 
-#     def delete(self, request, *args, **kwargs):
-#         messages.success(request, 'Đã xóa bài đăng thành công!')
-#         return super().delete(request, *args, **kwargs)
+@login_required
+def delete_book(request, pk):
+    """
+    Xóa bài đăng sách
+    - Chỉ chủ bài đăng (seller) mới được xóa
+    - Chỉ chấp nhận POST method
+    """
+    book = get_object_or_404(Book, pk=pk)
+    
+    # Kiểm tra quyền: chỉ seller mới được xóa
+    if book.seller != request.user:
+        messages.error(request, "Bạn không có quyền xóa bài đăng này.")
+        return redirect('books:my_books')
+    
+    # Chỉ chấp nhận POST method
+    if request.method == 'POST':
+        try:
+            book_title = book.title
+            book.delete()
+            messages.success(request, f'Đã xóa bài đăng "{book_title}" thành công!')
+        except Exception as e:
+            messages.error(request, "Có lỗi xảy ra khi xóa. Vui lòng thử lại.")
+    else:
+        messages.error(request, "Yêu cầu không hợp lệ.")
+    
+    return redirect('books:my_books')
 
 
 @login_required
 def book_delete(request, pk):
     """
-    View tạm thời - chức năng xóa sẽ được phát triển ở phiên bản sau
+    Redirect đến delete_book (giữ lại để tương thích ngược)
     """
-    messages.info(request, "Chức năng xóa bài đăng sẽ được phát triển ở phiên bản sau.")
-    return redirect('books:my_books')
+    return redirect('books:delete_book', pk=pk)
 
 
 # ==================== BOOK DETAIL (CHI TIẾT SÁCH) ====================

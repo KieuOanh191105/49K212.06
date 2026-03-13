@@ -435,10 +435,12 @@
                             <i class="fas fa-eye me-1"></i>Xem chi tiết
                         </a>
                         <div class="action-buttons">
-                            <a href="{% url 'books:book_update' book.pk %}" class="btn btn-edit">
+                            {# TODO: FE Edit - Nút hiển thị nhưng chức năng chưa hoạt động #}
+                            <button type="button" class="btn btn-edit" disabled title="Chức năng đang phát triển">
                                 <i class="fas fa-edit me-1"></i>Edit
-                            </a>
-                            <button type="button" class="btn btn-delete" onclick="confirmDelete({{ book.pk }})">
+                            </button>
+                            {# TODO: FE Delete - Nút hiển thị nhưng chức năng chưa hoạt động #}
+                            <button type="button" class="btn btn-delete" disabled title="Chức năng đang phát triển">
                                 <i class="fas fa-trash me-1"></i>Delete
                             </button>
                         </div>
@@ -514,37 +516,14 @@
     {% endif %}
 </div>
 
-<!-- Delete Confirmation Modal -->
-<div class="modal fade" id="deleteModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Xác nhận xóa</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p>Bạn có chắc chắn muốn xóa bài đăng này? Hành động này không thể hoàn tác.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                <form id="deleteForm" method="post" style="display: inline;">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger">Xóa bài đăng</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+<!-- TODO: Delete Confirmation Modal - sẽ phát triển FE sau -->
+{# Modal Delete đã được ẩn tạm thời - Backend đã sẵn sàng #}
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    function confirmDelete(bookId) {
-        const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
-        const form = document.getElementById('deleteForm');
-        form.action = '/sach/' + bookId + '/xoa/';
-        modal.show();
-    }
+    // TODO: JS confirmDelete - sẽ phát triển FE sau
+    // function confirmDelete(bookId) { ... }
     
     // Tự động ẩn thông báo sau 3 giây
     document.addEventListener('DOMContentLoaded', function() {
