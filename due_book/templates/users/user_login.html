@@ -2,57 +2,100 @@
 
 {% block title %}Đăng nhập - DUE Book{% endblock %}
 
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-5">
-            <div class="card">
-                <div class="card-header bg-primary text-white text-center">
-                    <h4 class="mb-0"><i class="fas fa-sign-in-alt me-2"></i>Đăng nhập</h4>
-                </div>
-                <div class="card-body">
-                    <!-- Hiển thị Messages từ Backend -->
-                    {% if messages %}
-                        {% for message in messages %}
-                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                                <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% elif message.tags == 'info' %}info-circle{% else %}bell{% endif %} me-2"></i>
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
+<div class="auth-container">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <div class="auth-card">
+                    <!-- Header -->
+                    <div class="auth-header">
+                        <h4>
+                            <i class="fas fa-sign-in-alt"></i>
+                            Đăng nhập
+                        </h4>
+                        <p>Chào mừng bạn trở lại với DUE Book</p>
+                    </div>
 
-                    <form method="post" id="loginForm">
-                        {% csrf_token %}
-
-                        <div class="mb-3">
-                            <label class="form-label">Tên đăng nhập</label>
-                            <input type="text" name="username" id="username" class="form-control" required autofocus />
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Mật khẩu</label>
-                            <input type="password" name="password" id="password" class="form-control" required />
-                        </div>
-
-                        {% if form.errors %}
-                            <div class="alert alert-danger">
-                                <i class="fas fa-exclamation-circle me-2"></i>
-                                Vui lòng điền vào Tên đăng nhập và mật khẩu chính xác. Chú ý rằng cả hai khung thông tin đều phân biệt chữ hoa và chữ thường.
-                            </div>
+                    <!-- Body -->
+                    <div class="auth-body">
+                        <!-- Messages -->
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% elif message.tags == 'info' %}info-circle{% else %}bell{% endif %} me-2"></i>
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
                         {% endif %}
 
-                        <div class="d-grid">
-                            <button type="submit" id="submitBtn" class="btn btn-primary btn-lg" disabled>
-                                <i class="fas fa-sign-in-alt me-1"></i>Đăng nhập
-                            </button>
-                        </div>
-                    </form>
-                </div>
-                <div class="card-footer text-center">
-                    <small class="text-muted">
-                        Chưa có tài khoản? <a href="{% url 'users:user_register' %}">Đăng ký</a>
-                    </small>
+                        <form method="post" id="loginForm">
+                            {% csrf_token %}
+
+                            <!-- Username -->
+                            <div class="mb-3">
+                                <label class="form-label" for="username">
+                                    <i class="fas fa-user text-muted me-1"></i>Tên đăng nhập
+                                </label>
+                                <div class="input-icon-wrapper">
+                                    <i class="fas fa-user input-icon"></i>
+                                    <input type="text" 
+                                           name="username" 
+                                           id="username" 
+                                           class="form-control" 
+                                           placeholder="Nhập tên đăng nhập"
+                                           required 
+                                           autofocus />
+                                </div>
+                            </div>
+
+                            <!-- Password -->
+                            <div class="mb-4">
+                                <label class="form-label" for="password">
+                                    <i class="fas fa-lock text-muted me-1"></i>Mật khẩu
+                                </label>
+                                <div class="input-icon-wrapper">
+                                    <i class="fas fa-lock input-icon"></i>
+                                    <input type="password" 
+                                           name="password" 
+                                           id="password" 
+                                           class="form-control" 
+                                           placeholder="Nhập mật khẩu"
+                                           required />
+                                </div>
+                            </div>
+
+                            <!-- Error Messages -->
+                            {% if form.errors %}
+                                <div class="alert alert-danger">
+                                    <i class="fas fa-exclamation-circle me-2"></i>
+                                    Vui lòng điền vào Tên đăng nhập và mật khẩu chính xác. Chú ý rằng cả hai khung thông tin đều phân biệt chữ hoa và chữ thường.
+                                </div>
+                            {% endif %}
+
+                            <!-- Submit Button -->
+                            <div class="d-grid">
+                                <button type="submit" id="submitBtn" class="btn btn-auth" disabled>
+                                    <i class="fas fa-sign-in-alt"></i>
+                                    Đăng nhập
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="auth-footer">
+                        <small>
+                            Chưa có tài khoản? 
+                            <a href="{% url 'users:user_register' %}">Đăng ký ngay</a>
+                        </small>
+                    </div>
                 </div>
             </div>
         </div>
