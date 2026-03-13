@@ -1,0 +1,685 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ book.title }} - DUE Book{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ========== BREADCRUMB ========== */
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin-bottom: 15px;
+    }
+    
+    .breadcrumb-item a {
+        color: #004080;
+        text-decoration: none;
+    }
+    
+    .breadcrumb-item a:hover {
+        text-decoration: underline;
+    }
+
+    /* ========== CARD STYLES ========== */
+    .detail-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+        margin-bottom: 20px;
+        overflow: hidden;
+    }
+
+    .detail-card .card-header {
+        background: white;
+        border-bottom: 1px solid #eee;
+        padding: 15px 20px;
+        font-weight: 600;
+        font-size: 1rem;
+        color: #333;
+    }
+
+    .detail-card .card-header i {
+        color: #004080;
+        margin-right: 8px;
+    }
+
+    .detail-card .card-body {
+        padding: 20px;
+    }
+
+    /* ========== IMAGE CARD ========== */
+    .book-image-wrapper {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 300px;
+        border-radius: 12px;
+    }
+
+    .book-image-wrapper img {
+        max-width: 100%;
+        max-height: 280px;
+        object-fit: contain;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .no-image-placeholder {
+        text-align: center;
+        color: #adb5bd;
+        padding: 40px;
+    }
+
+    .no-image-placeholder i {
+        font-size: 5rem;
+        margin-bottom: 15px;
+        display: block;
+    }
+
+    .no-image-placeholder span {
+        font-size: 1rem;
+        font-weight: 500;
+    }
+
+    /* ========== SELLER CARD ========== */
+    .seller-card .seller-info {
+        display: flex;
+        align-items: center;
+    }
+
+    .seller-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #004080, #0066cc);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        margin-right: 15px;
+        flex-shrink: 0;
+    }
+
+    .seller-details h5 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 5px;
+    }
+
+    .seller-rating {
+        color: #f39c12;
+        font-size: 0.9rem;
+    }
+
+    .seller-rating i {
+        margin-right: 3px;
+    }
+
+    .btn-view-profile {
+        width: 100%;
+        background: #f8f9fa;
+        color: #004080;
+        border: 1px solid #004080;
+        border-radius: 8px;
+        padding: 10px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        margin-top: 15px;
+    }
+
+    .btn-view-profile:hover {
+        background: #004080;
+        color: white;
+    }
+
+    /* ========== BOOK INFO ========== */
+    .book-title-header {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 10px;
+        line-height: 1.4;
+    }
+
+    .book-meta-row {
+        color: #666;
+        font-size: 0.95rem;
+        margin-bottom: 15px;
+    }
+
+    .book-meta-row span {
+        margin-right: 10px;
+    }
+
+    .badge-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 15px;
+    }
+
+    .badge-category {
+        background: #e3f2fd;
+        color: #1565c0;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .badge-condition {
+        background: #fff3e0;
+        color: #e65100;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .badge-status {
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .badge-status.available {
+        background: #e8f5e9;
+        color: #2e7d32;
+    }
+
+    .badge-status.sold {
+        background: #ffebee;
+        color: #c62828;
+    }
+
+    .badge-status.reserved {
+        background: #fff8e1;
+        color: #f57f17;
+    }
+
+    /* ========== PRICE SECTION ========== */
+    .price-section {
+        background: #fafafa;
+        border-radius: 10px;
+        padding: 15px 20px;
+        margin-bottom: 15px;
+    }
+
+    .price-main {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #e74c3c;
+    }
+
+    .price-note {
+        color: #888;
+        font-size: 0.9rem;
+        margin-top: 5px;
+    }
+
+    .view-count {
+        color: #888;
+        font-size: 0.9rem;
+        margin-top: 10px;
+    }
+
+    .view-count i {
+        margin-right: 5px;
+        color: #004080;
+    }
+
+    /* ========== PURCHASE BOX ========== */
+    .purchase-box {
+        background: #e8f5e9;
+        border: 1px solid #c8e6c9;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .purchase-box h5 {
+        color: #2e7d32;
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+
+    .purchase-box h5 i {
+        margin-right: 8px;
+    }
+
+    .purchase-box p {
+        color: #558b2f;
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+    }
+
+    .btn-purchase {
+        background: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 12px 20px;
+        font-weight: 500;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+
+    .btn-purchase:hover {
+        background: #43a047;
+        color: white;
+    }
+
+    .btn-purchase:disabled {
+        background: #ccc;
+        color: #666;
+        cursor: not-allowed;
+    }
+
+    /* ========== CONTACT SECTION ========== */
+    .contact-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .contact-item:last-child {
+        border-bottom: none;
+    }
+
+    .contact-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        font-size: 1.1rem;
+        color: white;
+        flex-shrink: 0;
+    }
+
+    .contact-icon.phone {
+        background: #004080;
+    }
+
+    .contact-icon.zalo {
+        background: #0068ff;
+    }
+
+    .contact-icon.facebook {
+        background: #1877f2;
+    }
+
+    .contact-info {
+        flex: 1;
+    }
+
+    .contact-label {
+        font-size: 0.85rem;
+        color: #888;
+        margin-bottom: 2px;
+    }
+
+    .contact-value {
+        font-weight: 500;
+        color: #333;
+    }
+
+    .contact-value a {
+        color: #333;
+        text-decoration: none;
+    }
+
+    .contact-value a:hover {
+        color: #004080;
+    }
+
+    .btn-contact {
+        padding: 8px 15px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+    }
+
+    .btn-contact.call {
+        background: #004080;
+        color: white;
+    }
+
+    .btn-contact.call:hover {
+        background: #003366;
+        color: white;
+    }
+
+    .btn-contact.zalo {
+        background: #0068ff;
+        color: white;
+    }
+
+    .btn-contact.zalo:hover {
+        background: #0056d6;
+        color: white;
+    }
+
+    .btn-contact.facebook {
+        background: #1877f2;
+        color: white;
+    }
+
+    .btn-contact.facebook:hover {
+        background: #0d65d9;
+        color: white;
+    }
+
+    .btn-contact.disabled {
+        background: #e0e0e0;
+        color: #999;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    /* ========== DESCRIPTION ========== */
+    .description-content {
+        color: #555;
+        line-height: 1.8;
+        white-space: pre-wrap;
+    }
+
+    .description-content p {
+        margin-bottom: 10px;
+    }
+
+    /* ========== BACK BUTTON ========== */
+    .btn-back {
+        background: white;
+        color: #004080;
+        border: 2px solid #004080;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-back:hover {
+        background: #004080;
+        color: white;
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 768px) {
+        .book-title-header {
+            font-size: 1.2rem;
+        }
+
+        .price-main {
+            font-size: 1.5rem;
+        }
+
+        .contact-item {
+            flex-wrap: wrap;
+        }
+
+        .btn-contact {
+            margin-top: 10px;
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-2">
+    <!-- ========== BREADCRUMB ========== -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'books:home' %}">
+                    <i class="fas fa-home"></i> Trang chủ
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'books:book_list' %}">Danh sách sách</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                {{ book.title|truncatechars:50 }}
+            </li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- ========== LEFT COLUMN (7) ========== -->
+        <div class="col-md-7">
+            <!-- Book Image Card -->
+            <div class="detail-card">
+                <div class="card-body">
+                    <div class="book-image-wrapper">
+                        {% if book.cover_image %}
+                            <img src="{{ book.cover_image.url }}" alt="{{ book.title }}">
+                        {% else %}
+                            <div class="no-image-placeholder">
+                                <i class="fas fa-book"></i>
+                                <span>CHƯA CÓ ẢNH</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seller Card -->
+            <div class="detail-card seller-card">
+                <div class="card-body">
+                    <div class="seller-info">
+                        <div class="seller-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="seller-details">
+                            <h5>{{ book.seller.username|title }}</h5>
+                            <div class="seller-rating">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <span>5.0 - 1 đánh giá</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-view-profile" onclick="alert('Chức năng sẽ được phát triển sau!')">
+                        <i class="fas fa-user-circle me-2"></i>Xem hồ sơ người bán
+                    </button>
+                </div>
+            </div>
+
+            <!-- Description Card -->
+            <div class="detail-card">
+                <div class="card-header">
+                    <i class="fas fa-align-left"></i>Mô tả chi tiết
+                </div>
+                <div class="card-body">
+                    <div class="description-content">
+                        {% if book.description %}
+                            {{ book.description|linebreaks }}
+                        {% else %}
+                            <p class="text-muted"><em>Người bán chưa cung cấp mô tả cho sách này.</em></p>
+                        {% endif %}
+                    </div>
+                    
+                    {% if book.notes %}
+                        <div class="mt-3 p-3 bg-light rounded">
+                            <strong><i class="fas fa-sticky-note me-2 text-warning"></i>Ghi chú:</strong>
+                            <p class="mb-0 mt-2">{{ book.notes|linebreaks }}</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== RIGHT COLUMN (5) ========== -->
+        <div class="col-md-5">
+            <!-- Book Info Card -->
+            <div class="detail-card">
+                <div class="card-body">
+                    <h1 class="book-title-header">{{ book.title }}</h1>
+                    
+                    <div class="book-meta-row">
+                        <span><i class="fas fa-calendar me-1"></i>{{ book.created_at|date:"d/m/Y" }}</span>
+                    </div>
+
+                    <!-- Badges -->
+                    <div class="badge-group">
+                        {% if book.subject %}
+                            <span class="badge-category">
+                                <i class="fas fa-book me-1"></i>{{ book.subject.name }}
+                            </span>
+                        {% endif %}
+                        <span class="badge-condition">
+                            <i class="fas fa-layer-group me-1"></i>{{ book.get_condition_display }}
+                        </span>
+                        <span class="badge-status {{ book.status }}">
+                            {% if book.status == 'available' %}
+                                <i class="fas fa-check-circle me-1"></i>
+                            {% elif book.status == 'sold' %}
+                                <i class="fas fa-times-circle me-1"></i>
+                            {% else %}
+                                <i class="fas fa-clock me-1"></i>
+                            {% endif %}
+                            {{ book.get_status_display }}
+                        </span>
+                    </div>
+
+                    <!-- Price Section -->
+                    <div class="price-section">
+                        <div class="price-main">{{ book.price|floatformat:0 }}đ</div>
+                        <div class="view-count">
+                            <i class="fas fa-eye"></i>{{ book.view_count }} lượt xem
+                        </div>
+                    </div>
+
+                    <!-- Purchase Box -->
+                    <div class="purchase-box">
+                        <h5><i class="fas fa-check-circle"></i>Xác nhận mua sách</h5>
+                        <p>Nếu bạn muốn mua sách này hãy gửi yêu cầu xác nhận</p>
+                        {% if book.status == 'available' %}
+                            <button class="btn-purchase" onclick="alert('Chức năng sẽ được phát triển sau!')">
+                                <i class="fas fa-shopping-cart me-2"></i>Tôi đã mua sách này
+                            </button>
+                        {% else %}
+                            <button class="btn-purchase" disabled>
+                                <i class="fas fa-ban me-2"></i>Sách không còn bán
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Information Card -->
+            <div class="detail-card">
+                <div class="card-header">
+                    <i class="fas fa-address-book"></i>Thông tin liên hệ
+                </div>
+                <div class="card-body">
+                    {% with contact=book.seller_contact_info %}
+                        <!-- Phone -->
+                        <div class="contact-item">
+                            <div class="contact-icon phone">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div class="contact-info">
+                                <div class="contact-label">Điện thoại</div>
+                                <div class="contact-value">
+                                    {% if contact.phone %}
+                                        {{ contact.phone }}
+                                    {% else %}
+                                        <em class="text-muted">Chưa cung cấp</em>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% if contact.phone %}
+                                <a href="tel:{{ contact.phone }}" class="btn-contact call">
+                                    <i class="fas fa-phone me-1"></i>Gọi ngay
+                                </a>
+                            {% else %}
+                                <span class="btn-contact disabled">Chưa có SĐT</span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Zalo -->
+                        <div class="contact-item">
+                            <div class="contact-icon zalo">
+                                <i class="fas fa-comment"></i>
+                            </div>
+                            <div class="contact-info">
+                                <div class="contact-label">Zalo</div>
+                                <div class="contact-value">
+                                    {% if contact.zalo %}
+                                        <a href="{{ contact.zalo }}" target="_blank">{{ contact.zalo|truncatechars:30 }}</a>
+                                    {% else %}
+                                        <em class="text-muted">Chưa cung cấp</em>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% if contact.zalo %}
+                                <a href="{{ contact.zalo }}" target="_blank" class="btn-contact zalo">
+                                    <i class="fas fa-comment me-1"></i>Chat Zalo
+                                </a>
+                            {% else %}
+                                <span class="btn-contact disabled">Chưa có Zalo</span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Facebook -->
+                        <div class="contact-item">
+                            <div class="contact-icon facebook">
+                                <i class="fab fa-facebook-f"></i>
+                            </div>
+                            <div class="contact-info">
+                                <div class="contact-label">Facebook</div>
+                                <div class="contact-value">
+                                    {% if contact.facebook %}
+                                        <a href="{{ contact.facebook }}" target="_blank">{{ contact.facebook|truncatechars:30 }}</a>
+                                    {% else %}
+                                        <em class="text-muted">Chưa cung cấp</em>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% if contact.facebook %}
+                                <a href="{{ contact.facebook }}" target="_blank" class="btn-contact facebook">
+                                    <i class="fab fa-facebook-f me-1"></i>Nhắn tin
+                                </a>
+                            {% else %}
+                                <span class="btn-contact disabled">Chưa có FB</span>
+                            {% endif %}
+                        </div>
+                    {% endwith %}
+                </div>
+            </div>
+
+            <!-- Back Button -->
+            <div class="mb-4">
+                <a href="{% url 'books:book_list' %}" class="btn btn-back">
+                    <i class="fas fa-arrow-left me-2"></i>Quay lại danh sách
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Có thể thêm JavaScript tại đây sau này
+</script>
+{% endblock %}

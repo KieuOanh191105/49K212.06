@@ -17,8 +17,9 @@ urlpatterns = [
     # Sách của tôi - AC4.4
     path('sach/cua-toi/', views.my_books, name='my_books'),
     
-    # Chi tiết sách - chưa 
+    # Chi tiết sách - US7
     path('sach/<int:pk>/', views.BookDetailView.as_view(), name='book_detail'),
+    path('books/<int:pk>/', views.BookDetailView.as_view(), name='book_detail_alt'),
     
     # US4 - ĐĂNG BÁN SÁCH - done 
     path('dang-ban-sach/', views.BookCreateView.as_view(), name='book_create'),
