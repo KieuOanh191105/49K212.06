@@ -33,6 +33,6 @@ urlpatterns = [
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     
-    #user= admin
-    #pass= admin@2K5
+    #user= admin1
+    #pass= 123456
     

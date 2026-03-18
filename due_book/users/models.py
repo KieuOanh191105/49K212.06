@@ -49,7 +49,15 @@ class UserProfile(models.Model):
         default='',
         verbose_name='Địa chỉ giao dịch'
     )
-    
+
+    # ===== ẢNH ĐẠI DIỆN =====
+    avatar = models.ImageField(
+        upload_to='avatars/%Y/%m/',
+        blank=True,
+        null=True,
+        verbose_name='Ảnh đại diện'
+    )
+
     # ===== THÔNG TIN HỆ THỐNG =====
     created_at = models.DateTimeField(
         auto_now_add=True,

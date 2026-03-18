@@ -498,9 +498,9 @@
                             </div>
                         </div>
                     </div>
-                    <button class="btn btn-view-profile" onclick="alert('Chức năng sẽ được phát triển sau!')">
+                    <a href="{% url 'users:user_profile_by_username' book.seller.username %}" class="btn btn-view-profile">
                         <i class="fas fa-user-circle me-2"></i>Xem hồ sơ người bán
-                    </button>
+                    </a>
                 </div>
             </div>
 

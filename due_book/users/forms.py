@@ -1,6 +1,7 @@
 
 from django import forms
 from django.contrib.auth.models import User
+from .models import UserProfile
 
 
 class UserRegisterForm(forms.ModelForm):
@@ -209,3 +210,77 @@ class UserRegisterForm(forms.ModelForm):
             profile.save()
 
         return user
+
+
+# ==================== USER UPDATE FORM ====================
+class UserUpdateForm(forms.ModelForm):
+    """Form cập nhật thông tin User cơ bản"""
+    
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email']
+        widgets = {
+            'first_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Họ và đệm'
+            }),
+            'last_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Tên'
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Email'
+            }),
+        }
+        labels = {
+            'first_name': 'Họ và đệm',
+            'last_name': 'Tên',
+            'email': 'Email',
+        }
+
+
+# ==================== USER PROFILE FORM ====================
+class UserProfileForm(forms.ModelForm):
+    """Form cập nhật thông tin UserProfile"""
+    
+    class Meta:
+        model = UserProfile
+        fields = [
+            'student_id', 'phone_number', 'facebook_link',
+            'zalo_link', 'address', 'avatar'
+        ]
+        widgets = {
+            'student_id': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Mã số sinh viên'
+            }),
+            'phone_number': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Số điện thoại'
+            }),
+            'facebook_link': forms.URLInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'https://facebook.com/username'
+            }),
+            'zalo_link': forms.URLInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'https://zalo.me/09xxxxxxxxx'
+            }),
+            'address': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Địa chỉ giao dịch'
+            }),
+            'avatar': forms.FileInput(attrs={
+                'class': 'form-control',
+                'accept': 'image/*'
+            }),
+        }
+        labels = {
+            'student_id': 'Mã số sinh viên',
+            'phone_number': 'Số điện thoại',
+            'facebook_link': 'Link Facebook',
+            'zalo_link': 'Link Zalo',
+            'address': 'Địa chỉ',
+            'avatar': 'Ảnh đại diện',
+        }

@@ -376,7 +376,7 @@
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li>
-                                    <a class="dropdown-item" href="#">
+                                    <a class="dropdown-item" href="{% url 'users:user_profile' %}">
                                         <i class="fas fa-user"></i>Hồ sơ
                                     </a>
                                 </li>
@@ -503,7 +503,27 @@
 
     <!-- Custom JS -->
     <script src="{% static 'js/main.js' %}"></script>
-    
+
+    <!-- Auto-hide messages after 3 seconds -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-hide alerts after 3 seconds
+            const alerts = document.querySelectorAll('.alert[role="alert"]');
+            alerts.forEach(function(alert) {
+                setTimeout(function() {
+                    // Add fade-out animation
+                    alert.style.transition = 'opacity 0.5s ease-out';
+                    alert.style.opacity = '0';
+
+                    // Remove from DOM after animation completes
+                    setTimeout(function() {
+                        alert.remove();
+                    }, 500);
+                }, 3000);
+            });
+        });
+    </script>
+
     {% block extra_js %}{% endblock %}
 </body>
 </html>

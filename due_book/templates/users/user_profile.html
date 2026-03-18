@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+
+{% block title %}Hồ sơ - {{ profile_user.get_full_name|default:profile_user.username }} - DUE Book{% endblock %}
+
+{% block extra_css %}
+
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+
+    <!-- Profile Info Card -->
+    <div class="profile-card profile-info-card">
+        <div class="avatar-wrap">
+            <div class="avatar-circle">
+                {% if profile.avatar %}
+                    <img src="{{ profile.avatar.url }}" alt="{{ profile_user.username }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;"/>
+                {% else %}
+                    {{ profile_user.username|first|upper }}
+                {% endif %}
+            </div>
+        </div>
+        <div class="profile-name">{{ profile_user.get_full_name|default:profile_user.username|upper }}</div>
+        <div class="profile-stars" style="color: var(--accent); font-size: 1.1rem; margin-bottom: 8px;">
+            ★★★★★
+        </div>
+        <div class="profile-username">@{{ profile_user.username }}</div>
+
+        <div class="stats-row">
+            <div class="stat-item">
+                <span class="stat-val">{{ total_books_listed }}</span>
+                <span class="stat-lbl">Đăng bán</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-val">{{ total_books_sold }}</span>
+                <span class="stat-lbl">Đã bán</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-val">{{ total_views }}</span>
+                <span class="stat-lbl">Lượt xem</span>
+            </div>
+        </div>
+
+        {% if is_own_profile %}
+        <a href="{% url 'users:user_edit_profile' %}" class="btn-edit-profile">Chỉnh sửa hồ sơ</a>
+        {% endif %}
+    </div>
+
+    <!-- Contact Card -->
+    <div class="profile-card contact-card">
+        <div class="card-header-gradient">
+            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <h3>Thông tin liên hệ</h3>
+        </div>
+        <div class="card-body-padding">
+            {% if profile.student_id %}
+            <div class="info-row">
+                <span class="lbl">MSSV:</span>
+                <span class="val">{{ profile.student_id }}</span>
+            </div>
+            {% endif %}
+            {% if profile.phone_number %}
+            <div class="info-row">
+                <span class="lbl">Điện thoại:</span>
+                <span class="val">{{ profile.phone_number }}</span>
+            </div>
+            {% endif %}
+            {% if profile.address %}
+            <div class="info-row">
+                <span class="lbl">Địa chỉ:</span>
+                <span class="val">{{ profile.address }}</span>
+            </div>
+            {% endif %}
+
+            <div class="social-btns">
+                {% if profile.facebook_link %}
+                <a href="{{ profile.facebook_link }}" target="_blank" class="btn-social btn-fb">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="#fff"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+                    Facebook
+                </a>
+                {% endif %}
+                {% if profile.zalo_link %}
+                <a href="{{ profile.zalo_link }}" target="_blank" class="btn-social btn-zalo">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="#fff"><rect x="3" y="3" width="18" height="18" rx="4"/><text x="5" y="17" style="font-size:10px;fill:#fff;font-family:sans-serif;font-weight:bold">Z</text></svg>
+                    Zalo
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column -->
+    <div class="right-col">
+
+        <!-- Books Section -->
+        <div class="profile-card">
+            <div class="card-header-gradient">
+                <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+                <h3>Sách đang bán</h3>
+            </div>
+            {% if books_for_sale %}
+            <div class="books-grid">
+                {% for book in books_for_sale %}
+                <a href="{% url 'books:book_detail' book.pk %}" class="book-item">
+                    <div class="book-title">{{ book.title|truncatewords:8 }}</div>
+                    <div class="book-price">{{ book.price|floatformat:0 }}đ</div>
+                    <button class="btn-view">Xem</button>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-book-open mb-3" style="font-size: 32px;"></i>
+                <p class="mb-0">Chưa có sách nào đang bán</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Reviews Section -->
+        <div class="profile-card">
+            <div class="card-header-gradient">
+                <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <h3>Đánh giá gần đây</h3>
+            </div>
+            {% if ratings %}
+            <div class="review-list">
+                {% for rating in ratings %}
+                <div class="review-item">
+                    <div class="review-top">
+                        <span class="reviewer">{{ rating.reviewer.get_full_name|default:rating.reviewer.username }}</span>
+                        <span class="review-date">{{ rating.created_at|date:"d/m/Y" }}</span>
+                    </div>
+                    <div class="review-stars">★★★★★</div>
+                    {% if rating.comment %}
+                    <div class="review-text">{{ rating.comment }}</div>
+                    {% endif %}
+                    {% if rating.book %}
+                    <div class="review-book">Đã mua: <span>{{ rating.book.title }}</span></div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-star mb-3" style="font-size: 32px;"></i>
+                <p class="mb-0">Chưa có đánh giá nào</p>
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}
