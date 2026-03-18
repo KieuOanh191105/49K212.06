@@ -3,7 +3,202 @@
 {% block title %}Cập nhật hồ sơ - DUE Book{% endblock %}
 
 {% block extra_css %}
+<style>
+    :root {
+        --navy: #1a3557;
+        --blue: #1e5fa8;
+        --blue-light: #2d74c7;
+        --accent: #f5a623;
+        --bg: #f0f4fa;
+        --card: #ffffff;
+        --text: #1e2d40;
+        --muted: #7a8fa8;
+        --border: #dbe6f4;
+        --input-bg: #f7faff;
+        --focus: #2d74c7;
+    }
 
+    /* Override body background */
+    body {
+        background: var(--bg) !important;
+    }
+
+    .edit-profile-page {
+        max-width: 860px;
+        margin: 36px auto 60px;
+        padding: 0 20px;
+    }
+
+    /* ===== MAIN CARD ===== */
+    .edit-card {
+        background: var(--card);
+        border-radius: 18px;
+        box-shadow: 0 4px 24px rgba(26,53,87,.09);
+        overflow: hidden;
+        animation: fadeUp .4s ease both;
+    }
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(18px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Card header */
+    .edit-header {
+        background: linear-gradient(135deg, var(--blue) 0%, var(--navy) 100%);
+        padding: 20px 28px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .edit-header h2 {
+        color: #fff;
+        font-size: 1.1rem;
+        font-weight: 800;
+        letter-spacing: .3px;
+        margin: 0;
+    }
+
+    /* ===== FORM BODY ===== */
+    .form-body { padding: 28px; }
+
+    .section-title {
+        font-size: .78rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        color: var(--blue);
+        margin-bottom: 16px;
+        margin-top: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .section-title::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+    }
+
+    .form-divider { height: 1px; background: var(--border); margin: 24px 0; }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+        margin-bottom: 18px;
+    }
+    .form-row.full { grid-template-columns: 1fr; }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    label {
+        font-size: .8rem;
+        font-weight: 700;
+        color: var(--text);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="url"],
+    textarea,
+    select {
+        width: 100%;
+        padding: 10px 14px;
+        background: var(--input-bg);
+        border: 1.5px solid var(--border);
+        border-radius: 9px;
+        font-family: 'Nunito', sans-serif;
+        font-size: .88rem;
+        color: var(--text);
+        outline: none;
+        transition: border-color .2s, box-shadow .2s, background .2s;
+    }
+    input:focus, textarea:focus, select:focus {
+        border-color: var(--focus);
+        background: #fff;
+        box-shadow: 0 0 0 3px rgba(45,116,199,.12);
+    }
+    input::placeholder, textarea::placeholder { color: #b0c4d8; }
+    textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
+
+    /* File upload styling */
+    .file-upload-wrapper {
+        width: 100%;
+    }
+    .file-upload-box {
+        width: 100%;
+        padding: 30px 20px;
+        background: var(--input-bg);
+        border: 2px dashed var(--border);
+        border-radius: 9px;
+        text-align: center;
+        cursor: pointer;
+        transition: all .2s;
+    }
+    .file-upload-box:hover {
+        border-color: var(--focus);
+        background: #fff;
+        box-shadow: 0 0 0 3px rgba(45,116,199,.12);
+    }
+    .file-upload-box p {
+        margin: 0;
+        font-family: 'Nunito', sans-serif;
+    }
+
+    .hint {
+        font-size: .74rem;
+        color: var(--muted);
+        margin-top: 2px;
+    }
+
+    /* ===== ACTIONS ===== */
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        padding: 20px 28px 28px;
+        border-top: 1px solid var(--border);
+        background: #fafcff;
+    }
+    .btn {
+        display: inline-flex; align-items: center; gap: 7px;
+        padding: 10px 26px;
+        border-radius: 9px;
+        font-family: 'Nunito', sans-serif;
+        font-size: .88rem; font-weight: 700;
+        cursor: pointer;
+        border: none;
+        transition: all .2s;
+        text-decoration: none;
+    }
+    .btn-primary {
+        background: linear-gradient(135deg, var(--blue-light), var(--navy));
+        color: #fff;
+        box-shadow: 0 3px 12px rgba(30,95,168,.28);
+    }
+    .btn-primary:hover { filter: brightness(1.08); transform: translateY(-1px); }
+    .btn-secondary {
+        background: #fff;
+        color: var(--muted);
+        border: 1.5px solid var(--border);
+    }
+    .btn-secondary:hover { background: var(--bg); color: var(--text); border-color: #b0c4d8; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 600px) {
+        .form-row { grid-template-columns: 1fr; }
+        .avatar-strip { flex-direction: column; text-align: center; }
+        .form-actions { flex-direction: column; }
+        .btn { justify-content: center; }
+    }
 </style>
 {% endblock %}
 
@@ -184,5 +379,41 @@
 {% endblock %}
 
 {% block extra_js %}
+<script>
+    // Avatar file upload handling
+    const avatarInput = document.getElementById('avatarInput');
+    const fileUploadBox = document.getElementById('fileUploadBox');
 
+    if (fileUploadBox && avatarInput) {
+        // Click on box triggers file input
+        fileUploadBox.addEventListener('click', function() {
+            avatarInput.click();
+        });
+
+        // Handle file selection
+        avatarInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                fileUploadBox.innerHTML = `
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#27ae60" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                    <p style="margin: 10px 0 5px; font-weight: 600; color: var(--text);">${file.name}</p>
+                    <p style="margin: 0; font-size: .8rem; color: var(--muted);">Đã chọn ảnh • Click để thay đổi</p>
+                `;
+            }
+        });
+    }
+
+    // Add CSS classes to Django form inputs
+    document.addEventListener('DOMContentLoaded', function() {
+        const inputs = document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], input[type="url"], textarea, select');
+        inputs.forEach(input => {
+            if (!input.classList.contains('form-control')) {
+                input.classList.add('form-control-input');
+            }
+        });
+    });
+</script>
 {% endblock %}

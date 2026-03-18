@@ -3,7 +3,240 @@
 {% block title %}Hồ sơ - {{ profile_user.get_full_name|default:profile_user.username }} - DUE Book{% endblock %}
 
 {% block extra_css %}
+<style>
+    :root {
+        --navy: #1a3557;
+        --blue: #1e5fa8;
+        --blue-light: #2d74c7;
+        --accent: #f5a623;
+        --bg: #f0f4fa;
+        --card: #ffffff;
+        --text: #1e2d40;
+        --muted: #7a8fa8;
+        --border: #dbe6f4;
+    }
 
+    /* Override body background for profile page */
+    body {
+        background: var(--bg) !important;
+    }
+
+    .profile-container {
+        max-width: 1100px;
+        margin: 36px auto 60px;
+        padding: 0 20px;
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        grid-template-rows: auto auto;
+        gap: 24px;
+    }
+
+    /* ===== CARD BASE ===== */
+    .profile-card {
+        background: var(--card);
+        border-radius: 16px;
+        box-shadow: 0 2px 16px rgba(26,53,87,.08);
+        overflow: hidden;
+    }
+
+    /* ===== PROFILE CARD ===== */
+    .profile-info-card {
+        grid-row: 1 / 2;
+        grid-column: 1 / 2;
+        padding: 36px 24px 28px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        position: relative;
+    }
+
+    .profile-info-card::before {
+        content: '';
+        position: absolute; top: 0; left: 0; right: 0; height: 80px;
+        background: linear-gradient(135deg, var(--blue) 0%, var(--navy) 100%);
+    }
+
+    .avatar-wrap {
+        position: relative;
+        z-index: 1;
+        margin-bottom: 14px;
+    }
+
+    .avatar-circle {
+        width: 90px; height: 90px;
+        background: linear-gradient(135deg, #2d74c7, #1a3557);
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 2.2rem; font-weight: 800; color: #fff;
+        border: 4px solid #fff;
+        box-shadow: 0 4px 18px rgba(0,0,0,.18);
+    }
+
+    .profile-name {
+        font-size: 1.3rem; font-weight: 800;
+        color: var(--text); letter-spacing: .5px;
+        margin-bottom: 8px;
+    }
+
+    .profile-username {
+        color: var(--muted);
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+    }
+
+    .stats-row {
+        display: flex; gap: 0; width: 100%;
+        border: 1px solid var(--border); border-radius: 12px;
+        overflow: hidden; margin: 14px 0 18px;
+    }
+
+    .stat-item {
+        flex: 1; padding: 12px 8px;
+        border-right: 1px solid var(--border);
+        display: flex; flex-direction: column; align-items: center; gap: 2px;
+    }
+
+    .stat-item:last-child { border-right: none; }
+
+    .stat-val { font-size: 1.2rem; font-weight: 800; color: var(--blue); }
+    .stat-lbl { font-size: .72rem; color: var(--muted); font-weight: 600; }
+
+    .btn-edit-profile {
+        border: 2px solid var(--blue);
+        color: var(--blue); background: none;
+        border-radius: 8px; padding: 8px 28px;
+        font-size: .88rem; font-weight: 700;
+        cursor: pointer; transition: all .2s;
+        text-decoration: none;
+    }
+
+    .btn-edit-profile:hover { background: var(--blue); color: #fff; }
+
+    /* ===== CONTACT CARD ===== */
+    .contact-card {
+        grid-row: 2 / 3;
+        grid-column: 1 / 2;
+    }
+
+    .card-header-gradient {
+        background: linear-gradient(135deg, var(--blue) 0%, var(--navy) 100%);
+        padding: 14px 20px;
+        display: flex; align-items: center; gap: 10px;
+    }
+
+    .card-header-gradient svg { width: 18px; height: 18px; fill: #fff; }
+    .card-header-gradient h3 { color: #fff; font-size: .95rem; font-weight: 800; letter-spacing: .3px; margin: 0; }
+
+    .card-body-padding { padding: 20px; }
+
+    .info-row {
+        display: flex; align-items: flex-start; gap: 10px;
+        padding: 8px 0;
+        border-bottom: 1px solid var(--border);
+        font-size: .88rem;
+    }
+
+    .info-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .info-row .lbl { font-weight: 700; color: var(--text); min-width: 80px; }
+    .info-row .val { color: var(--muted); }
+
+    .social-btns { display: flex; gap: 10px; margin-top: 16px; }
+
+    .btn-social {
+        display: flex; align-items: center; gap: 7px;
+        padding: 8px 18px; border-radius: 8px;
+        font-size: .83rem; font-weight: 700;
+        cursor: pointer; border: none;
+        transition: filter .18s, transform .18s;
+        text-decoration: none;
+    }
+
+    .btn-social:hover { filter: brightness(1.1); transform: translateY(-1px); }
+    .btn-fb { background: #1877f2; color: #fff; }
+    .btn-zalo { background: #0068ff; color: #fff; }
+
+    /* ===== RIGHT COLUMN ===== */
+    .right-col {
+        grid-column: 2 / 3;
+        grid-row: 1 / 3;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    /* ===== BOOKS SECTION ===== */
+    .books-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 14px;
+        padding: 20px;
+        max-height: 400px;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: var(--border) transparent;
+    }
+
+    .books-grid::-webkit-scrollbar { width: 6px; }
+    .books-grid::-webkit-scrollbar-track { background: transparent; }
+    .books-grid::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+    .book-item {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 14px;
+        transition: box-shadow .2s, transform .2s;
+        cursor: pointer;
+        text-decoration: none;
+        display: block;
+    }
+
+    .book-item:hover { box-shadow: 0 4px 18px rgba(30,95,168,.12); transform: translateY(-2px); }
+    .book-title { font-size: .88rem; font-weight: 700; color: var(--text); margin-bottom: 6px; line-height: 1.3; }
+    .book-price { font-size: .92rem; font-weight: 800; color: var(--blue); margin-bottom: 10px; }
+    .btn-view {
+        width: 100%; padding: 7px;
+        background: none; border: 1.5px solid var(--blue);
+        border-radius: 7px; color: var(--blue);
+        font-size: .82rem; font-weight: 700;
+        cursor: pointer; transition: all .18s;
+    }
+    .btn-view:hover { background: var(--blue); color: #fff; }
+
+    .empty-state {
+        padding: 30px 20px;
+        text-align: center;
+        color: var(--muted);
+        font-size: .9rem;
+    }
+
+    /* ===== REVIEWS ===== */
+    .review-list { padding: 8px 20px 20px; }
+    .review-item {
+        padding: 16px 0;
+        border-bottom: 1px solid var(--border);
+    }
+    .review-item:last-child { border-bottom: none; }
+    .review-top {
+        display: flex; justify-content: space-between; align-items: center;
+        margin-bottom: 6px;
+    }
+    .reviewer { font-weight: 700; font-size: .9rem; color: var(--text); }
+    .review-date { font-size: .78rem; color: var(--muted); }
+    .review-stars { color: var(--accent); font-size: .95rem; margin-bottom: 6px; }
+    .review-text { font-size: .88rem; color: var(--text); margin-bottom: 4px; }
+    .review-book { font-size: .78rem; color: var(--muted); }
+    .review-book span { color: var(--blue); font-weight: 600; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 992px) {
+        .profile-container {
+            grid-template-columns: 1fr;
+        }
+        .right-col { grid-column: 1; grid-row: auto; }
+        .profile-info-card, .contact-card { grid-column: 1; }
+    }
+</style>
 {% endblock %}
 
 {% block content %}
