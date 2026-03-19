@@ -41,58 +41,290 @@
         transform: translateY(-2px);
         box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     }
-    
-    /* ========== SEARCH BAR ========== */
-    .search-card {
-        border: none;
+
+    /* ========== FILTER SIDEBAR ========== */
+    .filter-sidebar {
+        background: #fff;
         border-radius: 12px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-        margin-bottom: 25px;
-    }
-    
-    .search-card .card-body {
+        box-shadow: 0 2px 15px rgba(0,0,0,0.08);
         padding: 20px;
+        position: sticky;
+        top: 90px;
     }
-    
-    .search-input {
-        border: 2px solid #e0e0e0;
-        border-radius: 10px;
-        padding: 12px 20px;
+
+    .filter-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .filter-header h5 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #004080;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .filter-header h5 i {
         font-size: 1rem;
-        transition: all 0.3s ease;
     }
-    
-    .search-input:focus {
+
+    .btn-reset-filter {
+        font-size: 0.8rem;
+        color: #666;
+        padding: 4px 10px;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+    }
+
+    .btn-reset-filter:hover {
+        background: #f0f0f0;
+        color: #333;
+    }
+
+    .filter-section {
+        margin-bottom: 20px;
+    }
+
+    .filter-section:last-of-type {
+        margin-bottom: 0;
+    }
+
+    .filter-label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .filter-label i {
+        color: #004080;
+        font-size: 0.85rem;
+    }
+
+    .filter-input {
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    .filter-input:focus {
         border-color: #004080;
         box-shadow: 0 0 0 3px rgba(0,64,128,0.1);
+        outline: none;
     }
-    
-    .btn-search {
+
+    .filter-input::placeholder {
+        color: #aaa;
+    }
+
+    .filter-select {
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        width: 100%;
+        background-color: #fff;
+        cursor: pointer;
+    }
+
+    .filter-select:focus {
+        border-color: #004080;
+        box-shadow: 0 0 0 3px rgba(0,64,128,0.1);
+        outline: none;
+    }
+
+    .price-range-row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .price-range-row .price-input-wrapper {
+        flex: 1;
+    }
+
+    .price-range-row .price-separator {
+        color: #999;
+        font-size: 0.85rem;
+    }
+
+    .price-input {
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 10px 12px;
+        font-size: 0.9rem;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+
+    .price-input:focus {
+        border-color: #004080;
+        box-shadow: 0 0 0 3px rgba(0,64,128,0.1);
+        outline: none;
+    }
+
+    .btn-apply-filter {
+        width: 100%;
         background: linear-gradient(135deg, #004080, #0066cc);
         color: white;
         border: none;
-        border-radius: 10px;
-        padding: 12px 30px;
-        font-weight: 500;
+        border-radius: 8px;
+        padding: 12px 20px;
+        font-weight: 600;
+        font-size: 0.95rem;
         transition: all 0.3s ease;
-        white-space: nowrap;
+        margin-top: 20px;
     }
-    
-    .btn-search:hover {
+
+    .btn-apply-filter:hover {
         transform: translateY(-2px);
         box-shadow: 0 5px 15px rgba(0,64,128,0.3);
     }
-    
+
+    .btn-apply-filter i {
+        margin-right: 6px;
+    }
+
+    /* Category List */
+    .category-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .category-list li {
+        margin-bottom: 2px;
+    }
+
+    .category-list a {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 12px;
+        color: #555;
+        text-decoration: none;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+    }
+
+    .category-list a:hover {
+        background: #f0f7ff;
+        color: #004080;
+    }
+
+    .category-list a.active {
+        background: linear-gradient(135deg, #004080, #0066cc);
+        color: white;
+    }
+
+    .category-list a .category-count {
+        font-size: 0.75rem;
+        background: #e9ecef;
+        padding: 2px 8px;
+        border-radius: 10px;
+        color: #666;
+    }
+
+    .category-list a.active .category-count {
+        background: rgba(255,255,255,0.2);
+        color: white;
+    }
+
+    /* Active Filters Display */
+    .active-filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 15px;
+    }
+
+    .active-filter-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #e8f4ff;
+        color: #004080;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .active-filter-tag .remove-filter {
+        color: #004080;
+        cursor: pointer;
+        font-size: 0.9rem;
+        opacity: 0.7;
+        transition: opacity 0.2s;
+    }
+
+    .active-filter-tag .remove-filter:hover {
+        opacity: 1;
+    }
+
     /* ========== RESULTS INFO ========== */
     .results-info {
         margin-bottom: 20px;
         color: #666;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
     }
-    
+
     .results-info strong {
         color: #004080;
     }
-    
+
+    .results-count {
+        font-size: 0.95rem;
+    }
+
+    .sort-dropdown {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .sort-dropdown label {
+        font-size: 0.9rem;
+        color: #666;
+        margin: 0;
+    }
+
+    .sort-dropdown select {
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 8px 12px;
+        font-size: 0.85rem;
+        background: #fff;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .sort-dropdown select:focus {
+        border-color: #004080;
+        outline: none;
+    }
+
     /* ========== BOOK GRID ========== */
     .book-card {
         border: none;
@@ -206,6 +438,35 @@
         background: #0a3f70;
         color: white;
     }
+
+    /* ========== MOBILE FILTER TOGGLE ========== */
+    .mobile-filter-toggle {
+        display: none;
+        width: 100%;
+        background: linear-gradient(135deg, #004080, #0066cc);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 12px 20px;
+        font-weight: 600;
+        margin-bottom: 15px;
+    }
+
+    .mobile-filter-toggle i {
+        margin-right: 8px;
+    }
+
+    .filter-sidebar .btn-close-filter {
+        display: none;
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        color: #666;
+        cursor: pointer;
+    }
     
     /* ========== EMPTY STATE ========== */
     .empty-state {
@@ -262,6 +523,70 @@
         background: #f8f9fa;
         color: #ccc;
     }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 991.98px) {
+        .filter-sidebar {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 280px;
+            height: 100vh;
+            z-index: 1050;
+            border-radius: 0;
+            overflow-y: auto;
+            transition: left 0.3s ease;
+            padding-top: 50px;
+        }
+
+        .filter-sidebar.show {
+            left: 0;
+        }
+
+        .filter-sidebar .btn-close-filter {
+            display: block;
+        }
+
+        .mobile-filter-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .filter-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1040;
+        }
+
+        .filter-overlay.show {
+            display: block;
+        }
+    }
+
+    @media (max-width: 575.98px) {
+        .page-header {
+            padding: 15px 18px;
+        }
+
+        .page-header h1 {
+            font-size: 1.2rem;
+        }
+
+        .results-info {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .book-card .card-img-wrapper {
+            height: 150px;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -302,147 +627,352 @@
         </div>
     </div>
 
-    <!-- ========== RESULTS INFO ========== -->
-    {% if query %}
-        <div class="results-info">
-            Tìm thấy <strong>{{ total_count }}</strong> kết quả cho từ khóa "<strong>{{ query }}</strong>"
-        </div>
-    {% elif total_count > 0 %}
-        <div class="results-info">
-            Hiện có <strong>{{ total_count }}</strong> sách đang được bán
-        </div>
-    {% endif %}
+    <!-- ========== MOBILE FILTER TOGGLE ========== -->
+    <button class="mobile-filter-toggle" onclick="toggleFilter()">
+        <i class="fas fa-filter"></i>Bộ lọc
+    </button>
 
-    <!-- ========== BOOK GRID ========== -->
-    <div class="row g-4">
-        {% for book in page_obj %}
-            <div class="col-6 col-md-4 col-lg-3">
-                <div class="card book-card">
-                    <!-- Ảnh bìa -->
-                    <div class="card-img-wrapper">
-                        {% if book.cover_image %}
-                            <img src="{{ book.cover_image.url }}" class="card-img-top" alt="{{ book.title }}">
-                        {% else %}
-                            <div class="placeholder-image">
-                                <i class="fas fa-book"></i>
+    <!-- ========== FILTER OVERLAY (MOBILE) ========== -->
+    <div class="filter-overlay" id="filterOverlay" onclick="toggleFilter()"></div>
+
+    <div class="row">
+        <!-- ========== FILTER SIDEBAR (LEFT) ========== -->
+        <div class="col-lg-3 col-md-4">
+            <aside class="filter-sidebar" id="filterSidebar">
+                <button class="btn-close-filter" onclick="toggleFilter()">
+                    <i class="fas fa-times"></i>
+                </button>
+
+                <form method="get" action="{% url 'books:book_list' %}" id="filterForm">
+                    <div class="filter-header">
+                        <h5><i class="fas fa-filter"></i>Bộ lọc</h5>
+                        {% if query or condition or min_price or max_price or category %}
+                            <a href="{% url 'books:book_list' %}" class="btn btn-reset-filter">
+                                <i class="fas fa-redo"></i> Đặt lại
+                            </a>
+                        {% endif %}
+                    </div>
+
+                    <!-- 1. TÌM KIẾM -->
+                    <div class="filter-section">
+                        <label class="filter-label">
+                            <i class="fas fa-search"></i>Tìm kiếm
+                        </label>
+                        <input type="text" 
+                               name="q" 
+                               class="filter-input" 
+                               placeholder="Tên sách, tác giả..."
+                               value="{{ query|default:'' }}">
+                    </div>
+
+                    <!-- 2. TÌNH TRẠNG SÁCH -->
+                    <div class="filter-section">
+                        <label class="filter-label">
+                            <i class="fas fa-star"></i>Tình trạng
+                        </label>
+                        <select name="condition" class="filter-select">
+                            <option value="">Tất cả tình trạng</option>
+                            {% for value, label in condition_choices %}
+                                <option value="{{ value }}" {% if condition == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- 3. KHOẢNG GIÁ -->
+                    <div class="filter-section">
+                        <label class="filter-label">
+                            <i class="fas fa-money-bill-wave"></i>Khoảng giá
+                        </label>
+                        <div class="price-range-row">
+                            <div class="price-input-wrapper">
+                                <input type="number" 
+                                       name="min_price" 
+                                       class="price-input" 
+                                       placeholder="Từ"
+                                       value="{{ min_price|default:'' }}">
                             </div>
-                        {% endif %}
-                        
-                        <!-- Badge tình trạng -->
-                        {% if book.condition == 'new' %}
-                            <span class="condition-badge bg-success text-white">{{ book.get_condition_display }}</span>
-                        {% elif book.condition == 'like_new' %}
-                            <span class="condition-badge bg-primary text-white">{{ book.get_condition_display }}</span>
-                        {% elif book.condition == 'good' %}
-                            <span class="condition-badge bg-info text-white">{{ book.get_condition_display }}</span>
-                        {% elif book.condition == 'fair' %}
-                            <span class="condition-badge bg-warning text-dark">{{ book.get_condition_display }}</span>
-                        {% else %}
-                            <span class="condition-badge bg-secondary text-white">{{ book.get_condition_display }}</span>
-                        {% endif %}
+                            <span class="price-separator">—</span>
+                            <div class="price-input-wrapper">
+                                <input type="number" 
+                                       name="max_price" 
+                                       class="price-input" 
+                                       placeholder="Đến"
+                                       value="{{ max_price|default:'' }}">
+                            </div>
+                        </div>
                     </div>
-                    
-                    <!-- Thông tin sách -->
-                    <div class="card-body">
-                        <h5 class="book-title">{{ book.title }}</h5>
-                        
-                        {% if book.subject %}
-                            <p class="book-subject">
-                                <i class="fas fa-book-open me-1"></i>{{ book.subject.name }}
-                            </p>
-                        {% endif %}
-                        
-                        <p class="book-price">{{ book.price|floatformat:0 }}đ</p>
-                    </div>
-                    
-                    <!-- Nút xem chi tiết -->
-                    <div class="card-footer">
-                        <a href="{% url 'books:book_detail' book.pk %}" class="btn btn-view-detail">
-                            <i class="fas fa-eye me-1"></i>Xem chi tiết
-                        </a>
-                    </div>
-                </div>
-            </div>
-        {% empty %}
-            <!-- Empty State -->
-            <div class="col-12">
-                <div class="empty-state">
-                    <i class="fas fa-book-open"></i>
-                    {% if query %}
-                        <h4>Không tìm thấy sách</h4>
-                        <p>Không có sách nào phù hợp với từ khóa "{{ query }}"</p>
-                        <a href="{% url 'books:book_list' %}" class="btn btn-outline-primary mt-3">
-                            <i class="fas fa-redo me-2"></i>Xem tất cả sách
-                        </a>
-                    {% else %}
-                        <h4>Chưa có sách nào</h4>
-                        <p>Chưa có sách nào được đăng bán. Hãy là người đầu tiên!</p>
-                        {% if user.is_authenticated %}
-                            <a href="{% url 'books:book_create' %}" class="btn btn-primary mt-3">
-                                <i class="fas fa-plus me-2"></i>Đăng sách ngay
-                            </a>
-                        {% else %}
-                            <a href="{% url 'users:user_login' %}" class="btn btn-primary mt-3">
-                                <i class="fas fa-sign-in-alt me-2"></i>Đăng nhập để đăng sách
-                            </a>
-                        {% endif %}
-                    {% endif %}
-                </div>
-            </div>
-        {% endfor %}
-    </div>
 
-    <!-- ========== PAGINATION ========== -->
-    {% if page_obj.has_other_pages %}
-        <div class="pagination-wrapper">
-            <nav>
-                <ul class="pagination justify-content-center">
-                    <!-- Previous -->
-                    {% if page_obj.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">
-                                <i class="fas fa-chevron-left"></i>
-                            </a>
-                        </li>
-                    {% else %}
-                        <li class="page-item disabled">
-                            <span class="page-link"><i class="fas fa-chevron-left"></i></span>
-                        </li>
-                    {% endif %}
-                    
-                    <!-- Page Numbers -->
-                    {% for num in page_obj.paginator.page_range %}
-                        {% if page_obj.number == num %}
-                            <li class="page-item active">
-                                <span class="page-link">{{ num }}</span>
+                    <!-- 4. DANH MỤC (MÔN HỌC) -->
+                    <div class="filter-section">
+                        <label class="filter-label">
+                            <i class="fas fa-list"></i>Danh mục
+                        </label>
+                        <ul class="category-list">
+                            <li>
+                                <a href="{% url 'books:book_list' %}" 
+                                   class="{% if not category %}active{% endif %}">
+                                    <span>Tất cả danh mục</span>
+                                </a>
                             </li>
-                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}">{{ num }}</a>
-                            </li>
-                        {% endif %}
-                    {% endfor %}
-                    
-                    <!-- Next -->
-                    {% if page_obj.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}">
-                                <i class="fas fa-chevron-right"></i>
-                            </a>
-                        </li>
-                    {% else %}
-                        <li class="page-item disabled">
-                            <span class="page-link"><i class="fas fa-chevron-right"></i></span>
-                        </li>
-                    {% endif %}
-                </ul>
-            </nav>
-            
-            <!-- Page Info -->
-            <p class="text-center text-muted mt-2">
-                Trang {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
-            </p>
+                            {% for subject in subjects %}
+                                <li>
+                                    <a href="?category={{ subject.pk }}{% if query %}&q={{ query }}{% endif %}{% if condition %}&condition={{ condition }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}"
+                                       class="{% if category == subject.pk|stringformat:'s' %}active{% endif %}">
+                                        <span>{{ subject.name }}</span>
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <!-- 5. SẮP XẾP (HIDDEN - SUBMIT WITH FORM) -->
+                    <input type="hidden" name="sort" value="{{ sort|default:'' }}">
+
+                    <!-- NÚT ÁP DỤNG -->
+                    <button type="submit" class="btn btn-apply-filter">
+                        <i class="fas fa-check"></i>Áp dụng bộ lọc
+                    </button>
+                </form>
+            </aside>
         </div>
-    {% endif %}
+
+        <!-- ========== BOOK LIST (RIGHT) ========== -->
+        <div class="col-lg-9 col-md-8">
+            <!-- ACTIVE FILTERS TAGS -->
+            {% if query or condition or min_price or max_price or category %}
+                <div class="active-filters">
+                    {% if query %}
+                        <span class="active-filter-tag">
+                            <i class="fas fa-search"></i>"{{ query }}"
+                            <a href="?{% for key, val in query_params.items %}{% if key != 'q' %}{{ key }}={{ val }}&{% endif %}{% endfor %}" class="remove-filter">
+                                <i class="fas fa-times"></i>
+                            </a>
+                        </span>
+                    {% endif %}
+                    {% if condition %}
+                        <span class="active-filter-tag">
+                            <i class="fas fa-star"></i>{{ condition|default:"" }}
+                            <a href="?{% for key, val in query_params.items %}{% if key != 'condition' %}{{ key }}={{ val }}&{% endif %}{% endfor %}" class="remove-filter">
+                                <i class="fas fa-times"></i>
+                            </a>
+                        </span>
+                    {% endif %}
+                    {% if min_price or max_price %}
+                        <span class="active-filter-tag">
+                            <i class="fas fa-money-bill-wave"></i>
+                            {% if min_price %}{{ min_price }}{% else %}0{% endif %}đ - {% if max_price %}{{ max_price }}{% else %}∞{% endif %}đ
+                            <a href="?{% for key, val in query_params.items %}{% if key != 'min_price' and key != 'max_price' %}{{ key }}={{ val }}&{% endif %}{% endfor %}" class="remove-filter">
+                                <i class="fas fa-times"></i>
+                            </a>
+                        </span>
+                    {% endif %}
+                    {% if category %}
+                        {% for subject in subjects %}
+                            {% if subject.pk|stringformat:'s' == category %}
+                                <span class="active-filter-tag">
+                                    <i class="fas fa-list"></i>{{ subject.name }}
+                                    <a href="?{% for key, val in query_params.items %}{% if key != 'category' %}{{ key }}={{ val }}&{% endif %}{% endfor %}" class="remove-filter">
+                                        <i class="fas fa-times"></i>
+                                    </a>
+                                </span>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            <!-- RESULTS INFO & SORT -->
+            <div class="results-info">
+                <div class="results-count">
+                    {% if query %}
+                        Tìm thấy <strong>{{ total_count }}</strong> kết quả cho "<strong>{{ query }}</strong>"
+                    {% elif total_count > 0 %}
+                        Hiện có <strong>{{ total_count }}</strong> sách đang được bán
+                    {% endif %}
+                </div>
+                <div class="sort-dropdown">
+                    <label>Sắp xếp:</label>
+                    <select onchange="updateSort(this.value)">
+                        <option value="" {% if not sort %}selected{% endif %}>Mới nhất</option>
+                        <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Giá tăng dần</option>
+                        <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Giá giảm dần</option>
+                        <option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>Cũ nhất</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- ========== BOOK GRID ========== -->
+            <div class="row g-4">
+                {% for book in page_obj %}
+                    <div class="col-6 col-md-4 col-lg-4">
+                        <div class="card book-card">
+                            <!-- Ảnh bìa -->
+                            <div class="card-img-wrapper">
+                                {% if book.cover_image %}
+                                    <img src="{{ book.cover_image.url }}" class="card-img-top" alt="{{ book.title }}">
+                                {% else %}
+                                    <div class="placeholder-image">
+                                        <i class="fas fa-book"></i>
+                                    </div>
+                                {% endif %}
+                                
+                                <!-- Badge tình trạng -->
+                                {% if book.condition == 'new' %}
+                                    <span class="condition-badge bg-success text-white">{{ book.get_condition_display }}</span>
+                                {% elif book.condition == 'like_new' %}
+                                    <span class="condition-badge bg-primary text-white">{{ book.get_condition_display }}</span>
+                                {% elif book.condition == 'good' %}
+                                    <span class="condition-badge bg-info text-white">{{ book.get_condition_display }}</span>
+                                {% elif book.condition == 'fair' %}
+                                    <span class="condition-badge bg-warning text-dark">{{ book.get_condition_display }}</span>
+                                {% else %}
+                                    <span class="condition-badge bg-secondary text-white">{{ book.get_condition_display }}</span>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Thông tin sách -->
+                            <div class="card-body">
+                                <h5 class="book-title">{{ book.title }}</h5>
+                                
+                                {% if book.subject %}
+                                    <p class="book-subject">
+                                        <i class="fas fa-book-open me-1"></i>{{ book.subject.name }}
+                                    </p>
+                                {% endif %}
+                                
+                                <p class="book-price">{{ book.price|floatformat:0 }}đ</p>
+                            </div>
+                            
+                            <!-- Nút xem chi tiết -->
+                            <div class="card-footer">
+                                <a href="{% url 'books:book_detail' book.pk %}" class="btn btn-view-detail">
+                                    <i class="fas fa-eye me-1"></i>Xem chi tiết
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <!-- Empty State -->
+                    <div class="col-12">
+                        <div class="empty-state">
+                            <i class="fas fa-book-open"></i>
+                            {% if query or condition or min_price or max_price or category %}
+                                <h4>Không tìm thấy sách</h4>
+                                <p>Không có sách nào phù hợp với bộ lọc của bạn</p>
+                                <a href="{% url 'books:book_list' %}" class="btn btn-outline-primary mt-3">
+                                    <i class="fas fa-redo me-2"></i>Xóa bộ lọc
+                                </a>
+                            {% else %}
+                                <h4>Chưa có sách nào</h4>
+                                <p>Chưa có sách nào được đăng bán. Hãy là người đầu tiên!</p>
+                                {% if user.is_authenticated %}
+                                    <a href="{% url 'books:book_create' %}" class="btn btn-primary mt-3">
+                                        <i class="fas fa-plus me-2"></i>Đăng sách ngay
+                                    </a>
+                                {% else %}
+                                    <a href="{% url 'users:user_login' %}" class="btn btn-primary mt-3">
+                                        <i class="fas fa-sign-in-alt me-2"></i>Đăng nhập để đăng sách
+                                    </a>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- ========== PAGINATION ========== -->
+            {% if page_obj.has_other_pages %}
+                <div class="pagination-wrapper">
+                    <nav>
+                        <ul class="pagination justify-content-center">
+                            <!-- Previous -->
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key, val in query_params.items %}&{{ key }}={{ val }}{% endfor %}">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link"><i class="fas fa-chevron-left"></i></span>
+                                </li>
+                            {% endif %}
+                            
+                            <!-- Page Numbers -->
+                            {% for num in page_obj.paginator.page_range %}
+                                {% if page_obj.number == num %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ num }}</span>
+                                    </li>
+                                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ num }}{% for key, val in query_params.items %}&{{ key }}={{ val }}{% endfor %}">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            <!-- Next -->
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key, val in query_params.items %}&{{ key }}={{ val }}{% endfor %}">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link"><i class="fas fa-chevron-right"></i></span>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    
+                    <!-- Page Info -->
+                    <p class="text-center text-muted mt-2">
+                        Trang {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+                    </p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Toggle filter sidebar on mobile
+    function toggleFilter() {
+        const sidebar = document.getElementById('filterSidebar');
+        const overlay = document.getElementById('filterOverlay');
+        sidebar.classList.toggle('show');
+        overlay.classList.toggle('show');
+        document.body.style.overflow = sidebar.classList.contains('show') ? 'hidden' : '';
+    }
+
+    // Update sort without page reload
+    function updateSort(sortValue) {
+        const url = new URL(window.location.href);
+        if (sortValue) {
+            url.searchParams.set('sort', sortValue);
+        } else {
+            url.searchParams.delete('sort');
+        }
+        url.searchParams.delete('page'); // Reset to first page
+        window.location.href = url.toString();
+    }
+
+    // Close filter when clicking outside on mobile
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-submit form when category is clicked
+        const categoryLinks = document.querySelectorAll('.category-list a');
+        categoryLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const url = new URL(this.href);
+                window.location.href = url.toString();
+            });
+        });
+    });
+</script>
 {% endblock %}

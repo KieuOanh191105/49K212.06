@@ -24,15 +24,25 @@ def home(request):
 
 def book_list(request):
     """
-    Danh sách sách
-    - Tìm kiếm theo tên sách, mô tả, môn học
+    Danh sách sách với bộ lọc
+    - Tìm kiếm theo tên sách, mô tả, môn học, tác giả
+    - Lọc theo tình trạng, khoảng giá, danh mục
+    - Sắp xếp theo các tiêu chí
     - Phân trang 20 sách/trang
-    - Dễ mở rộng thêm bộ lọc sau này
     """
     books = Book.objects.filter(status='available').select_related('subject', 'seller')
     
-    # Tìm kiếm đơn giản (sẽ mở rộng thêm bộ lọc sau)
+    # ========== LẤY CÁC THAM SỐ FILTER ==========
     query = request.GET.get('q', '')
+    condition = request.GET.get('condition', '')
+    min_price = request.GET.get('min_price', '')
+    max_price = request.GET.get('max_price', '')
+    sort = request.GET.get('sort', '')
+    category = request.GET.get('category', '')
+    
+    # ========== ÁP DỤNG BỘ LỌC ==========
+    
+    # 1. Tìm kiếm theo tên sách, mô tả, môn học
     if query:
         books = books.filter(
             Q(title__icontains=query) |
@@ -40,21 +50,76 @@ def book_list(request):
             Q(subject__name__icontains=query)
         )
     
-    # Sắp xếp (mặc định mới nhất)
-    books = books.order_by('-created_at')
+    # 2. Lọc theo tình trạng sách
+    if condition:
+        books = books.filter(condition=condition)
     
-    # Phân trang - 20 sách/trang
+    # 3. Lọc theo khoảng giá
+    if min_price:
+        try:
+            books = books.filter(price__gte=int(min_price))
+        except (ValueError, TypeError):
+            pass
+    
+    if max_price:
+        try:
+            books = books.filter(price__lte=int(max_price))
+        except (ValueError, TypeError):
+            pass
+    
+    # 4. Lọc theo danh mục (môn học)
+    if category:
+        books = books.filter(subject_id=category)
+    
+    # 5. Sắp xếp
+    if sort == 'price_asc':
+        books = books.order_by('price')
+    elif sort == 'price_desc':
+        books = books.order_by('-price')
+    elif sort == 'oldest':
+        books = books.order_by('created_at')
+    else:
+        # Mặc định: mới nhất
+        books = books.order_by('-created_at')
+    
+    # ========== PHÂN TRANG ==========
     paginator = Paginator(books, 20)
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
     
-    # Tổng số sách (để hiển thị)
+    # ========== CONTEXT ==========
     total_count = paginator.count
+    
+    # Lấy danh sách môn học cho filter
+    subjects = Subject.objects.all()
+    
+    # Build query string cho pagination (giữ lại các filter)
+    query_params = {}
+    if query:
+        query_params['q'] = query
+    if condition:
+        query_params['condition'] = condition
+    if min_price:
+        query_params['min_price'] = min_price
+    if max_price:
+        query_params['max_price'] = max_price
+    if sort:
+        query_params['sort'] = sort
+    if category:
+        query_params['category'] = category
     
     context = {
         'page_obj': page_obj,
         'query': query,
+        'condition': condition,
+        'min_price': min_price,
+        'max_price': max_price,
+        'sort': sort,
+        'category': category,
         'total_count': total_count,
+        'subjects': subjects,
+        'condition_choices': Book.CONDITION_CHOICES,
+        'query_params': query_params,
     }
     return render(request, 'books/book_list.html', context)
 
