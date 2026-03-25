@@ -141,7 +141,7 @@ class Book(models.Model):
 
     def get_absolute_url(self):
         from django.urls import reverse
-        return reverse('book_detail', kwargs={'pk': self.pk})
+        return reverse('books:book_detail', kwargs={'pk': self.pk})
 
     @property
     def is_available(self):
@@ -190,3 +190,129 @@ class BookImage(models.Model):
         verbose_name = 'Ảnh sách'
         verbose_name_plural = 'Danh sách ảnh'
         ordering = ['order']
+
+
+class PurchaseRequest(models.Model):
+    """
+    Yêu cầu mua sách - US09
+    Người mua gửi yêu cầu, người bán duyệt/từ chối
+    """
+    
+    # Trạng thái yêu cầu
+    STATUS_CHOICES = [
+        ('pending', 'Chờ duyệt'),
+        ('approved', 'Đã duyệt'),
+        ('rejected', 'Đã từ chối'),
+      
+    ]
+    
+    # Thông tin chính
+    book = models.ForeignKey(
+        Book,
+        on_delete=models.CASCADE,
+        related_name='purchase_requests',
+        verbose_name='Sách'
+    )
+    buyer = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='purchase_requests',
+        verbose_name='Người mua'
+    )
+    seller = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='received_purchase_requests',
+        verbose_name='Người bán'
+    )
+    
+    # Trạng thái
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='pending',
+        verbose_name='Trạng thái'
+    )
+    
+    # Lời nhắn từ người mua
+    message = models.TextField(
+        blank=True,
+        default='',
+        verbose_name='Lời nhắn',
+        help_text='Lời nhắn gửi đến người bán'
+    )
+    
+    # Lý do từ chối (tùy chọn)
+    rejection_reason = models.TextField(
+        blank=True,
+        default='',
+        verbose_name='Lý do từ chối'
+    )
+    
+    # Metadata
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Ngày gửi')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Cập nhật')
+    
+    # Thời gian duyệt/từ chối
+    processed_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Ngày xử lý'
+    )
+    
+    class Meta:
+        verbose_name = 'Yêu cầu mua sách'
+        verbose_name_plural = 'Danh sách yêu cầu mua sách'
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['status']),
+            models.Index(fields=['created_at']),
+        ]
+    
+    def __str__(self):
+        return f"Yêu cầu mua '{self.book.title}' từ {self.buyer.username}"
+    
+    def clean(self):
+        """Validate: Không cho người bán tự mua sách của mình"""
+        from django.core.exceptions import ValidationError
+        # Chỉ kiểm tra khi cả buyer và seller đều đã được set
+        if self.buyer_id and self.seller_id and self.buyer == self.seller:
+            raise ValidationError('Bạn không thể mua sách của chính mình!')
+    
+    def save(self, *args, **kwargs):
+        """Tự động set seller từ book khi tạo mới"""
+        if not self.seller_id and self.book_id:
+            self.seller = self.book.seller
+        super().save(*args, **kwargs)
+    
+    @property
+    def is_pending(self):
+        return self.status == 'pending'
+    
+    @property
+    def is_approved(self):
+        return self.status == 'approved'
+    
+    @property
+    def is_rejected(self):
+        return self.status == 'rejected'
+    
+    def approve(self):
+        """Duyệt yêu cầu mua"""
+        from django.utils import timezone
+        self.status = 'approved'
+        self.processed_at = timezone.now()
+        self.save()
+        
+        # Cập nhật trạng thái sách
+        self.book.status = 'sold'
+        self.book.buyer = self.buyer
+        self.book.save()
+    
+    def reject(self, reason=''):
+        """Từ chối yêu cầu mua"""
+        from django.utils import timezone
+        self.status = 'rejected'
+        self.rejection_reason = reason
+        self.processed_at = timezone.now()
+        self.save()

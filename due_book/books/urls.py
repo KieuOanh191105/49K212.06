@@ -34,4 +34,20 @@ urlpatterns = [
     
     # Routes cũ (redirect đến routes mới - tương thích ngược)
     path('sach/<int:pk>/cap-nhat/', views.book_update, name='book_update'),
+    
+    # ==================== PURCHASE REQUEST - US09 ====================
+    # Gửi yêu cầu mua sách
+    path('sach/<int:book_id>/yeu-cau-mua/', views.create_purchase_request, name='create_purchase_request'),
+    
+    # Danh sách yêu cầu mua của tôi (người mua)
+    path('yeu-cau-mua/cua-toi/', views.my_purchase_requests, name='my_purchase_requests'),
+    
+    # Danh sách yêu cầu mua nhận được (người bán)
+    path('yeu-cau-mua/nhan-duoc/', views.received_purchase_requests, name='received_purchase_requests'),
+    
+    # Duyệt yêu cầu mua
+    path('yeu-cau-mua/<int:request_id>/duyet/', views.approve_purchase_request, name='approve_purchase_request'),
+    
+   
+    
 ]

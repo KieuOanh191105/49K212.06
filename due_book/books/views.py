@@ -12,8 +12,8 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.http import JsonResponse
 
-from .models import Book, Subject
-from .forms import BookForm
+from .models import Book, Subject, PurchaseRequest
+from .forms import BookForm, PurchaseRequestForm
 
 
 # ==================== HOME & BOOK LIST ====================
@@ -24,25 +24,15 @@ def home(request):
 
 def book_list(request):
     """
-    Danh sách sách với bộ lọc
-    - Tìm kiếm theo tên sách, mô tả, môn học, tác giả
-    - Lọc theo tình trạng, khoảng giá, danh mục
-    - Sắp xếp theo các tiêu chí
+    Danh sách sách
+    - Tìm kiếm theo tên sách, mô tả, môn học
     - Phân trang 20 sách/trang
+    - Dễ mở rộng thêm bộ lọc sau này
     """
     books = Book.objects.filter(status='available').select_related('subject', 'seller')
     
-    # ========== LẤY CÁC THAM SỐ FILTER ==========
+    # Tìm kiếm đơn giản (sẽ mở rộng thêm bộ lọc sau)
     query = request.GET.get('q', '')
-    condition = request.GET.get('condition', '')
-    min_price = request.GET.get('min_price', '')
-    max_price = request.GET.get('max_price', '')
-    sort = request.GET.get('sort', '')
-    category = request.GET.get('category', '')
-    
-    # ========== ÁP DỤNG BỘ LỌC ==========
-    
-    # 1. Tìm kiếm theo tên sách, mô tả, môn học
     if query:
         books = books.filter(
             Q(title__icontains=query) |
@@ -50,76 +40,21 @@ def book_list(request):
             Q(subject__name__icontains=query)
         )
     
-    # 2. Lọc theo tình trạng sách
-    if condition:
-        books = books.filter(condition=condition)
+    # Sắp xếp (mặc định mới nhất)
+    books = books.order_by('-created_at')
     
-    # 3. Lọc theo khoảng giá
-    if min_price:
-        try:
-            books = books.filter(price__gte=int(min_price))
-        except (ValueError, TypeError):
-            pass
-    
-    if max_price:
-        try:
-            books = books.filter(price__lte=int(max_price))
-        except (ValueError, TypeError):
-            pass
-    
-    # 4. Lọc theo danh mục (môn học)
-    if category:
-        books = books.filter(subject_id=category)
-    
-    # 5. Sắp xếp
-    if sort == 'price_asc':
-        books = books.order_by('price')
-    elif sort == 'price_desc':
-        books = books.order_by('-price')
-    elif sort == 'oldest':
-        books = books.order_by('created_at')
-    else:
-        # Mặc định: mới nhất
-        books = books.order_by('-created_at')
-    
-    # ========== PHÂN TRANG ==========
+    # Phân trang - 20 sách/trang
     paginator = Paginator(books, 20)
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
     
-    # ========== CONTEXT ==========
+    # Tổng số sách (để hiển thị)
     total_count = paginator.count
-    
-    # Lấy danh sách môn học cho filter
-    subjects = Subject.objects.all()
-    
-    # Build query string cho pagination (giữ lại các filter)
-    query_params = {}
-    if query:
-        query_params['q'] = query
-    if condition:
-        query_params['condition'] = condition
-    if min_price:
-        query_params['min_price'] = min_price
-    if max_price:
-        query_params['max_price'] = max_price
-    if sort:
-        query_params['sort'] = sort
-    if category:
-        query_params['category'] = category
     
     context = {
         'page_obj': page_obj,
         'query': query,
-        'condition': condition,
-        'min_price': min_price,
-        'max_price': max_price,
-        'sort': sort,
-        'category': category,
         'total_count': total_count,
-        'subjects': subjects,
-        'condition_choices': Book.CONDITION_CHOICES,
-        'query_params': query_params,
     }
     return render(request, 'books/book_list.html', context)
 
@@ -325,4 +260,223 @@ class BookDetailView(DetailView):
             subject=self.object.subject,
             status='available'
         ).exclude(pk=self.object.pk)[:4]
+        
+        # Thêm context cho purchase request
+        if self.request.user.is_authenticated:
+            # Kiểm tra user đã gửi request cho sách này chưa
+            existing_request = PurchaseRequest.objects.filter(
+                book=self.object,
+                buyer=self.request.user,
+                status='pending'
+            ).first()
+            context['existing_request'] = existing_request
+            context['purchase_form'] = PurchaseRequestForm()
+        
         return context
+
+
+# ==================== Yêu Cầu mua (US09) ====================
+
+@login_required
+def create_purchase_request(request, book_id):
+    """
+    Gửi yêu cầu mua sách - US09
+    - Chỉ chấp nhận POST method
+    - Kiểm tra: sách còn available, không phải chính chủ
+    """
+    book = get_object_or_404(Book, pk=book_id)
+    
+    # Kiểm tra sách còn bán không
+    if not book.is_available:
+        messages.error(request, 'Sách này hiện không còn bán.')
+        return redirect('books:book_detail', pk=book_id)
+    
+    # Kiểm tra không phải chính chủ
+    if book.seller == request.user:
+        messages.error(request, 'Bạn không thể mua sách của chính mình!')
+        return redirect('books:book_detail', pk=book_id)
+    
+    # Kiểm tra đã có request pending chưa
+    existing_request = PurchaseRequest.objects.filter(
+        book=book,
+        buyer=request.user,
+        status='pending'
+    ).first()
+    
+    if existing_request:
+        messages.warning(request, 'Bạn đã gửi yêu cầu mua sách này rồi. Vui lòng đợi người bán phản hồi.')
+        return redirect('books:book_detail', pk=book_id)
+    
+    if request.method == 'POST':
+        form = PurchaseRequestForm(request.POST)
+        if form.is_valid():
+            try:
+                purchase_request = form.save(commit=False)
+                purchase_request.book = book
+                purchase_request.buyer = request.user
+                purchase_request.seller = book.seller
+                purchase_request.save()
+                
+                messages.success(
+                    request, 
+                    f'Đã gửi yêu cầu mua sách thành công! Người bán sẽ sớm phản hồi.'
+                )
+                
+                # TODO: Gửi email thông báo cho người bán (tùy chọn)
+                # send_purchase_notification_email(purchase_request)
+                
+            except Exception as e:
+                messages.error(request, 'Có lỗi xảy ra. Vui lòng thử lại.')
+        else:
+            messages.error(request, 'Dữ liệu không hợp lệ.')
+    else:
+        messages.error(request, 'Yêu cầu không hợp lệ.')
+    
+    return redirect('books:book_detail', pk=book_id)
+
+
+@login_required
+def my_purchase_requests(request):
+    """
+    Danh sách yêu cầu mua sách của tôi (người mua)
+    """
+    requests_list = PurchaseRequest.objects.filter(
+        buyer=request.user
+    ).select_related('book', 'seller').order_by('-created_at')
+    
+    # Thống kê theo trạng thái
+    pending_count = requests_list.filter(status='pending').count()
+    approved_count = requests_list.filter(status='approved').count()
+    rejected_count = requests_list.filter(status='rejected').count()
+    
+    # Lọc theo trạng thái
+    status_filter = request.GET.get('status', '')
+    if status_filter:
+        requests_list = requests_list.filter(status=status_filter)
+    
+    # Phân trang
+    paginator = Paginator(requests_list, 10)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'page_obj': page_obj,
+        'status_filter': status_filter,
+        'status_choices': PurchaseRequest.STATUS_CHOICES,
+        'title': 'Yêu cầu mua sách của tôi',
+        'pending_count': pending_count,
+        'approved_count': approved_count,
+        'rejected_count': rejected_count,
+    }
+    return render(request, 'books/my_purchase_requests.html', context)
+
+
+@login_required
+def received_purchase_requests(request):
+    """
+    Danh sách yêu cầu mua sách nhận được (người bán xem)
+    """
+    requests_list = PurchaseRequest.objects.filter(
+        seller=request.user
+    ).select_related('book', 'buyer').order_by('-created_at')
+    
+    # Lọc theo trạng thái
+    status_filter = request.GET.get('status', '')
+    if status_filter:
+        requests_list = requests_list.filter(status=status_filter)
+    
+    # Phân trang
+    paginator = Paginator(requests_list, 10)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'page_obj': page_obj,
+        'status_filter': status_filter,
+        'status_choices': PurchaseRequest.STATUS_CHOICES,
+        'title': 'Yêu cầu mua sách nhận được',
+    }
+    return render(request, 'books/received_purchase_requests.html', context)
+
+
+@login_required
+def approve_purchase_request(request, request_id):
+    """
+    Người bán duyệt yêu cầu mua
+    - Chỉ chấp nhận POST method
+    - Cập nhật trạng thái request và sách
+    """
+    purchase_request = get_object_or_404(PurchaseRequest, pk=request_id)
+    
+    # Kiểm tra quyền: chỉ người bán mới được duyệt
+    if purchase_request.seller != request.user:
+        messages.error(request, 'Bạn không có quyền duyệt yêu cầu này.')
+        return redirect('books:received_purchase_requests')
+    
+    # Kiểm tra request còn pending
+    if not purchase_request.is_pending:
+        messages.error(request, 'Yêu cầu này đã được xử lý rồi.')
+        return redirect('books:received_purchase_requests')
+    
+    # Kiểm tra sách còn available
+    if not purchase_request.book.is_available:
+        messages.error(request, 'Sách này đã không còn bán.')
+        return redirect('books:received_purchase_requests')
+    
+    if request.method == 'POST':
+        try:
+            purchase_request.approve()
+            messages.success(
+                request, 
+                f'Đã duyệt yêu cầu mua "{purchase_request.book.title}". Sách đã được đánh dấu là đã bán.'
+            )
+            
+            # TODO: Gửi email thông báo cho người mua (tùy chọn)
+            # send_approval_notification_email(purchase_request)
+            
+        except Exception as e:
+            messages.error(request, 'Có lỗi xảy ra. Vui lòng thử lại.')
+    else:
+        messages.error(request, 'Yêu cầu không hợp lệ.')
+    
+    return redirect('books:received_purchase_requests')
+
+
+# @login_required
+# def reject_purchase_request(request, request_id):
+#     """
+#     Người bán từ chối yêu cầu mua
+#     - Chỉ chấp nhận POST method
+#     """
+#     purchase_request = get_object_or_404(PurchaseRequest, pk=request_id)
+    
+#     # Kiểm tra quyền: chỉ người bán mới được từ chối
+#     if purchase_request.seller != request.user:
+#         messages.error(request, 'Bạn không có quyền từ chối yêu cầu này.')
+#         return redirect('books:received_purchase_requests')
+    
+#     # Kiểm tra request còn pending
+#     if not purchase_request.is_pending:
+#         messages.error(request, 'Yêu cầu này đã được xử lý rồi.')
+#         return redirect('books:received_purchase_requests')
+    
+#     if request.method == 'POST':
+#         reason = request.POST.get('reason', '')
+#         try:
+#             purchase_request.reject(reason)
+#             messages.success(
+#                 request, 
+#                 f'Đã từ chối yêu cầu mua "{purchase_request.book.title}".'
+#             )
+            
+#             # TODO: Gửi email thông báo cho người mua (tùy chọn)
+#             # send_rejection_notification_email(purchase_request)
+            
+#         except Exception as e:
+#             messages.error(request, 'Có lỗi xảy ra. Vui lòng thử lại.')
+#     else:
+#         messages.error(request, 'Yêu cầu không hợp lệ.')
+    
+#     return redirect('books:received_purchase_requests')
+
+

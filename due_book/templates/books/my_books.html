@@ -346,9 +346,14 @@
                 <p>Quản lý các bài đăng bán sách của bạn</p>
             </div>
             <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                <a href="{% url 'books:book_create' %}" class="btn btn-add-book">
-                    <i class="fas fa-plus me-2"></i>Đăng bán sách mới
-                </a>
+                <div class="d-flex gap-2 justify-content-md-end">
+                    <a href="{% url 'books:my_purchase_requests' %}" class="btn btn-add-book">
+                        <i class="fas fa-shopping-bag me-2"></i>Yêu cầu mua của tôi
+                    </a>
+                    <a href="{% url 'books:book_create' %}" class="btn btn-add-book">
+                        <i class="fas fa-plus me-2"></i>Đăng bán sách mới
+                    </a>
+                </div>
             </div>
         </div>
     </div>

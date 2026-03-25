@@ -4,7 +4,7 @@ Forms for Books App
 from django import forms
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
-from .models import Book, Subject
+from .models import Book, Subject, PurchaseRequest
 
 
 class BookForm(forms.ModelForm):
@@ -154,3 +154,33 @@ class BookForm(forms.ModelForm):
         """Clean method chung"""
         cleaned_data = super().clean()
         return cleaned_data
+
+
+class PurchaseRequestForm(forms.ModelForm):
+    """
+    Form gửi yêu cầu mua sách - US09
+    """
+    
+    message = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 3,
+            'placeholder': 'Nhập lời nhắn cho người bán (tùy chọn)...',
+            'maxlength': '500',
+        }),
+        required=False,
+        label='Lời nhắn',
+        help_text='Gửi lời nhắn đến người bán (không bắt buộc)'
+    )
+    
+    class Meta:
+        model = PurchaseRequest
+        fields = ['message']
+    
+    def clean_message(self):
+        """Validate message"""
+        message = self.cleaned_data.get('message', '')
+        # Giới hạn độ dài
+        if len(message) > 500:
+            raise forms.ValidationError('Lời nhắn không được vượt quá 500 ký tự.')
+        return message.strip()
