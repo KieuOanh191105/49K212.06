@@ -48,6 +48,7 @@ urlpatterns = [
     # Duyệt yêu cầu mua
     path('yeu-cau-mua/<int:request_id>/duyet/', views.approve_purchase_request, name='approve_purchase_request'),
     
-   
+    # Từ chối yêu cầu mua
+    path('yeu-cau-mua/<int:request_id>/tu-choi/', views.reject_purchase_request, name='reject_purchase_request'),
     
 ]

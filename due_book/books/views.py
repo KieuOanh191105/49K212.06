@@ -442,41 +442,41 @@ def approve_purchase_request(request, request_id):
     return redirect('books:received_purchase_requests')
 
 
-# @login_required
-# def reject_purchase_request(request, request_id):
-#     """
-#     Người bán từ chối yêu cầu mua
-#     - Chỉ chấp nhận POST method
-#     """
-#     purchase_request = get_object_or_404(PurchaseRequest, pk=request_id)
+@login_required
+def reject_purchase_request(request, request_id):
+    """
+    Người bán từ chối yêu cầu mua
+    - Chỉ chấp nhận POST method
+    """
+    purchase_request = get_object_or_404(PurchaseRequest, pk=request_id)
     
-#     # Kiểm tra quyền: chỉ người bán mới được từ chối
-#     if purchase_request.seller != request.user:
-#         messages.error(request, 'Bạn không có quyền từ chối yêu cầu này.')
-#         return redirect('books:received_purchase_requests')
+    # Kiểm tra quyền: chỉ người bán mới được từ chối
+    if purchase_request.seller != request.user:
+        messages.error(request, 'Bạn không có quyền từ chối yêu cầu này.')
+        return redirect('books:received_purchase_requests')
     
-#     # Kiểm tra request còn pending
-#     if not purchase_request.is_pending:
-#         messages.error(request, 'Yêu cầu này đã được xử lý rồi.')
-#         return redirect('books:received_purchase_requests')
+    # Kiểm tra request còn pending
+    if not purchase_request.is_pending:
+        messages.error(request, 'Yêu cầu này đã được xử lý rồi.')
+        return redirect('books:received_purchase_requests')
     
-#     if request.method == 'POST':
-#         reason = request.POST.get('reason', '')
-#         try:
-#             purchase_request.reject(reason)
-#             messages.success(
-#                 request, 
-#                 f'Đã từ chối yêu cầu mua "{purchase_request.book.title}".'
-#             )
+    if request.method == 'POST':
+        reason = request.POST.get('reason', '')
+        try:
+            purchase_request.reject(reason)
+            messages.success(
+                request, 
+                f'Đã từ chối yêu cầu mua "{purchase_request.book.title}".'
+            )
             
-#             # TODO: Gửi email thông báo cho người mua (tùy chọn)
-#             # send_rejection_notification_email(purchase_request)
+            # TODO: Gửi email thông báo cho người mua (tùy chọn)
+            # send_rejection_notification_email(purchase_request)
             
-#         except Exception as e:
-#             messages.error(request, 'Có lỗi xảy ra. Vui lòng thử lại.')
-#     else:
-#         messages.error(request, 'Yêu cầu không hợp lệ.')
+        except Exception as e:
+            messages.error(request, 'Có lỗi xảy ra. Vui lòng thử lại.')
+    else:
+        messages.error(request, 'Yêu cầu không hợp lệ.')
     
-#     return redirect('books:received_purchase_requests')
+    return redirect('books:received_purchase_requests')
 
 
