@@ -27,6 +27,9 @@ urlpatterns = [
 
     # ===== USERS APP US2  =====
     path('users/', include('users.urls', namespace='users')),   
+    
+    # ===== RATINGS APP =====
+    path('danh-gia/', include('ratings.urls', namespace='ratings')),
 ]
 
 # Serve media files in development

@@ -380,6 +380,11 @@ def received_purchase_requests(request):
         seller=request.user
     ).select_related('book', 'buyer').order_by('-created_at')
     
+    # Thống kê theo trạng thái
+    pending_count = requests_list.filter(status='pending').count()
+    approved_count = requests_list.filter(status='approved').count()
+    rejected_count = requests_list.filter(status='rejected').count()
+    
     # Lọc theo trạng thái
     status_filter = request.GET.get('status', '')
     if status_filter:
@@ -395,6 +400,9 @@ def received_purchase_requests(request):
         'status_filter': status_filter,
         'status_choices': PurchaseRequest.STATUS_CHOICES,
         'title': 'Yêu cầu mua sách nhận được',
+        'pending_count': pending_count,
+        'approved_count': approved_count,
+        'rejected_count': rejected_count,
     }
     return render(request, 'books/received_purchase_requests.html', context)
 
@@ -430,10 +438,6 @@ def approve_purchase_request(request, request_id):
                 request, 
                 f'Đã duyệt yêu cầu mua "{purchase_request.book.title}". Sách đã được đánh dấu là đã bán.'
             )
-            
-            # TODO: Gửi email thông báo cho người mua (tùy chọn)
-            # send_approval_notification_email(purchase_request)
-            
         except Exception as e:
             messages.error(request, 'Có lỗi xảy ra. Vui lòng thử lại.')
     else:
@@ -468,10 +472,6 @@ def reject_purchase_request(request, request_id):
                 request, 
                 f'Đã từ chối yêu cầu mua "{purchase_request.book.title}".'
             )
-            
-            # TODO: Gửi email thông báo cho người mua (tùy chọn)
-            # send_rejection_notification_email(purchase_request)
-            
         except Exception as e:
             messages.error(request, 'Có lỗi xảy ra. Vui lòng thử lại.')
     else:
