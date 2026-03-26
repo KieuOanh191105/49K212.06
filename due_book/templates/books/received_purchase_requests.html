@@ -1,0 +1,603 @@
+{% extends 'base.html' %}
+
+{% block title %}Yêu cầu mua nhận được - DUE Book{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ========== PAGE HEADER ========== */
+    .page-header {
+        background: linear-gradient(135deg, #004080, #0066cc);
+        border-radius: 12px;
+        padding: 20px 25px;
+        margin-bottom: 20px;
+        color: white;
+    }
+    
+    .page-header h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+    
+    .page-header p {
+        opacity: 0.9;
+        margin-bottom: 0;
+        font-size: 0.9rem;
+    }
+
+    /* ========== STATISTICS CARDS ========== */
+    .stat-card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.12);
+    }
+    
+    .stat-card .card-body {
+        padding: 20px;
+    }
+    
+    .stat-card h3 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+    
+    .stat-card p {
+        margin-bottom: 0;
+        font-size: 0.9rem;
+    }
+    
+    .stat-pending h3 { color: #f39c12; }
+    .stat-approved h3 { color: #27ae60; }
+    .stat-rejected h3 { color: #e74c3c; }
+
+    /* ========== REQUEST CARD ========== */
+    .request-card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+    
+    .request-card:hover {
+        box-shadow: 0 5px 20px rgba(0,0,0,0.12);
+    }
+    
+    .request-card .card-body {
+        padding: 20px;
+    }
+    
+    .request-card.pending {
+        border-left: 4px solid #f39c12;
+    }
+    
+    .request-card.approved {
+        border-left: 4px solid #27ae60;
+    }
+    
+    .request-card.rejected {
+        border-left: 4px solid #e74c3c;
+    }
+
+    /* Book info in request */
+    .book-info {
+        display: flex;
+        gap: 15px;
+        align-items: flex-start;
+    }
+    
+    .book-thumbnail {
+        width: 80px;
+        height: 100px;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #f5f5f5;
+        flex-shrink: 0;
+    }
+    
+    .book-thumbnail img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .book-thumbnail .placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #bbb;
+        font-size: 2rem;
+    }
+    
+    .book-details h5 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 5px;
+    }
+    
+    .book-details h5 a {
+        color: #333;
+        text-decoration: none;
+    }
+    
+    .book-details h5 a:hover {
+        color: #004080;
+    }
+    
+    .book-details .book-price {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #e74c3c;
+    }
+    
+    .book-details .book-meta {
+        font-size: 0.85rem;
+        color: #888;
+    }
+
+    /* Buyer info */
+    .buyer-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .buyer-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #004080, #0066cc);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+    }
+    
+    .buyer-details a {
+        font-weight: 600;
+        color: #333;
+        text-decoration: none;
+    }
+    
+    .buyer-details a:hover {
+        color: #004080;
+    }
+    
+    .buyer-details .request-date {
+        font-size: 0.8rem;
+        color: #888;
+    }
+
+    /* Message box */
+    .message-box {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 12px 15px;
+        font-size: 0.9rem;
+        color: #555;
+        margin-top: 10px;
+    }
+    
+    .message-box i {
+        color: #004080;
+        margin-right: 5px;
+    }
+
+    /* Status badge */
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+    
+    .status-pending {
+        background: #fff3cd;
+        color: #856404;
+    }
+    
+    .status-approved {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .status-rejected {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    /* Action buttons */
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    
+    .btn-approve {
+        background: #27ae60;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 8px 16px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-approve:hover {
+        background: #219a52;
+        color: white;
+    }
+    
+    .btn-reject {
+        background: #e74c3c;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 8px 16px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-reject:hover {
+        background: #c0392b;
+        color: white;
+    }
+
+    /* Rejection reason */
+    .rejection-reason {
+        background: #fef5f5;
+        border-radius: 8px;
+        padding: 10px 15px;
+        font-size: 0.85rem;
+        color: #c0392b;
+        margin-top: 10px;
+    }
+    
+    .rejection-reason i {
+        margin-right: 5px;
+    }
+
+    /* Filter section */
+    .filter-card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        margin-bottom: 20px;
+    }
+    
+    .filter-select {
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 8px 15px;
+        min-width: 150px;
+    }
+    
+    .filter-select:focus {
+        border-color: #004080;
+        box-shadow: 0 0 0 3px rgba(0,64,128,0.1);
+    }
+
+    /* Empty state */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: #f8f9fa;
+        border-radius: 15px;
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        color: #ddd;
+        margin-bottom: 20px;
+    }
+    
+    .empty-state h4 {
+        color: #666;
+        margin-bottom: 10px;
+    }
+    
+    .empty-state p {
+        color: #888;
+    }
+
+    /* Modal */
+    .modal-header {
+        background: linear-gradient(135deg, #004080, #0066cc);
+        color: white;
+    }
+    
+    .modal-header .btn-close {
+        filter: brightness(0) invert(1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-2">
+    <!-- ========== BREADCRUMB ========== -->
+    <nav aria-label="breadcrumb" class="mb-2">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'books:home' %}">
+                    <i class="fas fa-home"></i> Trang chủ
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'books:my_books' %}">Sách của tôi</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                Yêu cầu mua nhận được
+            </li>
+        </ol>
+    </nav>
+
+    <!-- ========== PAGE HEADER ========== -->
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1><i class="fas fa-inbox me-2"></i>Yêu cầu mua nhận được</h1>
+                <p>Xem và duyệt các yêu cầu mua sách từ người mua</p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <a href="{% url 'books:my_books' %}" class="btn btn-light">
+                    <i class="fas fa-book me-2"></i>Sách của tôi
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== STATISTICS ========== -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card stat-card stat-pending text-center">
+                <div class="card-body">
+                    <h3>{{ pending_count|default:"0" }}</h3>
+                    <p class="text-muted"><i class="fas fa-clock me-1"></i>Chờ duyệt</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card stat-approved text-center">
+                <div class="card-body">
+                    <h3>{{ approved_count|default:"0" }}</h3>
+                    <p class="text-muted"><i class="fas fa-check-circle me-1"></i>Đã duyệt</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card stat-rejected text-center">
+                <div class="card-body">
+                    <h3>{{ rejected_count|default:"0" }}</h3>
+                    <p class="text-muted"><i class="fas fa-times-circle me-1"></i>Đã từ chối</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== FILTER SECTION ========== -->
+    <div class="card filter-card">
+        <div class="card-body">
+            <form method="get" class="d-flex align-items-center">
+                <label class="me-2 fw-medium">Lọc theo trạng thái:</label>
+                <select name="status" class="form-select filter-select" onchange="this.form.submit()">
+                    <option value="">Tất cả</option>
+                    {% for code, label in status_choices %}
+                        <option value="{{ code }}" {% if status_filter == code %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========== REQUEST LIST ========== -->
+    {% if page_obj.object_list %}
+        {% for req in page_obj %}
+            <div class="card request-card {{ req.status }}">
+                <div class="card-body">
+                    <div class="row align-items-start">
+                        <!-- Book Info -->
+                        <div class="col-md-5">
+                            <div class="book-info">
+                                <div class="book-thumbnail">
+                                    {% if req.book.cover_image %}
+                                        <img src="{{ req.book.cover_image.url }}" alt="{{ req.book.title }}">
+                                    {% else %}
+                                        <div class="placeholder">
+                                            <i class="fas fa-book"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="book-details">
+                                    <h5>
+                                        <a href="{% url 'books:book_detail' req.book.pk %}">{{ req.book.title }}</a>
+                                    </h5>
+                                    <p class="book-price">{{ req.book.price|floatformat:0 }}đ</p>
+                                    <p class="book-meta">
+                                        <i class="fas fa-layer-group me-1"></i>{{ req.book.get_condition_display }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Buyer Info -->
+                        <div class="col-md-4">
+                            <div class="buyer-info">
+                                <div class="buyer-avatar">
+                                    {{ req.buyer.username|slice:":1"|upper }}
+                                </div>
+                                <div class="buyer-details">
+                                    <a href="{% url 'users:user_profile_by_username' req.buyer.username %}">
+                                        {{ req.buyer.username|title }}
+                                    </a>
+                                    <div class="request-date">
+                                        <i class="fas fa-clock me-1"></i>{{ req.created_at|date:"d/m/Y H:i" }}
+                                    </div>
+                                </div>
+                            </div>
+                            {% if req.message %}
+                                <div class="message-box">
+                                    <i class="fas fa-comment"></i>{{ req.message }}
+                                </div>
+                            {% endif %}
+                            {% if req.status == 'rejected' and req.rejection_reason %}
+                                <div class="rejection-reason">
+                                    <i class="fas fa-info-circle"></i>Lý do: {{ req.rejection_reason }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Status & Actions -->
+                        <div class="col-md-3 text-md-end">
+                            <div class="mb-2">
+                                {% if req.status == 'pending' %}
+                                    <span class="status-badge status-pending">
+                                        <i class="fas fa-clock me-1"></i>Chờ duyệt
+                                    </span>
+                                {% elif req.status == 'approved' %}
+                                    <span class="status-badge status-approved">
+                                        <i class="fas fa-check me-1"></i>Đã duyệt
+                                    </span>
+                                {% else %}
+                                    <span class="status-badge status-rejected">
+                                        <i class="fas fa-times me-1"></i>Đã từ chối
+                                    </span>
+                                {% endif %}
+                            </div>
+                            
+                            {% if req.status == 'pending' %}
+                                <div class="action-buttons justify-content-md-end">
+                                    <form action="{% url 'books:approve_purchase_request' req.pk %}" method="post" style="display: inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-approve" onclick="return confirm('Bạn có chắc muốn duyệt yêu cầu này? Sách sẽ được đánh dấu là đã bán.')">
+                                            <i class="fas fa-check me-1"></i>Duyệt
+                                        </button>
+                                    </form>
+                                    <button type="button" class="btn btn-reject" onclick="showRejectModal({{ req.pk }})">
+                                        <i class="fas fa-times me-1"></i>Từ chối
+                                    </button>
+                                </div>
+                            {% elif req.status == 'approved' %}
+                                <small class="text-success">
+                                    <i class="fas fa-check-circle me-1"></i>Đã xử lý
+                                </small>
+                            {% else %}
+                                <small class="text-muted">
+                                    <i class="fas fa-times-circle me-1"></i>Đã xử lý
+                                </small>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <i class="fas fa-inbox"></i>
+            <h4>Chưa có yêu cầu mua nào</h4>
+            <p>Khi có người gửi yêu cầu mua sách của bạn, chúng sẽ hiển thị ở đây.</p>
+            <a href="{% url 'books:book_list' %}" class="btn btn-primary mt-3">
+                <i class="fas fa-book me-2"></i>Xem sách
+            </a>
+        </div>
+    {% endif %}
+
+    <!-- ========== PAGINATION ========== -->
+    {% if page_obj.has_other_pages %}
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link"><i class="fas fa-chevron-left"></i></span>
+                    </li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% if status_filter %}&status={{ status_filter }}{% endif %}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link"><i class="fas fa-chevron-right"></i></span>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        <p class="text-center text-muted mt-2">
+            Trang {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+        </p>
+    {% endif %}
+</div>
+
+<!-- Reject Modal -->
+<div class="modal fade" id="rejectModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-times-circle me-2"></i>Từ chối yêu cầu mua
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="rejectForm" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p>Bạn có chắc muốn từ chối yêu cầu mua này?</p>
+                    <div class="mb-3">
+                        <label class="form-label">Lý do từ chối (tùy chọn):</label>
+                        <textarea name="reason" class="form-control" rows="3" placeholder="Ví dụ: Sách đã có người đặt trước..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-times me-1"></i>Từ chối
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function showRejectModal(requestId) {
+        const modal = new bootstrap.Modal(document.getElementById('rejectModal'));
+        const form = document.getElementById('rejectForm');
+        form.action = '/yeu-cau-mua/' + requestId + '/tu-choi/';
+        modal.show();
+    }
+</script>
+{% endblock %}
