@@ -1,0 +1,678 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Sách đã mua - DUE Book{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Purchased Books Page Styles */
+    .purchased-books-page {
+        background-color: #f8fafc;
+        padding: 2rem 0;
+        min-height: calc(100vh - 200px);
+    }
+
+    :root {
+        --light-bg: #f8fafc;
+        --primary-color: #005a9c;
+        --primary-dark: #004080;
+        --success-color: #10b981;
+        --border-color: #e2e8f0;
+        --dark-text: #1e293b;
+        --light-text: #64748b;
+        --secondary-color: #64748b;
+        --radius-xl: 1rem;
+        --radius-md: 0.5rem;
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    .page-header {
+        background: white;
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-md);
+        padding: 1.5rem 2rem;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .page-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--dark-text);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .page-title i {
+        color: var(--success-color);
+    }
+
+    .page-stats {
+        display: flex;
+        gap: 2rem;
+    }
+
+    .stat-item {
+        text-align: center;
+    }
+
+    .stat-number {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary-color);
+    }
+
+    .stat-label {
+        font-size: 0.875rem;
+        color: var(--light-text);
+    }
+
+    /* Purchased Books Grid */
+    .purchased-books-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 1.5rem;
+    }
+
+    /* Purchased Book Card */
+    .purchased-book-card {
+        background: white;
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-md);
+        overflow: hidden;
+        transition: all 0.3s ease;
+        border: 1px solid var(--border-color);
+    }
+
+    .purchased-book-card:hover {
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-4px);
+    }
+
+    .book-header {
+        position: relative;
+        display: flex;
+        gap: 1rem;
+        padding: 1rem;
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    }
+
+    .book-image {
+        width: 100px;
+        height: 130px;
+        object-fit: cover;
+        border-radius: var(--radius-md);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        flex-shrink: 0;
+    }
+
+    .book-image-placeholder {
+        width: 100px;
+        height: 130px;
+        background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .book-image-placeholder i {
+        font-size: 2rem;
+        color: var(--secondary-color);
+        opacity: 0.5;
+    }
+
+    .book-info {
+        flex: 1;
+    }
+
+    .book-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--dark-text);
+        margin-bottom: 0.5rem;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .book-title a {
+        color: var(--dark-text);
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+    .book-title a:hover {
+        color: var(--primary-color);
+    }
+
+    .book-meta {
+        font-size: 0.875rem;
+        color: var(--light-text);
+        margin-bottom: 0.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .book-meta i {
+        color: var(--primary-color);
+    }
+
+    .book-price {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: var(--success-color);
+        margin-top: 0.5rem;
+    }
+
+    .book-body {
+        padding: 1rem;
+    }
+
+    .seller-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        background: var(--light-bg);
+        border-radius: var(--radius-md);
+        margin-bottom: 1rem;
+    }
+
+    .seller-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid var(--border-color);
+    }
+
+    .seller-avatar-placeholder {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1rem;
+    }
+
+    .seller-details {
+        flex: 1;
+    }
+
+    .seller-name {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--dark-text);
+    }
+
+    .seller-name a {
+        color: var(--dark-text);
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+    .seller-name a:hover {
+        color: var(--primary-color);
+    }
+
+    .seller-rating {
+        font-size: 0.75rem;
+        color: var(--light-text);
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .seller-rating .stars {
+        color: #fbbf24;
+    }
+
+    /* Rating Section */
+    .rating-section {
+        padding: 1rem;
+        border-top: 1px solid var(--border-color);
+        background: var(--light-bg);
+    }
+
+    .rating-status {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .rating-display {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .rating-stars {
+        font-size: 1rem;
+        color: #fbbf24;
+        letter-spacing: 2px;
+    }
+
+    .rating-date {
+        font-size: 0.75rem;
+        color: var(--light-text);
+    }
+
+    .rating-comment {
+        margin-top: 0.75rem;
+        padding: 0.75rem;
+        background: white;
+        border-radius: var(--radius-md);
+        border-left: 3px solid var(--primary-color);
+        font-size: 0.875rem;
+        color: var(--dark-text);
+        line-height: 1.5;
+    }
+
+    .btn-rate {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+        color: white;
+        border: none;
+        padding: 0.625rem 1.25rem;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        white-space: nowrap;
+    }
+
+    .btn-rate:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 90, 156, 0.3);
+        color: white;
+    }
+
+    .btn-rate i {
+        font-size: 0.875rem;
+    }
+
+    .rated-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.5rem 1rem;
+        background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%);
+        color: white;
+        border-radius: var(--radius-md);
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    .rated-badge i {
+        color: #fbbf24;
+    }
+
+    /* Empty State */
+    .empty-purchased {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: var(--radius-xl);
+        border: 2px dashed var(--border-color);
+        grid-column: 1 / -1;
+    }
+
+    .empty-purchased i {
+        font-size: 4rem;
+        color: var(--secondary-color);
+        opacity: 0.5;
+        margin-bottom: 1.5rem;
+    }
+
+    .empty-purchased h3 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--dark-text);
+        margin-bottom: 0.75rem;
+    }
+
+    .empty-purchased p {
+        color: var(--light-text);
+        margin-bottom: 1.5rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 767px) {
+        .purchased-books-page {
+            padding: 1rem 0;
+        }
+
+        .page-header {
+            flex-direction: column;
+            gap: 1rem;
+            padding: 1rem;
+        }
+
+        .page-stats {
+            gap: 1rem;
+            width: 100%;
+            justify-content: space-around;
+        }
+
+        .purchased-books-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .book-image,
+        .book-image-placeholder {
+            width: 80px;
+            height: 100px;
+        }
+
+        .book-title {
+            font-size: 0.9rem;
+        }
+
+        .rating-status {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="purchased-books-page">
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="page-title">
+                <i class="fas fa-shopping-cart"></i>
+                Sách đã mua
+            </div>
+            {% if purchased_books %}
+                <div class="page-stats">
+                    <div class="stat-item">
+                        <div class="stat-number">{{ total_count }}</div>
+                        <div class="stat-label">Sách đã mua</div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Purchased Books Grid -->
+        {% if purchased_books %}
+            <div class="purchased-books-grid">
+                {% for item in purchased_books %}
+                    <div class="purchased-book-card">
+                        <!-- Book Header -->
+                        <div class="book-header">
+                            {% if item.book.cover_image %}
+                                <img src="{{ item.book.cover_image.url }}" class="book-image" alt="{{ item.book.title }}">
+                            {% else %}
+                                <div class="book-image-placeholder">
+                                    <i class="fas fa-book"></i>
+                                </div>
+                            {% endif %}
+
+                            <div class="book-info">
+                                <h3 class="book-title">
+                                    <a href="{{ item.book.get_absolute_url }}">{{ item.book.title }}</a>
+                                </h3>
+                                <div class="book-meta">
+                                    <i class="fas fa-user-circle"></i>
+                                    <span>Người bán: </span>
+                                    <a href="{% url 'users:user_profile_by_username' item.seller.username %}" class="text-decoration-none">
+                                        <strong>{{ item.seller.username|title }}</strong>
+                                    </a>
+                                </div>
+                                <div class="book-meta">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <span>Đã mua: {{ item.purchase_date|date:"d/m/Y" }}</span>
+                                </div>
+                                <div class="book-price">{{ item.book.price|floatformat:0 }}đ</div>
+                            </div>
+                        </div>
+
+                        <!-- Book Body -->
+                        <div class="book-body">
+                            <!-- Seller Info -->
+                            <div class="seller-info">
+                                {% if item.seller.profile.avatar %}
+                                    <img src="{{ item.seller.profile.avatar.url }}" class="seller-avatar" alt="{{ item.seller.username }}">
+                                {% else %}
+                                    <div class="seller-avatar-placeholder">
+                                        {{ item.seller.username|first|upper }}
+                                    </div>
+                                {% endif %}
+                                <div class="seller-details">
+                                    <div class="seller-name">
+                                        <a href="{% url 'users:user_profile_by_username' item.seller.username %}">
+                                            {{ item.seller.username|title }}
+                                        </a>
+                                    </div>
+                                    <div class="seller-rating">
+                                        <span class="stars">{{ item.seller_stats.avg_rating|floatformat:1 }}★</span>
+                                        <span>| {{ item.seller_stats.total_reviews }} đánh giá</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Rating Section -->
+                        <div class="rating-section">
+                            {% if item.review %}
+                                <!-- Đã đánh giá -->
+                                <div>
+                                    <div class="rating-status">
+                                        <div class="rated-badge">
+                                            <i class="fas fa-check-circle"></i>
+                                            Đã đánh giá
+                                        </div>
+                                        <div class="rating-display">
+                                            <div class="rating-stars">
+                                                {% for i in "12345" %}
+                                                    {% if forloop.counter <= item.review.rating %}
+                                                        <i class="fas fa-star"></i>
+                                                    {% else %}
+                                                        <i class="far fa-star"></i>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% if item.review.comment %}
+                                        <div class="rating-comment">
+                                            "{{ item.review.comment }}"
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% else %}
+                                <!-- Chưa đánh giá -->
+                                <div class="rating-status">
+                                    <span class="text-muted small">Chưa đánh giá</span>
+                                    <button type="button" class="btn-rate" data-bs-toggle="modal" data-bs-target="#ratingModal{{ item.purchase_request.id }}">
+                                        <i class="fas fa-star"></i>
+                                        Đánh giá người bán
+                                    </button>
+                                </div>
+
+                                <!-- Rating Modal -->
+                                <div class="modal fade" id="ratingModal{{ item.purchase_request.id }}" tabindex="-1" aria-labelledby="ratingModalLabel{{ item.purchase_request.id }}" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="ratingModalLabel{{ item.purchase_request.id }}">
+                                                    Đánh giá người bán: {{ item.seller.username|title }}
+                                                </h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <form action="{% url 'ratings:submit_review_ajax' %}" method="post" class="rating-form">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="purchase_request_id" value="{{ item.purchase_request.id }}">
+                                                <input type="hidden" name="seller_id" value="{{ item.seller.id }}">
+                                                <input type="hidden" name="book_id" value="{{ item.book.id }}">
+                                                <input type="hidden" name="rating" value="0" class="rating-input">
+                                                
+                                                <div class="modal-body">
+                                                    <!-- Star Rating -->
+                                                    <div class="mb-3">
+                                                        <label class="form-label fw-bold">Số sao <span class="text-danger">*</span></label>
+                                                        <div class="star-rating" id="starRating{{ item.purchase_request.id }}">
+                                                            {% for i in "12345" %}
+                                                                <i class="far fa-star star-icon" data-rating="{{ forloop.counter }}" style="font-size: 1.5rem; cursor: pointer; color: #fbbf24;"></i>
+                                                            {% endfor %}
+                                                        </div>
+                                                        <div class="rating-error text-danger small mt-1" style="display: none;">Vui lòng chọn số sao</div>
+                                                    </div>
+                                                    
+                                                    <!-- Comment -->
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Bình luận (tùy chọn)</label>
+                                                        <textarea name="comment" class="form-control" rows="3" placeholder="Chia sẻ trải nghiệm của bạn về người bán..."></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                                    <button type="submit" class="btn btn-primary">
+                                                        <i class="fas fa-paper-plane me-1"></i>Gửi đánh giá
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <!-- Empty State -->
+            <div class="empty-purchased">
+                <i class="fas fa-shopping-bag"></i>
+                <h3>Bạn chưa mua sách nào</h3>
+                <p>Hãy khám phá và mua sách từ cộng đồng sinh viên DUE!</p>
+                <a href="{% url 'books:book_list' %}" class="btn btn-primary">
+                    <i class="fas fa-search me-2"></i>Tìm kiếm sách
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Star rating interaction
+    document.querySelectorAll('.star-rating').forEach(function(starRating) {
+        const stars = starRating.querySelectorAll('.star-icon');
+        const modalId = starRating.id.replace('starRating', '');
+        const form = starRating.closest('form');
+        const ratingInput = form.querySelector('.rating-input');
+        
+        stars.forEach(function(star, index) {
+            star.addEventListener('click', function() {
+                const rating = index + 1;
+                ratingInput.value = rating;
+                
+                // Update star display
+                stars.forEach(function(s, i) {
+                    if (i < rating) {
+                        s.classList.remove('far');
+                        s.classList.add('fas');
+                    } else {
+                        s.classList.remove('fas');
+                        s.classList.add('far');
+                    }
+                });
+            });
+            
+            star.addEventListener('mouseenter', function() {
+                const hoverRating = index + 1;
+                stars.forEach(function(s, i) {
+                    if (i < hoverRating) {
+                        s.classList.remove('far');
+                        s.classList.add('fas');
+                    } else {
+                        s.classList.remove('fas');
+                        s.classList.add('far');
+                    }
+                });
+            });
+        });
+        
+        starRating.addEventListener('mouseleave', function() {
+            const currentRating = parseInt(ratingInput.value) || 0;
+            stars.forEach(function(s, i) {
+                if (i < currentRating) {
+                    s.classList.remove('far');
+                    s.classList.add('fas');
+                } else {
+                    s.classList.remove('fas');
+                    s.classList.add('far');
+                }
+            });
+        });
+    });
+    
+    // Form submission
+    document.querySelectorAll('.rating-form').forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const ratingInput = form.querySelector('.rating-input');
+            const ratingError = form.querySelector('.rating-error');
+            const rating = parseInt(ratingInput.value);
+            
+            if (!rating || rating < 1 || rating > 5) {
+                ratingError.style.display = 'block';
+                return;
+            }
+            ratingError.style.display = 'none';
+            
+            const formData = new FormData(form);
+            
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Close modal and reload page
+                    const modalEl = form.closest('.modal');
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    modal.hide();
+                    location.reload();
+                } else {
+                    alert(data.error || 'Có lỗi xảy ra. Vui lòng thử lại.');
+                }
+            })
+            .catch(error => {
+                alert('Có lỗi xảy ra. Vui lòng thử lại.');
+            });
+        });
+    });
+});
+</script>
+{% endblock %}
