@@ -82,8 +82,8 @@
                                         <i class="fas fa-eye"></i> Xem
                                     </a>
                                     {% if req.status == 'approved' %}
-                                        <a href="{% url 'ratings:rating_create' req.book.seller.pk %}?book={{ req.book.pk }}" class="btn btn-sm btn-warning">
-                                            <i class="fas fa-star"></i> Đánh giá
+                                        <a href="{% url 'books:purchased_books' %}" class="btn btn-sm btn-success">
+                                            <i class="fas fa-check-circle"></i> Xem trong Sách đã mua
                                         </a>
                                     {% endif %}
                                 </td>

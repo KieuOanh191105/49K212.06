@@ -480,3 +480,45 @@ def reject_purchase_request(request, request_id):
     return redirect('books:received_purchase_requests')
 
 
+# ==================== SÁCH ĐÃ MUA - US11 ====================
+@login_required
+def purchased_books(request):
+    """
+    Trang Sách đã mua - US11
+    Hiển thị danh sách sách đã mua (giao dịch đã được duyệt)
+    """
+    # Lấy danh sách purchase request đã approved của user hiện tại
+    purchased_requests = PurchaseRequest.objects.filter(
+        buyer=request.user,
+        status='approved'
+    ).select_related(
+        'book', 'book__subject', 'seller', 'seller__profile'
+    ).prefetch_related(
+        'book__images'
+    ).order_by('-processed_at')
+    
+    # Tạo danh sách sách đã mua
+    purchased_list = []
+    for pr in purchased_requests:
+        purchased_list.append({
+            'purchase_request': pr,
+            'book': pr.book,
+            'seller': pr.seller,
+            'purchase_date': pr.processed_at or pr.updated_at,
+        })
+    
+    # Thống kê
+    total_count = len(purchased_list)
+    
+    # Phân trang
+    paginator = Paginator(purchased_list, 10)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'purchased_books': purchased_list,
+        'page_obj': page_obj,
+        'total_count': total_count,
+        'title': 'Sách đã mua',
+    }
+    return render(request, 'books/purchased_books.html', context)

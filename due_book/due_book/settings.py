@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     #===== LOCAL APPS =====
     'users.apps.UsersConfig',
     'books',
-    'ratings',
 ]
 
 MIDDLEWARE = [

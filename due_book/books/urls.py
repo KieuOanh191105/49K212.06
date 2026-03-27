@@ -51,4 +51,7 @@ urlpatterns = [
     # Từ chối yêu cầu mua
     path('yeu-cau-mua/<int:request_id>/tu-choi/', views.reject_purchase_request, name='reject_purchase_request'),
     
+    # ==================== SÁCH ĐÃ MUA - US11 ====================
+    path('sach-da-mua/', views.purchased_books, name='purchased_books'),
+    
 ]
