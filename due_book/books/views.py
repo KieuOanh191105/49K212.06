@@ -5,6 +5,7 @@ US4 - Đăng bài bán sách
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
 from django.db.models import Q
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
@@ -18,21 +19,52 @@ from .forms import BookForm, PurchaseRequestForm
 
 # ==================== HOME & BOOK LIST ====================
 def home(request):
-    """Trang chủ"""
-    return render(request, 'books/home.html')
+    """
+    Trang chủ
+    - Banner với thanh tìm kiếm
+    - Danh mục sách (môn học)
+    - Sách mới nhất
+    """
+    # Lấy danh sách môn học (danh mục)
+    subjects = Subject.objects.all().order_by('name')
+    
+    # Lấy sách mới nhất (8 cuốn)
+    latest_books = Book.objects.filter(
+        status='available'
+    ).select_related('subject', 'seller').order_by('-created_at')[:8]
+    
+    # Thống kê
+    total_books = Book.objects.filter(status='available').count()
+    total_users = User.objects.count()
+    
+    context = {
+        'subjects': subjects,
+        'latest_books': latest_books,
+        'total_books': total_books,
+        'total_users': total_users,
+    }
+    return render(request, 'books/home.html', context)
 
 
 def book_list(request):
     """
-    Danh sách sách
-    - Tìm kiếm theo tên sách, mô tả, môn học
+    Danh sách sách với bộ lọc đầy đủ
+    - Tìm kiếm theo tên sách, tác giả
+    - Lọc theo tình trạng sách
+    - Lọc theo khoảng giá
+    - Sắp xếp theo các tiêu chí
     - Phân trang 20 sách/trang
-    - Dễ mở rộng thêm bộ lọc sau này
     """
     books = Book.objects.filter(status='available').select_related('subject', 'seller')
     
-    # Tìm kiếm đơn giản (sẽ mở rộng thêm bộ lọc sau)
-    query = request.GET.get('q', '')
+    # ===== LẤY CÁC THAM SỐ LỌC TỪ GET =====
+    query = request.GET.get('q', '').strip()
+    condition = request.GET.get('condition', '')
+    price_min = request.GET.get('price_min', '')
+    price_max = request.GET.get('price_max', '')
+    sort = request.GET.get('sort', 'newest')
+    
+    # ===== TÌM KIẾM THEO TÊN SÁCH HOẶC TÁC GIẢ =====
     if query:
         books = books.filter(
             Q(title__icontains=query) |
@@ -40,10 +72,38 @@ def book_list(request):
             Q(subject__name__icontains=query)
         )
     
-    # Sắp xếp (mặc định mới nhất)
-    books = books.order_by('-created_at')
+    # ===== LỌC THEO TÌNH TRẠNG SÁCH =====
+    if condition:
+        books = books.filter(condition=condition)
     
-    # Phân trang - 20 sách/trang
+    # ===== LỌC THEO KHOẢNG GIÁ =====
+    if price_min:
+        try:
+            price_min_val = int(price_min)
+            if price_min_val > 0:
+                books = books.filter(price__gte=price_min_val)
+        except (ValueError, TypeError):
+            pass
+    
+    if price_max:
+        try:
+            price_max_val = int(price_max)
+            if price_max_val > 0:
+                books = books.filter(price__lte=price_max_val)
+        except (ValueError, TypeError):
+            pass
+    
+    # ===== SẮP XẾP =====
+    if sort == 'price_asc':
+        books = books.order_by('price')
+    elif sort == 'price_desc':
+        books = books.order_by('-price')
+    elif sort == 'title_asc':
+        books = books.order_by('title')
+    else:  # mặc định: newest
+        books = books.order_by('-created_at')
+    
+    # ===== PHÂN TRANG - 20 SÁCH/TRANG =====
     paginator = Paginator(books, 20)
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
@@ -51,10 +111,16 @@ def book_list(request):
     # Tổng số sách (để hiển thị)
     total_count = paginator.count
     
+    # ===== CONTEXT =====
     context = {
         'page_obj': page_obj,
         'query': query,
+        'condition': condition,
+        'price_min': price_min,
+        'price_max': price_max,
+        'sort': sort,
         'total_count': total_count,
+        'condition_choices': Book.CONDITION_CHOICES,
     }
     return render(request, 'books/book_list.html', context)
 

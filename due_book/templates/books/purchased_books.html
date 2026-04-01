@@ -77,6 +77,7 @@
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
         gap: 1.5rem;
+        align-items: start; /* ✅ Ngăn card bị stretch */
     }
 
     /* Purchased Book Card */
@@ -87,6 +88,9 @@
         overflow: hidden;
         transition: all 0.3s ease;
         border: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
+        height: auto; /* ✅ Chỉ cao theo nội dung */
     }
 
     .purchased-book-card:hover {

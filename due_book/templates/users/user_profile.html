@@ -253,7 +253,19 @@
                 {% endif %}
             </div>
         </div>
-      
+        <div class="profile-name">{{ profile_user.get_full_name|default:profile_user.username|upper }}</div>
+        <div class="profile-stars" style="color: var(--accent); font-size: 1.1rem; margin-bottom: 8px;">
+            {% if seller_stats.avg_rating > 0 %}
+                {% widthratio seller_stats.avg_rating 1 1 as full_stars %}
+                {% for i in "12345" %}
+                    {% if forloop.counter <= full_stars %}★{% else %}☆{% endif %}
+                {% endfor %}
+                <span style="font-size: 0.8rem; color: var(--muted); margin-left: 6px;">({{ seller_stats.avg_rating }}/5 - {{ seller_stats.total_reviews }} đánh giá)</span>
+            {% else %}
+                ☆☆☆☆☆
+                <span style="font-size: 0.8rem; color: var(--muted); margin-left: 6px;">(Chưa có đánh giá)</span>
+            {% endif %}
+        </div>
         <div class="profile-username">@{{ profile_user.username }}</div>
 
         <div class="stats-row">
@@ -370,7 +382,12 @@
                 </div>
                 {% endfor %}
             </div>
-     
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-star mb-3" style="font-size: 32px;"></i>
+                <p class="mb-0">Chưa có đánh giá nào</p>
+            </div>
+            {% endif %}
         </div>
 
     </div>
