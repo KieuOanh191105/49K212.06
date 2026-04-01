@@ -479,30 +479,6 @@
                 </div>
             </div>
 
-            <!-- Seller Card -->
-            <div class="detail-card seller-card">
-                <div class="card-body">
-                    <div class="seller-info">
-                        <div class="seller-avatar">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <div class="seller-details">
-                            <h5>{{ book.seller.username|title }}</h5>
-                            <div class="seller-rating">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <span>5.0 - 1 đánh giá</span>
-                            </div>
-                        </div>
-                    </div>
-                    <a href="{% url 'users:user_profile_by_username' book.seller.username %}" class="btn btn-view-profile">
-                        <i class="fas fa-user-circle me-2"></i>Xem hồ sơ người bán
-                    </a>
-                </div>
-            </div>
 
             <!-- Description Card -->
             <div class="detail-card">

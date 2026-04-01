@@ -185,6 +185,7 @@
         padding: 0.75rem;
         background: var(--light-bg);
         border-radius: var(--radius-md);
+        margin-bottom: 1rem;
     }
 
     .seller-avatar {
@@ -228,9 +229,184 @@
         color: var(--primary-color);
     }
 
-    .seller-contact {
+    .seller-rating {
         font-size: 0.75rem;
         color: var(--light-text);
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .seller-rating .stars {
+        color: #fbbf24;
+    }
+
+    /* Rating Section */
+    .rating-section {
+        padding: 1rem;
+        border-top: 1px solid var(--border-color);
+        background: var(--light-bg);
+    }
+
+    .rating-status {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .rating-display {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .rating-stars {
+        font-size: 1rem;
+        color: #fbbf24;
+        letter-spacing: 2px;
+    }
+
+    .rating-comment {
+        margin-top: 0.75rem;
+        padding: 0.75rem;
+        background: white;
+        border-radius: var(--radius-md);
+        border-left: 3px solid var(--primary-color);
+        font-size: 0.875rem;
+        color: var(--dark-text);
+        line-height: 1.5;
+    }
+
+    .rated-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.5rem 1rem;
+        background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%);
+        color: white;
+        border-radius: var(--radius-md);
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    .rated-badge i {
+        color: #fbbf24;
+    }
+
+    /* Inline Rating Form */
+    .inline-rating-form {
+        margin-top: 1rem;
+        padding: 1rem;
+        background: white;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border-color);
+    }
+
+    .inline-rating-form .form-label {
+        font-weight: 600;
+        color: var(--dark-text);
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+    }
+
+    .inline-star-rating {
+        display: flex;
+        gap: 0.25rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .inline-star-rating .star-icon {
+        font-size: 1.75rem;
+        cursor: pointer;
+        color: #d1d5db;
+        transition: all 0.2s;
+    }
+
+    .inline-star-rating .star-icon:hover,
+    .inline-star-rating .star-icon.active {
+        color: #fbbf24;
+    }
+
+    .inline-star-rating .star-icon.fas {
+        color: #fbbf24;
+    }
+
+    .rating-error {
+        font-size: 0.75rem;
+        color: #ef4444;
+        margin-top: 0.25rem;
+        display: none;
+    }
+
+    .inline-rating-form .form-control {
+        font-size: 0.875rem;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border-color);
+    }
+
+    .inline-rating-form .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(0, 90, 156, 0.1);
+    }
+
+    .inline-rating-form .btn-submit {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+        color: white;
+        border: none;
+        padding: 0.5rem 1.25rem;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .inline-rating-form .btn-submit:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 90, 156, 0.3);
+    }
+
+    .btn-rate {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        white-space: nowrap;
+    }
+
+    .btn-rate:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 90, 156, 0.3);
+        color: white;
+    }
+
+    .btn-cancel {
+        background: #6b7280;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-cancel:hover {
+        background: #4b5563;
     }
 
     /* Empty State */
@@ -294,6 +470,11 @@
         .book-title {
             font-size: 0.9rem;
         }
+
+        .rating-status {
+            flex-direction: column;
+            align-items: flex-start;
+        }
     }
 </style>
 {% endblock %}
@@ -321,7 +502,7 @@
         {% if purchased_books %}
             <div class="purchased-books-grid">
                 {% for item in purchased_books %}
-                    <div class="purchased-book-card">
+                    <div class="purchased-book-card" id="card-{{ item.purchase_request.id }}">
                         <!-- Book Header -->
                         <div class="book-header">
                             {% if item.book.cover_image %}
@@ -368,13 +549,76 @@
                                             {{ item.seller.username|title }}
                                         </a>
                                     </div>
-                                    <div class="seller-contact">
-                                        {% if item.seller.email %}
-                                            <i class="fas fa-envelope me-1"></i>{{ item.seller.email }}
-                                        {% endif %}
+                                    <div class="seller-rating">
+                                        <span class="stars">{{ item.seller_stats.avg_rating|floatformat:1 }}★</span>
+                                        <span>| {{ item.seller_stats.total_reviews }} đánh giá</span>
                                     </div>
                                 </div>
                             </div>
+                        </div>
+
+                        <!-- Rating Section -->
+                        <div class="rating-section">
+                            {% if item.review %}
+                                <!-- Đã đánh giá -->
+                                <div>
+                                    <div class="rating-status">
+                                        <div class="rated-badge">
+                                            <i class="fas fa-check-circle"></i>
+                                            Đã đánh giá
+                                        </div>
+                                        <div class="rating-display">
+                                            <div class="rating-stars">
+                                                {% for i in "12345" %}
+                                                    {% if forloop.counter <= item.review.rating %}
+                                                        <i class="fas fa-star"></i>
+                                                    {% else %}
+                                                        <i class="far fa-star"></i>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% if item.review.comment %}
+                                        <div class="rating-comment">
+                                            "{{ item.review.comment }}"
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% else %}
+                                <!-- Chưa đánh giá - Form inline ngay tại card -->
+                                <div class="rating-status mb-2">
+                                    <span class="text-muted small">Chưa đánh giá</span>
+                                </div>
+                                
+                                <form action="{% url 'ratings:submit_review' %}" method="post" class="inline-rating-form">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="purchase_request_id" value="{{ item.purchase_request.id }}">
+                                    <input type="hidden" name="rating" value="0" class="rating-input">
+                                    
+                                    <!-- Star Rating -->
+                                    <div>
+                                        <label class="form-label">Đánh giá sao <span class="text-danger">*</span></label>
+                                        <div class="inline-star-rating">
+                                            {% for i in "12345" %}
+                                                <i class="far fa-star star-icon" data-rating="{{ forloop.counter }}"></i>
+                                            {% endfor %}
+                                        </div>
+                                        <div class="rating-error">Vui lòng chọn số sao</div>
+                                    </div>
+                                    
+                                    <!-- Comment -->
+                                    <div class="mb-2">
+                                        <label class="form-label">Bình luận (tùy chọn)</label>
+                                        <textarea name="comment" class="form-control" rows="2" placeholder="Chia sẻ trải nghiệm của bạn..."></textarea>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn-submit">
+                                        <i class="fas fa-paper-plane"></i>
+                                        Gửi đánh giá
+                                    </button>
+                                </form>
+                            {% endif %}
                         </div>
                     </div>
                 {% endfor %}
@@ -392,4 +636,80 @@
         {% endif %}
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Star rating interaction cho tất cả các form inline
+    document.querySelectorAll('.inline-star-rating').forEach(function(starRating) {
+        const stars = starRating.querySelectorAll('.star-icon');
+        const form = starRating.closest('form');
+        const ratingInput = form.querySelector('.rating-input');
+        const ratingError = form.querySelector('.rating-error');
+        
+        stars.forEach(function(star, index) {
+            star.addEventListener('click', function() {
+                const rating = index + 1;
+                ratingInput.value = rating;
+                
+                // Update star display
+                stars.forEach(function(s, i) {
+                    if (i < rating) {
+                        s.classList.remove('far');
+                        s.classList.add('fas');
+                    } else {
+                        s.classList.remove('fas');
+                        s.classList.add('far');
+                    }
+                });
+                
+                // Hide error
+                ratingError.style.display = 'none';
+            });
+            
+            star.addEventListener('mouseenter', function() {
+                const hoverRating = index + 1;
+                stars.forEach(function(s, i) {
+                    if (i < hoverRating) {
+                        s.classList.remove('far');
+                        s.classList.add('fas');
+                    } else {
+                        s.classList.remove('fas');
+                        s.classList.add('far');
+                    }
+                });
+            });
+        });
+        
+        starRating.addEventListener('mouseleave', function() {
+            const currentRating = parseInt(ratingInput.value) || 0;
+            stars.forEach(function(s, i) {
+                if (i < currentRating) {
+                    s.classList.remove('far');
+                    s.classList.add('fas');
+                } else {
+                    s.classList.remove('fas');
+                    s.classList.add('far');
+                }
+            });
+        });
+    });
+    
+    // Form validation
+    document.querySelectorAll('.inline-rating-form').forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            const ratingInput = form.querySelector('.rating-input');
+            const ratingError = form.querySelector('.rating-error');
+            const rating = parseInt(ratingInput.value);
+            
+            if (!rating || rating < 1 || rating > 5) {
+                e.preventDefault();
+                ratingError.style.display = 'block';
+                return false;
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

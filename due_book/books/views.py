@@ -486,7 +486,10 @@ def purchased_books(request):
     """
     Trang Sách đã mua - US11
     Hiển thị danh sách sách đã mua (giao dịch đã được duyệt)
+    Cho phép đánh giá người bán
     """
+    from ratings.models import SellerReview
+    
     # Lấy danh sách purchase request đã approved của user hiện tại
     purchased_requests = PurchaseRequest.objects.filter(
         buyer=request.user,
@@ -497,14 +500,27 @@ def purchased_books(request):
         'book__images'
     ).order_by('-processed_at')
     
-    # Tạo danh sách sách đã mua
+    # Lấy tất cả review của user cho các giao dịch này
+    reviews_dict = {}
+    reviews = SellerReview.objects.filter(
+        purchase_request__in=purchased_requests
+    ).select_related('seller')
+    for review in reviews:
+        reviews_dict[review.purchase_request_id] = review
+    
+    # Tạo danh sách với thông tin review và seller_stats
     purchased_list = []
     for pr in purchased_requests:
+        # Lấy thống kê đánh giá của người bán
+        seller_stats = SellerReview.get_seller_stats(pr.seller)
+        
         purchased_list.append({
             'purchase_request': pr,
             'book': pr.book,
             'seller': pr.seller,
+            'review': reviews_dict.get(pr.id),
             'purchase_date': pr.processed_at or pr.updated_at,
+            'seller_stats': seller_stats,
         })
     
     # Thống kê

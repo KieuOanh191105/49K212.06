@@ -146,12 +146,16 @@ def user_profile(request, username=None):
 
     # Lấy đánh giá từ người mua
     try:
-        from ratings.models import Rating
-        ratings = Rating.objects.filter(
+        from ratings.models import SellerReview
+        reviews = SellerReview.objects.filter(
             seller=profile_user
-        ).select_related('reviewer__profile', 'book').order_by('-created_at')[:5]
+        ).select_related('buyer__profile', 'book').order_by('-created_at')[:5]
+        
+        # Lấy thống kê đánh giá của người bán
+        seller_stats = SellerReview.get_seller_stats(profile_user)
     except:
-        ratings = []
+        reviews = []
+        seller_stats = {'avg_rating': 0, 'total_reviews': 0}
 
     # Context cho template
     context = {
@@ -163,7 +167,8 @@ def user_profile(request, username=None):
         'total_books_available': total_books_available,
         'total_views': total_views,
         'is_own_profile': request.user == profile_user,
-        'ratings': ratings,
+        'reviews': reviews,
+        'seller_stats': seller_stats,
     }
     
     return render(request, 'users/user_profile.html', context)

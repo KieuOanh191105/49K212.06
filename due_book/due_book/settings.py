@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     #===== LOCAL APPS =====
     'users.apps.UsersConfig',
     'books',
+    'ratings',
 ]
 
 MIDDLEWARE = [
@@ -68,6 +69,9 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
+            'libraries': {
+                'custom_filters': 'books.templatetags.custom_filters',
+            },
         },
     },
 ]

@@ -253,10 +253,7 @@
                 {% endif %}
             </div>
         </div>
-        <div class="profile-name">{{ profile_user.get_full_name|default:profile_user.username|upper }}</div>
-        <div class="profile-stars" style="color: var(--accent); font-size: 1.1rem; margin-bottom: 8px;">
-            ★★★★★
-        </div>
+      
         <div class="profile-username">@{{ profile_user.username }}</div>
 
         <div class="stats-row">
@@ -355,30 +352,25 @@
                 <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                 <h3>Đánh giá gần đây</h3>
             </div>
-            {% if ratings %}
+            {% if reviews %}
             <div class="review-list">
-                {% for rating in ratings %}
+                {% for review in reviews %}
                 <div class="review-item">
                     <div class="review-top">
-                        <span class="reviewer">{{ rating.reviewer.get_full_name|default:rating.reviewer.username }}</span>
-                        <span class="review-date">{{ rating.created_at|date:"d/m/Y" }}</span>
+                        <span class="reviewer">{{ review.buyer.get_full_name|default:review.buyer.username }}</span>
+                        <span class="review-date">{{ review.created_at|date:"d/m/Y" }}</span>
                     </div>
-                    <div class="review-stars">★★★★★</div>
-                    {% if rating.comment %}
-                    <div class="review-text">{{ rating.comment }}</div>
+                    <div class="review-stars">{{ review.rating_stars }}</div>
+                    {% if review.comment %}
+                    <div class="review-text">{{ review.comment }}</div>
                     {% endif %}
-                    {% if rating.book %}
-                    <div class="review-book">Đã mua: <span>{{ rating.book.title }}</span></div>
+                    {% if review.book %}
+                    <div class="review-book">Đã mua: <span>{{ review.book.title }}</span></div>
                     {% endif %}
                 </div>
                 {% endfor %}
             </div>
-            {% else %}
-            <div class="empty-state">
-                <i class="fas fa-star mb-3" style="font-size: 32px;"></i>
-                <p class="mb-0">Chưa có đánh giá nào</p>
-            </div>
-            {% endif %}
+     
         </div>
 
     </div>
