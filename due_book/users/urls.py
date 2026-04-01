@@ -12,6 +12,7 @@ urlpatterns = [
 
     # Authentication - ĐĂNG NHẬP/ĐĂNG XUẤT US2
     path('dang-nhap/', views.user_login, name='user_login'),
+    # Chức năng đăng xuất:
     path('dang-xuat/', views.user_logout, name='user_logout'),
 
     # User Profile - HỒ SƠ NGƯỜI DÙNG

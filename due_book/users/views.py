@@ -91,6 +91,7 @@ def user_logout(request):
     """
     Xử lý đăng xuất người dùng
     """
+    # Chức năng đăng xuất: xóa phiên đăng nhập hiện tại và quay về trang chủ.
     logout(request)
     messages.info(request, 'Bạn đã đăng xuất!')
     return redirect('books:home')
