@@ -56,6 +56,17 @@ class UserRegisterForm(forms.ModelForm):
         help_text='Link Zalo của bạn'
     )
 
+    # ===== EMAIL CHO PASSWORD RESET =====
+    gmail_address = forms.EmailField(
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'VD: your-email@gmail.com'
+        }),
+        label='Email Gmail (khôi phục mật khẩu)',
+        required=False,
+        help_text='Dùng để nhận link đặt lại mật khẩu khi quên (tùy chọn)'
+    )
+
     # ===== THÔNG TIN TÙY CHỌN =====
     student_id = forms.CharField(
         widget=forms.TextInput(attrs={
@@ -184,6 +195,24 @@ class UserRegisterForm(forms.ModelForm):
             raise forms.ValidationError('Link Zalo không được để trống!')
         return link.strip()
 
+    def clean_gmail_address(self):
+        """Validate Gmail address (optional)"""
+        gmail = self.cleaned_data.get('gmail_address')
+        if gmail:
+            gmail = gmail.strip().lower()
+            # Kiểm tra đuôi @gmail.com
+            if not gmail.endswith('@gmail.com'):
+                raise forms.ValidationError('Chỉ chấp nhận email có đuôi @gmail.com')
+            # Kiểm tra email này đã được dùng bởi user khác chưa
+            from .models import UserProfile
+            existing_profiles = UserProfile.objects.filter(
+                gmail_address=gmail
+            ).exclude(user__username=self.cleaned_data.get('username', ''))
+            if existing_profiles.exists():
+                raise forms.ValidationError('Email Gmail này đã được sử dụng bởi tài khoản khác!')
+            return gmail
+        return gmail
+
     def save(self, commit=True):
         """
         Override save() để:
@@ -205,6 +234,7 @@ class UserRegisterForm(forms.ModelForm):
             profile.phone_number = self.cleaned_data.get('phone_number', '')
             profile.facebook_link = self.cleaned_data.get('facebook_link', '')
             profile.zalo_link = self.cleaned_data.get('zalo_link', '')
+            profile.gmail_address = self.cleaned_data.get('gmail_address', '')
             profile.student_id = self.cleaned_data.get('student_id', '')
             profile.address = self.cleaned_data.get('address', '')
             profile.save()
@@ -247,7 +277,7 @@ class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
         fields = [
-            'student_id', 'phone_number', 'facebook_link',
+            'student_id', 'phone_number', 'gmail_address', 'facebook_link',
             'zalo_link', 'address', 'avatar'
         ]
         widgets = {
@@ -258,6 +288,10 @@ class UserProfileForm(forms.ModelForm):
             'phone_number': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Số điện thoại'
+            }),
+            'gmail_address': forms.EmailInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'your-email@gmail.com'
             }),
             'facebook_link': forms.URLInput(attrs={
                 'class': 'form-control',
@@ -279,6 +313,7 @@ class UserProfileForm(forms.ModelForm):
         labels = {
             'student_id': 'Mã số sinh viên',
             'phone_number': 'Số điện thoại',
+            'gmail_address': 'Email Gmail (khôi phục mật khẩu)',
             'facebook_link': 'Link Facebook',
             'zalo_link': 'Link Zalo',
             'address': 'Địa chỉ',

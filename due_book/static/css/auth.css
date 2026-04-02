@@ -357,3 +357,21 @@
 .auth-card {
   animation: fadeIn 0.4s ease-out;
 }
+
+/* ==================== FORGOT PASSWORD LINK ==================== */
+.forgot-password-link {
+  color: #004080;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.forgot-password-link:hover {
+  color: #003366;
+  text-decoration: underline;
+}
+
+.forgot-password-link i {
+  font-size: 0.8rem;
+}

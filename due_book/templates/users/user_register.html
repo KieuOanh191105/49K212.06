@@ -144,6 +144,24 @@
                                 {% endif %}
                             </div>
 
+                            <!-- Gmail Address (Optional) -->
+                            <div class="mb-3">
+                                <label class="form-label" for="id_gmail_address">
+                                    <i class="fas fa-envelope text-warning"></i>
+                                    {{ form.gmail_address.label }}
+                                </label>
+                                {{ form.gmail_address }}
+                                {% if form.gmail_address.help_text %}
+                                    <small class="form-text text-warning">
+                                        <i class="fas fa-info-circle"></i>
+                                        {{ form.gmail_address.help_text }}
+                                    </small>
+                                {% endif %}
+                                {% if form.gmail_address.errors %}
+                                    <div class="text-danger small mt-1">{{ form.gmail_address.errors }}</div>
+                                {% endif %}
+                            </div>
+
                             <!-- ===== SECTION 3: THÔNG TIN THÊM (TÙY CHỌN) ===== -->
                             <div class="section-divider">
                                 <span class="section-title text-secondary">Thông tin thêm (tùy chọn)</span>

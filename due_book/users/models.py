@@ -20,7 +20,15 @@ class UserProfile(models.Model):
         default='',
         verbose_name='Số điện thoại'
     )
-    
+
+    gmail_address = models.EmailField(
+        max_length=254,
+        blank=True,
+        null=True,
+        verbose_name='Email Gmail',
+        help_text='Email Gmail để nhận thông báo và khôi phục mật khẩu (tùy chọn)'
+    )
+
     facebook_link = models.URLField(
         max_length=500,
         blank=True,

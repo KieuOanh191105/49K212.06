@@ -9,8 +9,15 @@ from django.contrib.auth.models import User
 from django.http import Http404
 from django.db import models
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import PasswordResetView
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.encoding import force_str
+from django.utils.http import urlsafe_base64_decode
+from django.core.mail import send_mail
+from django.conf import settings
 
 from .forms import UserRegisterForm, UserProfileForm, UserUpdateForm
+from .models import UserProfile
 from books.models import Book
 
 
@@ -82,6 +89,20 @@ def user_login(request):
         # GET request - tạo form rỗng
         form = AuthenticationForm()
 
+        # Kiểm tra nếu vừa gửi password reset
+        if request.GET.get('reset_sent') == 'true':
+            messages.info(
+                request,
+                '📧 Link đặt lại mật khẩu đã được gửi! Kiểm tra email (hoặc terminal) để nhận hướng dẫn.'
+            )
+
+        # Kiểm tra nếu vừa reset password thành công
+        if request.GET.get('reset_complete') == 'true':
+            messages.success(
+                request,
+                '✅ Mật khẩu đã được đặt lại thành công! Vui lòng đăng nhập với mật khẩu mới.'
+            )
+
     # Render template với form
     return render(request, 'users/user_login.html', {'form': form})
 
@@ -91,7 +112,6 @@ def user_logout(request):
     """
     Xử lý đăng xuất người dùng
     """
-    # Chức năng đăng xuất: xóa phiên đăng nhập hiện tại và quay về trang chủ.
     logout(request)
     messages.info(request, 'Bạn đã đăng xuất!')
     return redirect('books:home')
@@ -207,3 +227,156 @@ def edit_profile(request):
         'profile_form': profile_form,
     }
     return render(request, 'users/user_edit_profile.html', context)
+
+
+# ==================== CUSTOM PASSWORD RESET ====================
+class CustomPasswordResetView(PasswordResetView):
+    """
+    Custom Password Reset View - Hỗ trợ tìm user theo cả email trường và Gmail
+    Ưu tiên gửi đến Gmail nếu có, nếu không thì gửi email trường
+    """
+    template_name = 'users/password_reset.html'
+    email_template_name = 'users/password_reset_email.html'
+    subject_template_name = 'users/password_reset_subject.txt'
+    success_url = '/users/dang-nhap/?reset_sent=true'
+
+    def get_users(self, email):
+        """
+        Tìm user theo cả email trường (User.email) và Gmail (UserProfile.gmail_address)
+        Ưu tiên user có Gmail
+        """
+        email = email.strip().lower()
+        print(f"🔍 DEBUG: Tìm user với email: {email}")  # Debug log
+
+        # 1. Tìm user theo Gmail trong UserProfile (ưu tiên)
+        try:
+            profile_with_gmail = UserProfile.objects.filter(
+                gmail_address__iexact=email
+            ).select_related('user').first()
+
+            if profile_with_gmail and profile_with_gmail.user.is_active:
+                user = profile_with_gmail.user
+                print(f"✅ DEBUG: Tìm thấy user theo Gmail: {user.username}")  # Debug log
+                # KHÔNG thay đổi user.email ở đây, sẽ thay trong send_mail()
+                return [user]
+        except Exception as e:
+            print(f"❌ DEBUG: Lỗi khi tìm theo Gmail: {e}")  # Debug log
+
+        # 2. Nếu không tìm theo Gmail, tìm theo email trường (User.email)
+        users = list(User._default_manager.filter(
+            models.Q(email__iexact=email) |
+            models.Q(username__iexact=email)
+        ).filter(is_active=True))
+
+        if users:
+            print(f"✅ DEBUG: Tìm thấy {len(users)} user theo email trường")  # Debug log
+        else:
+            print(f"❌ DEBUG: Không tìm thấy user nào!")  # Debug log
+
+        return users
+
+    def send_mail(self, user, opts):
+        """
+        Gửi email reset password
+        Gửi đến Gmail nếu có, ngược lại gửi đến email trường
+        """
+        email_input = self.request.POST.get('email', '').strip().lower()
+        recipient_email = user.email  # Mặc định là email trường
+
+        # Kiểm tra xem email nhập vào có phải Gmail không
+        try:
+            profile = UserProfile.objects.filter(user=user).first()
+            if profile and profile.gmail_address and profile.gmail_address.lower() == email_input:
+                # Gửi đến Gmail
+                recipient_email = email_input
+                print(f"📧 DEBUG: Gửi email đến Gmail: {recipient_email}")  # Debug log
+        except Exception as e:
+            print(f"⚠️ DEBUG: Lỗi khi kiểm tra Gmail: {e}")  # Debug log
+
+        print(f"📧 DEBUG: Đang gửi email đến: {recipient_email}")  # Debug log
+
+        # Tạo context cho email template
+        from django.contrib.auth.tokens import default_token_generator
+        from django.utils.http import urlsafe_base64_encode
+        from django.utils.encoding import force_bytes
+
+        context = {
+            'email': recipient_email,
+            'user': user,
+            'protocol': 'https' if self.request.is_secure() else 'http',
+            'domain': self.request.get_host(),
+            'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+            'token': default_token_generator.make_token(user),
+            'site_name': 'DUE Book',
+        }
+
+        # Render email subject
+        subject_template = opts['subject_template_name']
+        from django.template.loader import render_to_string
+        subject = render_to_string(subject_template, context).strip()
+
+        # Render email body
+        email_template = opts['email_template_name']
+        body = render_to_string(email_template, context)
+
+        # Gửi email
+        try:
+            print("\n" + "="*80)
+            print(f"📧 EMAIL NỘI DUNG (gửi đến: {recipient_email})")
+            print("="*80)
+            print(f"Subject: {subject}")
+            print(f"From: {settings.DEFAULT_FROM_EMAIL}")
+            print(f"To: {recipient_email}")
+            print("-"*80)
+            print(body)
+            print("="*80 + "\n")
+
+            send_mail(
+                subject,
+                body,
+                settings.DEFAULT_FROM_EMAIL,
+                [recipient_email],
+                html_message=body,
+                fail_silently=False,
+            )
+            print(f"✅ DEBUG: Email đã gửi thành công đến: {recipient_email}")  # Debug log
+        except Exception as e:
+            print(f"❌ DEBUG: Lỗi khi gửi email: {e}")  # Debug log
+            raise
+
+    def form_valid(self, form):
+        """
+        Override hoàn toàn form_valid để xử lý logic gửi email
+        """
+        email = form.cleaned_data['email']
+        print(f"📝 DEBUG: form_valid() được gọi với email: {email}")  # Debug log
+
+        # Tìm user (gọi get_users)
+        users = self.get_users(email)
+        print(f"📊 DEBUG: Số lượng user tìm thấy: {len(users)}")  # Debug log
+
+        if not users:
+            # Không tìm thấy user - vẫn redirect thành công (security)
+            print(f"⚠️ DEBUG: Không tìm thấy user, redirect anyway")  # Debug log
+            return redirect(self.success_url)
+
+        # Gửi email cho mỗi user tìm thấy
+        for user in users:
+            print(f"👤 DEBUG: Xử lý user: {user.username}")  # Debug log
+
+            opts = {
+                'use_https': self.request.is_secure(),
+                'token_generator': self.token_generator,
+                'from_email': self.from_email,
+                'email_template_name': self.email_template_name,
+                'subject_template_name': self.subject_template_name,
+                'request': self.request,
+                'html_email_template_name': self.html_email_template_name,
+                'extra_email_context': self.extra_email_context,
+            }
+
+            # Gửi email
+            self.send_mail(user, opts)
+
+        print(f"✅ DEBUG: Gửi xong, redirect đến: {self.success_url}")  # Debug log
+        return redirect(self.success_url)

@@ -10,8 +10,13 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 from django.contrib import messages
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -154,3 +159,24 @@ LOGIN_REDIRECT_URL = 'books:home'
 
 # URL để redirect sau khi đăng xuất
 LOGOUT_REDIRECT_URL = 'books:home'
+
+# ==================== EMAIL SETTINGS ====================
+# Backend để gửi email
+# Development: Dùng console backend để xem email trong terminal
+# thay rôi nha Oanh thay ngày 2/4/26
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+
+# Production: Comment dòng trên và dùng SMTP backend
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+# Cấu hình SMTP Gmail (đọc từ .env file)
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', f'DUE Book <{os.getenv("EMAIL_HOST_USER")}>')
+
+# Site URL cho password reset
+SITE_URL = os.getenv('SITE_URL', 'http://127.0.0.1:8000')
