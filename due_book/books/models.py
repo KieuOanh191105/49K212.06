@@ -83,7 +83,6 @@ class Book(models.Model):
     description = models.TextField(blank=True, verbose_name='Mô tả chi tiết')
     notes = models.TextField(
         blank=True,
-        help_text='Ghi chú thêm (gạch bớt, đánh dấu, v.v.)',
         verbose_name='Ghi chú'
     )
 
@@ -298,16 +297,48 @@ class PurchaseRequest(models.Model):
         return self.status == 'rejected'
     
     def approve(self):
-        """Duyệt yêu cầu mua"""
+        """
+        Duyệt yêu cầu mua - Logic mới:
+        - Duyệt yêu cầu hiện tại
+        - Tự động từ chối tất cả yêu cầu khác của cùng sách đang ở trạng thái pending
+        - Cập nhật trạng thái sách thành đã bán
+        - Dùng transaction để đảm bảo tính nhất quán
+        """
         from django.utils import timezone
-        self.status = 'approved'
-        self.processed_at = timezone.now()
-        self.save()
-        
-        # Cập nhật trạng thái sách
-        self.book.status = 'sold'
-        self.book.buyer = self.buyer
-        self.book.save()
+        from django.db import transaction
+
+        with transaction.atomic():
+            # Lock book để tránh race condition
+            book = PurchaseRequest.objects.select_for_update().get(pk=self.pk).book
+
+            # Kiểm tra xem sách này đã có yêu cầu nào được duyệt chưa
+            already_approved = PurchaseRequest.objects.filter(
+                book=book,
+                status='approved'
+            ).exists()
+
+            if already_approved:
+                raise ValueError("Sách này đã được duyệt cho người mua khác!")
+
+            # Approve yêu cầu hiện tại
+            self.status = 'approved'
+            self.processed_at = timezone.now()
+            self.save()
+
+            # Reject tất cả các yêu cầu khác của cùng sách đang ở trạng thái pending
+            PurchaseRequest.objects.filter(
+                book=book,
+                status='pending'
+            ).exclude(pk=self.pk).update(
+                status='rejected',
+                rejection_reason='Sách đã được bán cho người mua khác',
+                processed_at=timezone.now()
+            )
+
+            # Cập nhật trạng thái sách
+            book.status = 'sold'
+            book.buyer = self.buyer
+            book.save()
     
     def reject(self, reason=''):
         """Từ chối yêu cầu mua"""

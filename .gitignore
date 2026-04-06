@@ -1,8 +1,110 @@
+# ==================== PYTHON ====================
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+*.so
+.Python
 
-.env
+# Virtual Environment
 venv/
-.env/
+env/
+ENV/
+venv
+env
+ENV/
+
+# ==================== DJANGO ====================
+# Database
+db.sqlite3
+db.sqlite3-journal
+*.db
+
+# Static files (collected)
+staticfiles/
+static/
+
+# Media files (user uploads)
+media/
+ Media/
+
+# Migrations (temporary)
+*.sql
+*.sqlite3
+
+# Locale
+*.pot
+*.mo
+
+# Local settings
+local_settings.py
+*.local.env
+
+# ==================== ENVIRONMENT ====================
+# Environment variables
+.env
+.env.local
+.env.*.local
+.env.production
+
+# ==================== LOGS ====================
 *.log
-.DS_Store.env
+logs/
+
+# ==================== IDE ====================
+# VSCode
+.vscode/
+*.code-workspace
+
+# PyCharm
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+\#*\#
+.\#*
+
+# ==================== OS ====================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ==================== MEDIA ====================
+# User uploaded content
+media/
+uploads/
+
+# ==================== OTHER ====================
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Test coverage
+htmlcov/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Temporary files
+*.tmp
+*.temp
+
+

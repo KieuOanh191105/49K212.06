@@ -1,0 +1,58 @@
+# Render Blueprint - Deploy Django App with PostgreSQL
+# Docs: https://render.com/docs/blueprint-spec
+
+services:
+  # ==================== WEB SERVICE ====================
+  - type: web
+    name: due-book-app
+    runtime: python
+    buildCommand: cd due_book && pip install -r requirements.txt
+    startCommand: cd due_book && gunicorn due_book.wsgi:application --bind 0.0.0.0:${PORT}
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: DJANGO_SETTINGS_MODULE
+        value: due_book.settings
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: False
+      - key: ALLOWED_HOSTS
+        value: .onrender.com
+      - key: SITE_URL
+        sync: false
+      # Email Configuration (sẽ cấu hình trong Environment Variables)
+      - key: EMAIL_HOST
+        value: smtp.gmail.com
+      - key: EMAIL_PORT
+        value: 587
+      - key: EMAIL_USE_TLS
+        value: True
+      - key: EMAIL_HOST_USER
+        sync: false
+      - key: EMAIL_HOST_PASSWORD
+        sync: false
+      - key: DEFAULT_FROM_EMAIL
+        sync: false
+    # Database connection (tự động kết nối với PostgreSQL service)
+    - key: DATABASE_URL
+      fromDatabase:
+        name: due-book-db
+        property: connectionString
+
+  # ==================== POSTGRESQL DATABASE ====================
+  - type: pserv
+    name: due-book-db
+    databaseName: due_book_db
+    user: due_book_user
+    # Free tier: 90MB RAM, 10GB disk
+    # Production tier: Tùy chọn nâng cấp
+    region: oregon
+
+# ==================== LƯU Ý QUAN TRỌNG ====================
+# 1. Deploy: Push code lên GitHub, chọn repo trên Render, dùng Blueprint này
+# 2. Cần cấu hình Environment Variables:
+#    - EMAIL_HOST_USER (Gmail của bạn)
+#    - EMAIL_HOST_PASSWORD (App Password 16 ký tự)
+#    - DEFAULT_FROM_EMAIL (DUE Book <email_cua_ban@gmail.com>)
+#    - SITE_URL (URL của app sau khi deploy, ví dụ: https://due-book-app.onrender.com)

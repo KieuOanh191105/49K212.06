@@ -28,12 +28,12 @@ class UserRegisterForm(forms.ModelForm):
     phone_number = forms.CharField(
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'VD: 0912345678'
+            
         }),
         label='Số điện thoại *',
         max_length=20,
-        required=True,
-        help_text='Số điện thoại để người mua liên hệ'
+        required=True
+       
     )
 
     facebook_link = forms.URLField(
@@ -42,27 +42,27 @@ class UserRegisterForm(forms.ModelForm):
             'placeholder': 'VD: https://facebook.com/username'
         }),
         label='Link Facebook *',
-        required=True,
-        help_text='Link profile Facebook của bạn'
+        required=True
+       
     )
 
     zalo_link = forms.URLField(
         widget=forms.URLInput(attrs={
             'class': 'form-control',
-            'placeholder': 'VD: https://zalo.me/0912345678'
+            'placeholder': 'VD: https://zalo.me/09xxxxxxxxx'
         }),
         label='Link Zalo *',
         required=True,
-        help_text='Link Zalo của bạn'
+      
     )
 
     # ===== EMAIL CHO PASSWORD RESET =====
     gmail_address = forms.EmailField(
         widget=forms.EmailInput(attrs={
             'class': 'form-control',
-            'placeholder': 'VD: your-email@gmail.com'
+            'placeholder': '@gmail.com'
         }),
-        label='Email Gmail (khôi phục mật khẩu)',
+        label='Email',
         required=False,
         help_text='Dùng để nhận link đặt lại mật khẩu khi quên (tùy chọn)'
     )
@@ -71,7 +71,7 @@ class UserRegisterForm(forms.ModelForm):
     student_id = forms.CharField(
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Mã số sinh viên (nếu có)'
+            'placeholder': 'Mã số sinh viên'
         }),
         label='Mã số sinh viên',
         max_length=50,
@@ -81,7 +81,7 @@ class UserRegisterForm(forms.ModelForm):
     address = forms.CharField(
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Địa chỉ giao dịch (nếu muốn)'
+            'placeholder': 'Địa chỉ giao dịch bạn muốn'
         }),
         label='Địa chỉ giao dịch',
         max_length=300,
@@ -98,7 +98,7 @@ class UserRegisterForm(forms.ModelForm):
             }),
             'email': forms.EmailInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'VD: 231121521224@due.udn.vn'
+                'placeholder': '@due.udn.vn'
             }),
             'first_name': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -115,9 +115,8 @@ class UserRegisterForm(forms.ModelForm):
             'first_name': 'Họ và đệm',
             'last_name': 'Tên',
         }
-        help_texts = {
-            'email': 'Chỉ chấp nhận email sinh viên DUE (12 chữ số @due.udn.vn)',
-        }
+       
+        
 
     # ===== VALIDATION METHODS =====
 
@@ -209,7 +208,7 @@ class UserRegisterForm(forms.ModelForm):
                 gmail_address=gmail
             ).exclude(user__username=self.cleaned_data.get('username', ''))
             if existing_profiles.exists():
-                raise forms.ValidationError('Email Gmail này đã được sử dụng bởi tài khoản khác!')
+                raise forms.ValidationError('Email này đã được sử dụng bởi tài khoản khác!')
             return gmail
         return gmail
 
@@ -245,7 +244,7 @@ class UserRegisterForm(forms.ModelForm):
 # ==================== USER UPDATE FORM ====================
 class UserUpdateForm(forms.ModelForm):
     """Form cập nhật thông tin User cơ bản"""
-    
+
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'email']
@@ -269,11 +268,40 @@ class UserUpdateForm(forms.ModelForm):
             'email': 'Email',
         }
 
+    def clean_email(self):
+        """Validate email: unique, lowercase, format"""
+        email = self.cleaned_data.get('email', '').strip().lower()
+
+        # Kiểm tra email không được để trống
+        if not email:
+            raise forms.ValidationError('Email không được để trống.')
+
+        # Kiểm tra định dạng email cơ bản
+        from django.core.validators import validate_email
+        from django.core.exceptions import ValidationError
+        try:
+            validate_email(email)
+        except ValidationError:
+            raise forms.ValidationError('Email không đúng định dạng.')
+
+        # Kiểm tra email uniqueness (ngoại trừ user hiện tại)
+        existing_user = User.objects.filter(email__iexact=email).exclude(
+            pk=self.instance.pk
+        ).first()
+
+        if existing_user:
+            raise forms.ValidationError(
+                f'Email này đã được sử dụng bởi tài khoản "{existing_user.username}". '
+                f'Vui lòng chọn email khác.'
+            )
+
+        return email
+
 
 # ==================== USER PROFILE FORM ====================
 class UserProfileForm(forms.ModelForm):
     """Form cập nhật thông tin UserProfile"""
-    
+
     class Meta:
         model = UserProfile
         fields = [
@@ -304,11 +332,11 @@ class UserProfileForm(forms.ModelForm):
             'address': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Địa chỉ giao dịch'
-            }),
-            'avatar': forms.FileInput(attrs={
-                'class': 'form-control',
-                'accept': 'image/*'
-            }),
+            })
+            # 'avatar': forms.FileInput(attrs={
+            #     'class': 'form-control',
+            #     'accept': 'image/*'
+            # }),
         }
         labels = {
             'student_id': 'Mã số sinh viên',
@@ -319,3 +347,44 @@ class UserProfileForm(forms.ModelForm):
             'address': 'Địa chỉ',
             'avatar': 'Ảnh đại diện',
         }
+
+    def clean_gmail_address(self):
+        """Validate Gmail address (optional, must end with @gmail.com)"""
+        gmail = self.cleaned_data.get('gmail_address', '').strip()
+
+        # Nếu rỗng, cho phép (optional field)
+        if not gmail:
+            return gmail
+
+        # Convert to lowercase
+        gmail = gmail.lower()
+
+        # Kiểm tra định dạng email cơ bản
+        from django.core.validators import validate_email
+        from django.core.exceptions import ValidationError
+        try:
+            validate_email(gmail)
+        except ValidationError:
+            raise forms.ValidationError('Email Gmail không đúng định dạng.')
+
+        # Kiểm tra đuôi @gmail.com
+        if not gmail.endswith('@gmail.com'):
+            raise forms.ValidationError(
+                'Email phải có đuôi @gmail.com. Ví dụ: yourname@gmail.com'
+            )
+
+        # Kiểm tra uniqueness (ngoại trừ user hiện tại)
+        from .models import UserProfile
+        existing_profile = UserProfile.objects.filter(
+            gmail_address__iexact=gmail
+        ).exclude(
+            pk=self.instance.pk
+        ).first()
+
+        if existing_profile:
+            raise forms.ValidationError(
+                f'Email Gmail này đã được sử dụng bởi tài khoản "{existing_profile.user.username}". '
+                f'Vui lòng sử dụng email khác.'
+            )
+
+        return gmail

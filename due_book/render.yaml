@@ -1,0 +1,21 @@
+# Render Configuration for Django Deployment
+services:
+  # Service Configuration
+  - type: web
+    name: web
+    runtime: python
+    buildCommand: pip install -r requirements.txt && python manage.py migrate --noinput && python manage.py createsuperuser --noinput && python manage.py collectstatic --noinput
+    startCommand: gunicorn due_book.wsgi:application
+
+    # Auto-deploy settings
+    autoDeploy: false
+
+    # Environment Variables
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.14.3
+      - key: DJANGO_SETTINGS_MODULE
+        value: due_book.settings
+
+    # Health Check
+    healthCheckPath: /

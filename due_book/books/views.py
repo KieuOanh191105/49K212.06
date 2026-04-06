@@ -14,7 +14,7 @@ from django.core.paginator import Paginator
 from django.http import JsonResponse
 
 from .models import Book, Subject, PurchaseRequest
-from .forms import BookForm, PurchaseRequestForm
+from .forms import BookForm, PurchaseRequestForm, SubjectForm
 
 
 # ==================== HOME & BOOK LIST ====================
@@ -28,10 +28,10 @@ def home(request):
     # Lấy danh sách môn học (danh mục)
     subjects = Subject.objects.all().order_by('name')
     
-    # Lấy sách mới nhất (8 cuốn)
+    # Lấy sách mới nhất (6 cuốn)
     latest_books = Book.objects.filter(
         status='available'
-    ).select_related('subject', 'seller').order_by('-created_at')[:8]
+    ).select_related('subject', 'seller').order_by('-created_at')[:6]
     
     # Thống kê
     total_books = Book.objects.filter(status='available').count()
@@ -59,11 +59,20 @@ def book_list(request):
     
     # ===== LẤY CÁC THAM SỐ LỌC TỪ GET =====
     query = request.GET.get('q', '').strip()
+    subject_id = request.GET.get('subject_id', '')
     condition = request.GET.get('condition', '')
     price_min = request.GET.get('price_min', '')
     price_max = request.GET.get('price_max', '')
     sort = request.GET.get('sort', 'newest')
-    
+
+    # ===== LỌC THEO MÔN HỌC =====
+    if subject_id:
+        try:
+            subject_id_val = int(subject_id)
+            books = books.filter(subject_id=subject_id_val)
+        except (ValueError, TypeError):
+            pass
+
     # ===== TÌM KIẾM THEO TÊN SÁCH HOẶC TÁC GIẢ =====
     if query:
         books = books.filter(
@@ -115,12 +124,14 @@ def book_list(request):
     context = {
         'page_obj': page_obj,
         'query': query,
+        'subject_id': subject_id,
         'condition': condition,
         'price_min': price_min,
         'price_max': price_max,
         'sort': sort,
         'total_count': total_count,
         'condition_choices': Book.CONDITION_CHOICES,
+        'subjects': Subject.objects.all().order_by('name'),
     }
     return render(request, 'books/book_list.html', context)
 
@@ -326,7 +337,12 @@ class BookDetailView(DetailView):
             subject=self.object.subject,
             status='available'
         ).exclude(pk=self.object.pk)[:4]
-        
+
+        # Lấy thống kê đánh giá của người bán
+        from ratings.models import SellerReview
+        seller_stats = SellerReview.get_seller_stats(self.object.seller)
+        context['seller_stats'] = seller_stats
+
         # Thêm context cho purchase request
         if self.request.user.is_authenticated:
             # Kiểm tra user đã gửi request cho sách này chưa
@@ -337,7 +353,7 @@ class BookDetailView(DetailView):
             ).first()
             context['existing_request'] = existing_request
             context['purchase_form'] = PurchaseRequestForm()
-        
+
         return context
 
 
@@ -479,36 +495,57 @@ def approve_purchase_request(request, request_id):
     Người bán duyệt yêu cầu mua
     - Chỉ chấp nhận POST method
     - Cập nhật trạng thái request và sách
+    - Tự động từ chối các yêu cầu khác của cùng sách
     """
     purchase_request = get_object_or_404(PurchaseRequest, pk=request_id)
-    
+
     # Kiểm tra quyền: chỉ người bán mới được duyệt
     if purchase_request.seller != request.user:
         messages.error(request, 'Bạn không có quyền duyệt yêu cầu này.')
         return redirect('books:received_purchase_requests')
-    
+
     # Kiểm tra request còn pending
     if not purchase_request.is_pending:
         messages.error(request, 'Yêu cầu này đã được xử lý rồi.')
         return redirect('books:received_purchase_requests')
-    
+
     # Kiểm tra sách còn available
     if not purchase_request.book.is_available:
         messages.error(request, 'Sách này đã không còn bán.')
         return redirect('books:received_purchase_requests')
-    
+
     if request.method == 'POST':
         try:
+            # Đếm số yêu cầu pending khác trước khi duyệt
+            other_pending_count = PurchaseRequest.objects.filter(
+                book=purchase_request.book,
+                status='pending'
+            ).exclude(pk=request_id).count()
+
             purchase_request.approve()
-            messages.success(
-                request, 
-                f'Đã duyệt yêu cầu mua "{purchase_request.book.title}". Sách đã được đánh dấu là đã bán.'
-            )
+
+            # Thông báo chi tiết
+            if other_pending_count > 0:
+                messages.success(
+                    request,
+                    f'Đã duyệt yêu cầu mua từ {purchase_request.buyer.username}. '
+                    f'{other_pending_count} yêu cầu khác đã bị từ chối tự động. '
+                    f'Sách "{purchase_request.book.title}" đã được đánh dấu là đã bán.'
+                )
+            else:
+                messages.success(
+                    request,
+                    f'Đã duyệt yêu cầu mua từ {purchase_request.buyer.username}. '
+                    f'Sách "{purchase_request.book.title}" đã được đánh dấu là đã bán.'
+                )
+        except ValueError as e:
+            # Lỗi khi sách đã được duyệt cho người khác
+            messages.error(request, str(e))
         except Exception as e:
-            messages.error(request, 'Có lỗi xảy ra. Vui lòng thử lại.')
+            messages.error(request, f'Có lỗi xảy ra: {str(e)}')
     else:
         messages.error(request, 'Yêu cầu không hợp lệ.')
-    
+
     return redirect('books:received_purchase_requests')
 
 
@@ -604,3 +641,26 @@ def purchased_books(request):
         'title': 'Sách đã mua',
     }
     return render(request, 'books/purchased_books.html', context)
+
+
+# ==================== SUBJECT MANAGEMENT ====================
+@login_required
+def subject_create(request):
+    """
+    Tạo môn học mới
+    """
+    if request.method == 'POST':
+        form = SubjectForm(request.POST)
+        if form.is_valid():
+            subject = form.save(commit=False)
+            subject.save()
+            messages.success(request, f'Đã thêm môn học "{subject.name}" thành công!')
+            return redirect('books:home')
+    else:
+        form = SubjectForm()
+
+    context = {
+        'form': form,
+        'title': 'Thêm môn học mới',
+    }
+    return render(request, 'books/subject_form.html', context)

@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load custom_filters %}
 
 {% block title %}Sách đã mua - DUE Book{% endblock %}
 
@@ -77,7 +78,7 @@
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
         gap: 1.5rem;
-        align-items: start; /* ✅ Ngăn card bị stretch */
+        align-items: stretch; /* ✅ Card đồng đều chiều cao */
     }
 
     /* Purchased Book Card */
@@ -90,7 +91,7 @@
         border: 1px solid var(--border-color);
         display: flex;
         flex-direction: column;
-        height: auto; /* ✅ Chỉ cao theo nội dung */
+        min-height: 420px; /* ✅ Giảm xuống một chút vì layout gọn hơn */
     }
 
     .purchased-book-card:hover {
@@ -180,6 +181,9 @@
 
     .book-body {
         padding: 1rem;
+        flex: 1; /* ✅ Kéo dài để đẩy rating section xuống đáy */
+        display: flex;
+        flex-direction: column;
     }
 
     .seller-info {
@@ -189,7 +193,81 @@
         padding: 0.75rem;
         background: var(--light-bg);
         border-radius: var(--radius-md);
-        margin-bottom: 1rem;
+        margin-bottom: 0.75rem;
+    }
+
+    /* ✅ Review Status Section (chứa status + comment) */
+    .review-status-section {
+        margin-bottom: 0.75rem;
+    }
+
+    /* ✅ Review Comment Display (ngay dưới stars) */
+    .review-comment-display {
+        background: #f0f7ff;
+        border-left: 3px solid var(--primary-color);
+        border-radius: var(--radius-md);
+        padding: 0.6rem 0.75rem;
+        margin-top: 0.75rem;
+    }
+
+    .review-comment-display .review-text {
+        font-size: 0.85rem;
+        color: var(--dark-text);
+        line-height: 1.5;
+        display: -webkit-box;
+        -webkit-line-clamp: 2; /* ✅ Giới hạn 2 dòng */
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-bottom: 0.4rem;
+    }
+
+    .review-comment-display .review-date {
+        font-size: 0.7rem;
+        color: var(--light-text);
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    /* ✅ Comment Wrapper với char counter */
+    .comment-wrapper {
+        position: relative;
+    }
+
+    .comment-textarea {
+        font-size: 0.85rem;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border-color);
+        padding-right: 65px; /* ✅ Chừa chỗ cho char count */
+        resize: none;
+        min-height: 60px;
+        max-height: 70px;
+    }
+
+    .char-count {
+        position: absolute;
+        bottom: 6px;
+        right: 8px;
+        font-size: 0.65rem;
+        color: var(--light-text);
+        background: white;
+        padding: 0.2rem 0.4rem;
+        border-radius: 3px;
+        border: 1px solid var(--border-color);
+    }
+
+    .char-count .char-current {
+        font-weight: 600;
+        color: var(--primary-color);
+    }
+
+    .char-count.warning .char-current {
+        color: #f59e0b;
+    }
+
+    .char-count.danger .char-current {
+        color: #ef4444;
     }
 
     .seller-avatar {
@@ -221,12 +299,19 @@
         font-size: 0.875rem;
         font-weight: 600;
         color: var(--dark-text);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     .seller-name a {
         color: var(--dark-text);
         text-decoration: none;
         transition: color 0.2s;
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     .seller-name a:hover {
@@ -245,11 +330,14 @@
         color: #fbbf24;
     }
 
-    /* Rating Section */
+    /* Rating Section Footer */
     .rating-section {
-        padding: 1rem;
+        padding: 0.875rem 1rem;
         border-top: 1px solid var(--border-color);
         background: var(--light-bg);
+        margin-top: auto;
+        flex-shrink: 0;
+        min-height: 60px; /* ✅ Chiều cao tối thiểu để footer ổn định */
     }
 
     .rating-status {
@@ -259,27 +347,19 @@
         gap: 1rem;
     }
 
-    .rating-display {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
     .rating-stars {
-        font-size: 1rem;
+        font-size: 1.1rem;
         color: #fbbf24;
         letter-spacing: 2px;
     }
 
-    .rating-comment {
-        margin-top: 0.75rem;
-        padding: 0.75rem;
-        background: white;
-        border-radius: var(--radius-md);
-        border-left: 3px solid var(--primary-color);
-        font-size: 0.875rem;
-        color: var(--dark-text);
-        line-height: 1.5;
+    /* ✅ Rating Footer Done (cho card đã đánh giá) */
+    .rating-footer-done {
+        text-align: center;
+        padding: 0.5rem 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .rated-badge {
@@ -300,8 +380,8 @@
 
     /* Inline Rating Form */
     .inline-rating-form {
-        margin-top: 1rem;
-        padding: 1rem;
+        margin-top: 0.5rem;
+        padding: 0.75rem;
         background: white;
         border-radius: var(--radius-md);
         border: 1px solid var(--border-color);
@@ -310,18 +390,18 @@
     .inline-rating-form .form-label {
         font-weight: 600;
         color: var(--dark-text);
-        margin-bottom: 0.5rem;
-        font-size: 0.875rem;
+        margin-bottom: 0.4rem;
+        font-size: 0.8rem;
     }
 
     .inline-star-rating {
         display: flex;
         gap: 0.25rem;
-        margin-bottom: 0.75rem;
+        margin-bottom: 0.6rem;
     }
 
     .inline-star-rating .star-icon {
-        font-size: 1.75rem;
+        font-size: 1.6rem;
         cursor: pointer;
         color: #d1d5db;
         transition: all 0.2s;
@@ -337,16 +417,17 @@
     }
 
     .rating-error {
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         color: #ef4444;
-        margin-top: 0.25rem;
+        margin-top: 0.2rem;
         display: none;
     }
 
     .inline-rating-form .form-control {
-        font-size: 0.875rem;
+        font-size: 0.85rem;
         border-radius: var(--radius-md);
         border: 1px solid var(--border-color);
+        max-width: 100%;
     }
 
     .inline-rating-form .form-control:focus {
@@ -465,6 +546,10 @@
             gap: 1rem;
         }
 
+        .purchased-book-card {
+            min-height: auto; /* ✅ Mobile không cần min-height cố định */
+        }
+
         .book-image,
         .book-image-placeholder {
             width: 80px;
@@ -530,7 +615,7 @@
                                 </div>
                                 <div class="book-meta">
                                     <i class="fas fa-calendar-alt"></i>
-                                    <span>Đã mua: {{ item.purchase_date|date:"d/m/Y" }}</span>
+                                    <span>Đã mua: {{ item.purchase_date|to_local_time|date:"d/m/Y" }}</span>
                                 </div>
                                 <div class="book-price">{{ item.book.price|floatformat:0 }}đ</div>
                             </div>
@@ -559,47 +644,62 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Rating Section -->
-                        <div class="rating-section">
+                            <!-- ✅ Review Status + Stars (nằm trên, ngay sau seller) -->
                             {% if item.review %}
-                                <!-- Đã đánh giá -->
-                                <div>
+                                <div class="review-status-section">
                                     <div class="rating-status">
                                         <div class="rated-badge">
                                             <i class="fas fa-check-circle"></i>
                                             Đã đánh giá
                                         </div>
-                                        <div class="rating-display">
-                                            <div class="rating-stars">
-                                                {% for i in "12345" %}
-                                                    {% if forloop.counter <= item.review.rating %}
-                                                        <i class="fas fa-star"></i>
-                                                    {% else %}
-                                                        <i class="far fa-star"></i>
-                                                    {% endif %}
-                                                {% endfor %}
-                                            </div>
+                                        <div class="rating-stars">
+                                            {% for i in "12345" %}
+                                                {% if forloop.counter <= item.review.rating %}
+                                                    <i class="fas fa-star"></i>
+                                                {% else %}
+                                                    <i class="far fa-star"></i>
+                                                {% endif %}
+                                            {% endfor %}
                                         </div>
                                     </div>
+
+                                    <!-- ✅ Review Comment (ngay dưới stars) -->
                                     {% if item.review.comment %}
-                                        <div class="rating-comment">
-                                            "{{ item.review.comment }}"
+                                        <div class="review-comment-display">
+                                            <div class="review-text">
+                                                "{{ item.review.comment }}"
+                                            </div>
+                                            <div class="review-date">
+                                                <i class="far fa-clock"></i> {{ item.review.created_at|to_local_time|date:"d/m/Y" }}
+                                            </div>
                                         </div>
                                     {% endif %}
                                 </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Rating Section Footer (chỉ hiển thị form khi chưa đánh giá) -->
+                        <div class="rating-section">
+                            {% if item.review %}
+                                <!-- Đã đánh giá - Footer đơn giản -->
+                                <div class="rating-footer-done">
+                                    <span class="text-muted small">
+                                        <i class="fas fa-check-circle text-success"></i>
+                                        Cảm ơn bạn đã đánh giá người bán
+                                    </span>
+                                </div>
                             {% else %}
-                                <!-- Chưa đánh giá - Form inline ngay tại card -->
+                                <!-- Chưa đánh giá - Form -->
                                 <div class="rating-status mb-2">
                                     <span class="text-muted small">Chưa đánh giá</span>
                                 </div>
-                                
+
                                 <form action="{% url 'ratings:submit_review' %}" method="post" class="inline-rating-form">
                                     {% csrf_token %}
                                     <input type="hidden" name="purchase_request_id" value="{{ item.purchase_request.id }}">
                                     <input type="hidden" name="rating" value="0" class="rating-input">
-                                    
+
                                     <!-- Star Rating -->
                                     <div>
                                         <label class="form-label">Đánh giá sao <span class="text-danger">*</span></label>
@@ -610,13 +710,23 @@
                                         </div>
                                         <div class="rating-error">Vui lòng chọn số sao</div>
                                     </div>
-                                    
-                                    <!-- Comment -->
+
+                                    <!-- Comment với bộ đếm -->
                                     <div class="mb-2">
                                         <label class="form-label">Bình luận (tùy chọn)</label>
-                                        <textarea name="comment" class="form-control" rows="2" placeholder="Chia sẻ trải nghiệm của bạn..."></textarea>
+                                        <div class="comment-wrapper">
+                                            <textarea
+                                                name="comment"
+                                                class="form-control comment-textarea"
+                                                rows="2"
+                                                maxlength="300"
+                                                placeholder="Chia sẻ trải nghiệm của bạn...">{{ form.comment.value|default:'' }}</textarea>
+                                            <div class="char-count">
+                                                <span class="char-current">0</span>/300
+                                            </div>
+                                        </div>
                                     </div>
-                                    
+
                                     <button type="submit" class="btn-submit">
                                         <i class="fas fa-paper-plane"></i>
                                         Gửi đánh giá
@@ -706,13 +816,42 @@ document.addEventListener('DOMContentLoaded', function() {
             const ratingInput = form.querySelector('.rating-input');
             const ratingError = form.querySelector('.rating-error');
             const rating = parseInt(ratingInput.value);
-            
+
             if (!rating || rating < 1 || rating > 5) {
                 e.preventDefault();
                 ratingError.style.display = 'block';
                 return false;
             }
         });
+    });
+
+    // ✅ Character count for textarea
+    document.querySelectorAll('.comment-textarea').forEach(function(textarea) {
+        const charCount = textarea.nextElementSibling;
+        const charCurrent = charCount.querySelector('.char-current');
+        const maxLength = parseInt(textarea.getAttribute('maxlength'));
+
+        // Update count on input
+        textarea.addEventListener('input', function() {
+            const currentLength = this.value.length;
+            charCurrent.textContent = currentLength;
+
+            // Update color based on remaining characters
+            if (currentLength >= maxLength * 0.9) {
+                charCount.classList.add('danger');
+                charCount.classList.remove('warning');
+            } else if (currentLength >= maxLength * 0.7) {
+                charCount.classList.add('warning');
+                charCount.classList.remove('danger');
+            } else {
+                charCount.classList.remove('warning', 'danger');
+            }
+        });
+
+        // Initialize with existing content
+        if (textarea.value.trim()) {
+            textarea.dispatchEvent(new Event('input'));
+        }
     });
 });
 </script>

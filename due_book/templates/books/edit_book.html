@@ -150,6 +150,10 @@
                                 {{ form.title.label }} <span class="text-danger">*</span>
                             </label>
                             {{ form.title }}
+                            <div class="form-text">
+                                <span class="char-counter" data-target="id_title" data-max="300">0/300</span>
+                                <span class="ms-2">ký tự</span>
+                            </div>
                             {% if form.title.errors %}
                                 <div class="invalid-feedback d-block">
                                     {% for error in form.title.errors %}{{ error }}{% endfor %}
@@ -263,7 +267,7 @@
                                 <i class="fas fa-times me-2"></i>Hủy
                             </a>
                             <button type="submit" class="btn btn-submit">
-                                <i class="fas fa-save me-2"></i>Lưu thay đổi
+                                <i class="fas fa-save me-2"></i>Cập nhật 
                             </button>
                         </div>
                     </form>
@@ -321,6 +325,40 @@
                     alert.remove();
                 }, 300);
             }, 3000);
+        });
+    });
+
+    // Counter ký tự cho title, description, notes
+    document.addEventListener('DOMContentLoaded', function() {
+        // Update counter khi người dùng nhập
+        const counters = document.querySelectorAll('.char-counter');
+        counters.forEach(function(counter) {
+            const targetId = counter.getAttribute('data-target');
+            const maxChars = parseInt(counter.getAttribute('data-max'));
+            const targetInput = document.getElementById(targetId);
+
+            if (targetInput) {
+                // Function để update counter
+                function updateCounter() {
+                    const currentLength = targetInput.value.length;
+                    counter.textContent = currentLength + '/' + maxChars;
+
+                    // Thay đổi màu khi gần đạt giới hạn
+                    if (currentLength > maxChars * 0.9) {
+                        counter.style.color = '#dc3545'; // Đỏ
+                    } else if (currentLength > maxChars * 0.7) {
+                        counter.style.color = '#ffc107'; // Vàng
+                    } else {
+                        counter.style.color = ''; // Mặc định
+                    }
+                }
+
+                // Update khi input event
+                targetInput.addEventListener('input', updateCounter);
+
+                // Update ban đầu (cho form edit)
+                updateCounter();
+            }
         });
     });
 </script>

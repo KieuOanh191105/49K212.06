@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.static import serve
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -30,12 +31,16 @@ urlpatterns = [
     
     # ===== RATINGS APP =====
     path('danh-gia/', include('ratings.urls', namespace='ratings')),
+
+    # Serve media files in production (works on Render)
+    path('media/<path:path>', serve, {'document_root': settings.MEDIA_ROOT}, name='media'),
 ]
 
 # Serve media files in development
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    
-    #user= admin1
-    #pass= 123456
+
+    # Test credentials
+    # user= admin1
+    # pass= 123456
     

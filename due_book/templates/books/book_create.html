@@ -133,13 +133,17 @@
                 <div class="card-body p-4 p-md-5">
                     <form method="post" enctype="multipart/form-data" novalidate>
                         {% csrf_token %}
-                        
+
                         <!-- Tên sách - Bắt buộc -->
                         <div class="mb-4">
                             <label for="{{ form.title.id_for_label }}" class="form-label">
                                 {{ form.title.label }} <span class="text-danger">*</span>
                             </label>
                             {{ form.title }}
+                            <div class="form-text">
+                                <span class="char-counter" data-target="id_title" data-max="300">0/300</span>
+                                <span class="ms-2">ký tự</span>
+                            </div>
                             {% if form.title.errors %}
                                 <div class="invalid-feedback d-block">
                                     {% for error in form.title.errors %}{{ error }}{% endfor %}
@@ -172,7 +176,7 @@
                                         {% for error in form.price.errors %}{{ error }}{% endfor %}
                                     </div>
                                 {% endif %}
-                                <div class="form-text">Tối thiểu: 1.000đ, Tối đa: 9.999.999.999đ</div>
+                              
                             </div>
                             <div class="col-md-6 mb-4">
                                 <label for="{{ form.condition.id_for_label }}" class="form-label">
@@ -236,8 +240,8 @@
                         <div class="alert alert-info mb-4">
                             <i class="fas fa-info-circle me-2"></i>
                             <strong>Lưu ý:</strong> Thông tin liên hệ (SĐT, Facebook, Zalo) sẽ được lấy từ hồ sơ của bạn.
-                            <br>Hãy đảm bảo <a href="#" class="alert-link">cập nhật hồ sơ</a> của bạn để người mua có thể liên hệ.
-                        </div>
+                            <br>Hãy đảm bảo <a href="{% url 'users:user_edit_profile' %}" class="alert-link" style="color: #8B0000; font-weight: 600;">cập nhật hồ sơ</a> của bạn để người mua có thể liên hệ.
+                        </div> 
 
                         <!-- Buttons -->
                         <div class="d-flex justify-content-between pt-3">
@@ -303,6 +307,40 @@
                     alert.remove();
                 }, 300);
             }, 3000);
+        });
+    });
+
+    // Counter ký tự cho title, description, notes
+    document.addEventListener('DOMContentLoaded', function() {
+        // Update counter khi người dùng nhập
+        const counters = document.querySelectorAll('.char-counter');
+        counters.forEach(function(counter) {
+            const targetId = counter.getAttribute('data-target');
+            const maxChars = parseInt(counter.getAttribute('data-max'));
+            const targetInput = document.getElementById(targetId);
+
+            if (targetInput) {
+                // Function để update counter
+                function updateCounter() {
+                    const currentLength = targetInput.value.length;
+                    counter.textContent = currentLength + '/' + maxChars;
+
+                    // Thay đổi màu khi gần đạt giới hạn
+                    if (currentLength > maxChars * 0.9) {
+                        counter.style.color = '#dc3545'; // Đỏ
+                    } else if (currentLength > maxChars * 0.7) {
+                        counter.style.color = '#ffc107'; // Vàng
+                    } else {
+                        counter.style.color = ''; // Mặc định
+                    }
+                }
+
+                // Update khi input event
+                targetInput.addEventListener('input', updateCounter);
+
+                // Update ban đầu (cho form edit)
+                updateCounter();
+            }
         });
     });
 </script>

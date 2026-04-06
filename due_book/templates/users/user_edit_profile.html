@@ -160,6 +160,15 @@
         margin-top: 2px;
     }
 
+    .error-message {
+        animation: shake .3s ease;
+    }
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-4px); }
+        75% { transform: translateX(4px); }
+    }
+
     /* ===== ACTIONS ===== */
     .form-actions {
         display: flex;
@@ -255,11 +264,43 @@
                                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
                                 <polyline points="22,6 12,13 2,6"/>
                             </svg>
-                            Địa chỉ email
+                            Email sinh viên DUE  <span style="color: #e74c3c;">*</span>
                         </label>
                         {{ user_form.email }}
                         {% if user_form.email.errors %}
-                            <span class="hint" style="color: var(--red);">{{ user_form.email.errors.0 }}</span>
+                            <div class="error-message" style="margin-top: 5px; padding: 8px 12px; background: #fee; border: 1px solid #fcc; border-left: 3px solid #e74c3c; border-radius: 6px; font-size: 0.8rem; color: #c0392b;">
+                                <i class="fas fa-exclamation-circle" style="margin-right: 5px;"></i>
+                                {{ user_form.email.errors.0 }}
+                            </div>
+                        {% else %}
+                            <span class="hint" style="color: var(--muted);">
+                                <i class="fas fa-info-circle" style="margin-right: 3px;"></i>
+                                Email này là email của Trường có đuôi @due.udn.vn
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-row full">
+                    <div class="form-group">
+                        <label>
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#EA4335" stroke-width="2">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                <polyline points="22,6 12,13 2,6"/>
+                            </svg>
+                            Gmail
+                        </label>
+                        {{ profile_form.gmail_address }}
+                        {% if profile_form.gmail_address.errors %}
+                            <div class="error-message" style="margin-top: 5px; padding: 8px 12px; background: #fee; border: 1px solid #fcc; border-left: 3px solid #e74c3c; border-radius: 6px; font-size: 0.8rem; color: #c0392b;">
+                                <i class="fas fa-exclamation-circle" style="margin-right: 5px;"></i>
+                                {{ profile_form.gmail_address.errors.0 }}
+                            </div>
+                        {% else %}
+                            <span class="hint" style="color: var(--muted);">
+                                <i class="fas fa-key" style="margin-right: 3px;"></i>
+                                Dùng để khôi phục mật khẩu (tùy chọn, phải có đuôi @gmail.com)
+                            </span>
                         {% endif %}
                     </div>
                 </div>
@@ -414,6 +455,134 @@
                 input.classList.add('form-control-input');
             }
         });
+
+        // Email validation real-time
+        const emailInput = document.querySelector('input[name="email"]');
+        if (emailInput) {
+            emailInput.addEventListener('blur', function() {
+                const email = this.value.trim().toLowerCase();
+
+                // Clear previous error
+                const existingError = this.parentElement.querySelector('.email-validation-error');
+                if (existingError) {
+                    existingError.remove();
+                }
+
+                // Skip if empty
+                if (!email) return;
+
+                // Validate email format
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    showError(this, 'Email không đúng định dạng. Ví dụ: user@example.com');
+                    return;
+                }
+
+                // Show success indicator
+                showSuccess(this);
+            });
+
+            emailInput.addEventListener('input', function() {
+                // Clear error when user starts typing
+                const existingError = this.parentElement.querySelector('.email-validation-error');
+                if (existingError && this.value.length > 3) {
+                    existingError.remove();
+                }
+            });
+        }
+
+        // Gmail validation real-time
+        const gmailInput = document.querySelector('input[name="gmail_address"]');
+        if (gmailInput) {
+            gmailInput.addEventListener('blur', function() {
+                const gmail = this.value.trim().toLowerCase();
+
+                // Clear previous error
+                const existingError = this.parentElement.querySelector('.gmail-validation-error');
+                if (existingError) {
+                    existingError.remove();
+                }
+
+                // Skip if empty
+                if (!gmail) return;
+
+                // Validate Gmail format
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(gmail)) {
+                    showErrorGmail(this, 'Email Gmail không đúng định dạng. Ví dụ: yourname@gmail.com');
+                    return;
+                }
+
+                // Check @gmail.com suffix
+                if (!gmail.endsWith('@gmail.com')) {
+                    showErrorGmail(this, 'Email phải có đuôi <b>@gmail.com</b>.');
+                    return;
+                }
+
+                // Show success indicator
+                showSuccessGmail(this);
+            });
+
+            gmailInput.addEventListener('input', function() {
+                // Clear error when user starts typing
+                const existingError = this.parentElement.querySelector('.gmail-validation-error');
+                if (existingError && this.value.length > 10) {
+                    existingError.remove();
+                }
+            });
+        }
+
+        function showError(input, message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'email-validation-error';
+            errorDiv.style.cssText = 'margin-top: 5px; padding: 6px 10px; background: #fee; border: 1px solid #fcc; border-left: 3px solid #e74c3c; border-radius: 6px; font-size: 0.75rem; color: #c0392b;';
+            errorDiv.innerHTML = '<i class="fas fa-exclamation-circle" style="margin-right: 5px;"></i>' + message;
+            input.parentElement.appendChild(errorDiv);
+            input.style.borderColor = '#e74c3c';
+        }
+
+        function showSuccess(input) {
+            input.style.borderColor = '#27ae60';
+            const successHint = document.createElement('span');
+            successHint.className = 'email-success-hint';
+            successHint.style.cssText = 'margin-top: 5px; font-size: 0.74rem; color: #27ae60; display: block;';
+            successHint.innerHTML = '<i class="fas fa-check-circle" style="margin-right: 3px;"></i>Email hợp lệ';
+            input.parentElement.appendChild(successHint);
+
+            // Remove success hint after 3 seconds
+            setTimeout(() => {
+                if (successHint.parentElement) {
+                    successHint.remove();
+                    input.style.borderColor = 'var(--border)';
+                }
+            }, 3000);
+        }
+
+        function showErrorGmail(input, message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'gmail-validation-error';
+            errorDiv.style.cssText = 'margin-top: 5px; padding: 6px 10px; background: #fee; border: 1px solid #fcc; border-left: 3px solid #4285F4; border-radius: 6px; font-size: 0.75rem; color: #c0392b;';
+            errorDiv.innerHTML = '<i class="fab fa-google" style="margin-right: 5px;"></i>' + message;
+            input.parentElement.appendChild(errorDiv);
+            input.style.borderColor = '#4285F4';
+        }
+
+        function showSuccessGmail(input) {
+            input.style.borderColor = '#34A853';
+            const successHint = document.createElement('span');
+            successHint.className = 'gmail-success-hint';
+            successHint.style.cssText = 'margin-top: 5px; font-size: 0.74rem; color: #34A853; display: block;';
+            successHint.innerHTML = '<i class="fas fa-check-circle" style="margin-right: 3px;"></i>Gmail hợp lệ ✓';
+            input.parentElement.appendChild(successHint);
+
+            // Remove success hint after 3 seconds
+            setTimeout(() => {
+                if (successHint.parentElement) {
+                    successHint.remove();
+                    input.style.borderColor = 'var(--border)';
+                }
+            }, 3000);
+        }
     });
 </script>
 {% endblock %}

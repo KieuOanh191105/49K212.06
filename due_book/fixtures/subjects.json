@@ -1,0 +1,123 @@
+[
+  {
+    "model": "books.subject",
+    "pk": 1,
+    "fields": {
+      "code": "SMT1005",
+      "name": "Triết học Mác-Lênin",
+      "description": "Môn học Triết học Mác-Lênin",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "books.subject",
+    "pk": 2,
+    "fields": {
+      "code": "SMT1006",
+      "name": "Kinh tế chính trị Mác-Lênin",
+      "description": "Môn học Kinh tế chính trị Mác-Lênin",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "books.subject",
+    "pk": 3,
+    "fields": {
+      "code": "TOU1001",
+      "name": "Giao tiếp trong kinh doanh",
+      "description": "Môn học Giao tiếp trong kinh doanh",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "books.subject",
+    "pk": 4,
+    "fields": {
+      "code": "MGT1001",
+      "name": "Kinh tế vi mô",
+      "description": "Môn học Kinh tế vi mô",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "books.subject",
+    "pk": 5,
+    "fields": {
+      "code": "MIS3005",
+      "name": "Toán rời rạc",
+      "description": "Môn học Toán rời rạc",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "books.subject",
+    "pk": 6,
+    "fields": {
+      "code": "MIS3004",
+      "name": "Quản trị dự án công nghệ thông tin",
+      "description": "Môn học Quản trị dự án công nghệ thông tin",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "books.subject",
+    "pk": 7,
+    "fields": {
+      "code": "MIS3021",
+      "name": "Kiểm thử phần mềm",
+      "description": "Môn học Kiểm thử phần mềm",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "books.subject",
+    "pk": 8,
+    "fields": {
+      "code": "MIS3010",
+      "name": "Lập Trình Web",
+      "description": "Môn học Lập Trình Web",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "books.subject",
+    "pk": 9,
+    "fields": {
+      "code": "ELC3006",
+      "name": "Học máy",
+      "description": "Môn học Học máy",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "books.subject",
+    "pk": 10,
+    "fields": {
+      "code": "ELC3009",
+      "name": "Khai phá dữ liệu web",
+      "description": "Môn học Khai phá dữ liệu web",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "books.subject",
+    "pk": 11,
+    "fields": {
+      "code": "MIS3003",
+      "name": "An toàn và bảo mật hệ thống thông tin",
+      "description": "Môn học An toàn và bảo mật hệ thống thông tin",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  }
+]

@@ -47,12 +47,12 @@ class BookForm(forms.ModelForm):
             'description': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 4,
-                'placeholder': 'Mô tả về sách...'
+                'placeholder': 'Nhập mô tả đầy đủ về sách: lớp học, NXB, năm XB, số trang, tình trạng bên trong...'
             }),
             'notes': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 2,
-                'placeholder': 'Ghi chú thêm (gạch bớt, v.v.)'
+                'placeholder': 'Nhập lưu ý thêm: gạch bút chì, cong gáy, xước bìa, tặng kèm...'
             }),
             'cover_image': forms.FileInput(attrs={
                 'class': 'form-control',
@@ -122,8 +122,6 @@ class BookForm(forms.ModelForm):
         if price < 1000:
             raise ValidationError('Giá bán tối thiểu phải từ 1.000đ')
         
-        if price > 9999999999:
-            raise ValidationError('Giá bán không được vượt quá 9.999.999.999đ')
         
         return price
 
@@ -184,3 +182,40 @@ class PurchaseRequestForm(forms.ModelForm):
         if len(message) > 500:
             raise forms.ValidationError('Lời nhắn không được vượt quá 500 ký tự.')
         return message.strip()
+
+
+class SubjectForm(forms.ModelForm):
+    """Form thêm môn học mới"""
+    class Meta:
+        model = Subject
+        fields = ['code', 'name']
+        widgets = {
+            'code': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'VD: IT101, KTR202...',
+                'maxlength': 50,
+            }),
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'VD: Lập trình Python',
+                'maxlength': 200,
+            }),
+        }
+        labels = {
+            'code': 'Mã môn học',
+            'name': 'Tên môn học',
+        }
+
+    def clean_code(self):
+        """Validate mã môn học: viết hoa, không khoảng trắng"""
+        code = self.cleaned_data.get('code', '').strip().upper()
+        if ' ' in code:
+            raise forms.ValidationError('Mã môn học không được chứa khoảng trắng.')
+        return code
+
+    def clean_name(self):
+        """Validate tên môn học"""
+        name = self.cleaned_data.get('name', '').strip()
+        if not name:
+            raise forms.ValidationError('Vui lòng nhập tên môn học.')
+        return name

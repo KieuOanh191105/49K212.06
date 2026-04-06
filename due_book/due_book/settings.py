@@ -26,12 +26,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-am+%m*gai(nv1l(%$ge9=sy(2@9@n%u2vb)-t$q^5z@=tn)&tb'
-
+SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 
 # Application definition
@@ -43,7 +42,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
+
+    # Third-party apps
+    # 'whitenoise.runserver_nostatic',  # Tùy chọn: Chỉ cần nếu muốn Whitenoise thay thế Django's runserver trong development
+
     #===== LOCAL APPS =====
     'users.apps.UsersConfig',
     'books',
@@ -52,6 +54,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # ← THÊM: Phải đặt SAU SecurityMiddleware, TRƯỚC SessionMiddleware
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -87,12 +90,65 @@ WSGI_APPLICATION = 'due_book.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# ==================== DATABASE CONFIGURATION ====================
+# Ưu tiên: 1) DATABASE_URL (Render), 2) DB_ENGINE config, 3) SQLite fallback
+
+import dj_database_url
+
+# Render tự động cung cấp DATABASE_URL khi có PostgreSQL service
+if 'DATABASE_URL' in os.environ:
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=os.environ.get('DATABASE_URL'),
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
     }
-}
+    print("Using PostgreSQL from DATABASE_URL (Render)")
+elif os.getenv('DB_ENGINE') == 'django.db.backends.postgresql':
+    # PostgreSQL Configuration (Manual/Docker)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.getenv('DB_NAME', 'due_book_db'),
+            'USER': os.getenv('DB_USER', 'postgres'),
+            'PASSWORD': os.getenv('DB_PASSWORD', 'postgres123'),
+            'HOST': os.getenv('DB_HOST', 'localhost'),
+            'PORT': os.getenv('DB_PORT', '5432'),
+        }
+    }
+    print("Using PostgreSQL from manual config")
+else:
+    # SQLite Configuration (Development/Fallback)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+    print("Using SQLite (development)")
+
+
+if DB_ENGINE == 'django.db.backends.postgresql':
+    # PostgreSQL Configuration (Production/Docker)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.getenv('DB_NAME', 'due_book_db'),
+            'USER': os.getenv('DB_USER', 'postgres'),
+            'PASSWORD': os.getenv('DB_PASSWORD', 'postgres123'),
+            'HOST': os.getenv('DB_HOST', 'localhost'),
+            'PORT': os.getenv('DB_PORT', '5432'),
+        }
+    }
+else:
+    # SQLite Configuration (Development/Fallback)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
@@ -110,9 +166,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'vi-vi'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Ho_Chi_Minh'
 
 USE_I18N = True
 
@@ -130,6 +186,9 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 
 # Thư mục collectstatic cho production
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Static files storage cho Whitenoise (production)
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -164,19 +223,47 @@ LOGOUT_REDIRECT_URL = 'books:home'
 # Backend để gửi email
 # Development: Dùng console backend để xem email trong terminal
 # thay rôi nha Oanh thay ngày 2/4/26
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+# Auto-detect environment và chọn backend phù hợp
+# Nếu có SMTP credentials thì dùng SMTP, ngược lại dùng Console
+EMAIL_HOST_USER_ENV = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD_ENV = os.getenv('EMAIL_HOST_PASSWORD')
+
+HAS_SMTP_CREDENTIALS = all([
+    EMAIL_HOST_USER_ENV,
+    EMAIL_HOST_PASSWORD_ENV,
+])
+
+if HAS_SMTP_CREDENTIALS:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    # print("✅ EMAIL: Using SMTP backend (production)")
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    # print("⚠️ EMAIL: Using Console backend (development/no SMTP config)")
 
 
 # Production: Comment dòng trên và dùng SMTP backend
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
-# Cấu hình SMTP Gmail (đọc từ .env file)
+# Cấu hình SMTP Gmail (đọc từ .env file) - Safe parsing
 EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
-EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
+
+# Safe parse EMAIL_PORT
+try:
+    EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
+except (ValueError, TypeError):
+    EMAIL_PORT = 587
+    # print(f"⚠️ EMAIL: Invalid EMAIL_PORT, using default 587")
+
 EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', f'DUE Book <{os.getenv("EMAIL_HOST_USER")}>')
+EMAIL_HOST_USER = EMAIL_HOST_USER_ENV
+EMAIL_HOST_PASSWORD = EMAIL_HOST_PASSWORD_ENV
+
+# Safe parse DEFAULT_FROM_EMAIL
+if EMAIL_HOST_USER_ENV:
+    DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', f'DUE Book <{EMAIL_HOST_USER_ENV}>')
+else:
+    DEFAULT_FROM_EMAIL = 'DUE Book <noreply@example.com>'
 
 # Site URL cho password reset
 SITE_URL = os.getenv('SITE_URL', 'http://127.0.0.1:8000')

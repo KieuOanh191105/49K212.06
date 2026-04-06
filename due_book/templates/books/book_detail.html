@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load custom_filters %}
 
 {% block title %}{{ book.title }} - DUE Book{% endblock %}
 
@@ -44,7 +45,7 @@
     }
 
     .detail-card .card-body {
-        padding: 20px;
+        padding: 10px;
     }
 
     /* ========== IMAGE CARD ========== */
@@ -345,10 +346,15 @@
         padding: 8px 15px;
         border-radius: 6px;
         font-size: 0.85rem;
-        font-weight: 500;
+        font-weight: 600;
         text-decoration: none;
         transition: all 0.3s ease;
         white-space: nowrap;
+        width: 110px;
+        text-align: center;
+        display: inline-block;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .btn-contact.call {
@@ -393,10 +399,17 @@
         color: #555;
         line-height: 1.8;
         white-space: pre-wrap;
+        text-align: left;
     }
 
     .description-content p {
         margin-bottom: 10px;
+        margin-top: 0;
+    }
+    
+    .description-content .text-muted {
+        text-align: left;
+        
     }
 
     /* ========== BACK BUTTON ========== */
@@ -487,14 +500,25 @@
                             <i class="fas fa-user"></i>
                         </div>
                         <div class="seller-details">
-                            <h5>{{ book.seller.username|title }}</h5>
+                            <h5>{{ book.seller.get_full_name|default:"Người bán" }}</h5>
                             <div class="seller-rating">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <span>5.0 - 1 đánh giá</span>
+                                {% if seller_stats.avg_rating > 0 %}
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= seller_stats.avg_rating %}
+                                            <i class="fas fa-star"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <span>{{ seller_stats.avg_rating|floatformat:1 }} - {{ seller_stats.total_reviews }} đánh giá</span>
+                                {% else %}
+                                    <i class="far fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                    <span>Chưa có đánh giá</span>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -536,7 +560,7 @@
                     <h1 class="book-title-header">{{ book.title }}</h1>
                     
                     <div class="book-meta-row">
-                        <span><i class="fas fa-calendar me-1"></i>{{ book.created_at|date:"d/m/Y" }}</span>
+                        <span><i class="fas fa-calendar me-1"></i>{{ book.created_at|to_local_time|date:"d/m/Y" }}</span>
                     </div>
 
                     <!-- Badges -->
@@ -590,7 +614,7 @@
                                     </p>
                                     <p class="mb-0" style="font-size: 0.85rem; color: #666;">
                                         Trạng thái: <strong>{{ existing_request.get_status_display }}</strong><br>
-                                        Gửi lúc: {{ existing_request.created_at|date:"d/m/Y H:i" }}
+                                        Gửi lúc: {{ existing_request.created_at|to_local_time|date:"d/m/Y H:i" }}
                                     </p>
                                 {% else %}
                                     <!-- Form gửi yêu cầu mua -->
@@ -598,7 +622,7 @@
                                     <form action="{% url 'books:create_purchase_request' book.pk %}" method="post">
                                         {% csrf_token %}
                                         <button type="submit" class="btn-purchase">
-                                            <i class="fas fa-paper-plane me-2"></i>Gửi yêu cầu mua
+                                            <i class="fas fa-paper-plane me-2"></i>Xác nhận đã mua
                                         </button>
                                     </form>
                                 {% endif %}

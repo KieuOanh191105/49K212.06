@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Thêm môn học mới - DUE Book{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #004080, #0066cc);
+        border-radius: 12px;
+        padding: 30px;
+        margin-bottom: 30px;
+        color: white;
+    }
+
+    .page-header h1 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .page-header p {
+        opacity: 0.9;
+        margin-bottom: 0;
+    }
+
+    .form-card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+        margin-bottom: 30px;
+    }
+
+    .form-card .card-header {
+        background: #004080;
+        color: white;
+        border: none;
+        border-radius: 12px 12px 0 0;
+        padding: 20px 25px;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .form-card .card-body {
+        padding: 30px 25px;
+    }
+
+    .form-label {
+        font-weight: 500;
+        color: #333;
+        margin-bottom: 8px;
+    }
+
+    .form-control {
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 12px 15px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: #004080;
+        box-shadow: 0 0 0 3px rgba(0,64,128,0.1);
+    }
+
+    .form-text {
+        font-size: 0.85rem;
+        color: #666;
+        margin-top: 5px;
+    }
+
+    .btn-submit {
+        background: linear-gradient(135deg, #004080, #0066cc);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 12px 30px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-submit:hover {
+        background: linear-gradient(135deg, #003366, #0055aa);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,64,128,0.3);
+    }
+
+    .btn-cancel {
+        background: #6c757d;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 12px 30px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-cancel:hover {
+        background: #5a6268;
+        color: white;
+    }
+
+    .alert-info {
+        background: #e3f2fd;
+        border: 1px solid #2196f3;
+        border-radius: 10px;
+        padding: 15px 20px;
+        margin-bottom: 25px;
+    }
+
+    .alert-info i {
+        color: #2196f3;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- ========== BREADCRUMB ========== -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'books:home' %}">
+                    <i class="fas fa-home"></i> Trang chủ
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                Thêm môn học mới
+            </li>
+        </ol>
+    </nav>
+
+    <!-- ========== PAGE HEADER ========== -->
+    <div class="page-header">
+        <h1><i class="fas fa-plus-circle me-2"></i>Thêm môn học mới</h1>
+        <p>Mở rộng danh mục môn học cho hệ thống</p>
+    </div>
+
+    <!-- ========== INFO ALERT ========== -->
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i>
+        <strong>Thông tin:</strong> Môn học mới sẽ được thêm vào danh mục và hiển thị trên trang chủ, giúp người dùng dễ dàng lọc sách theo môn học.
+    </div>
+
+    <!-- ========== FORM ========== -->
+    <div class="card form-card">
+        <div class="card-header">
+            <i class="fas fa-edit me-2"></i>Nhập thông tin môn học
+        </div>
+        <div class="card-body">
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                <!-- Mã môn học -->
+                <div class="mb-4">
+                    <label for="{{ form.code.id_for_label }}" class="form-label">
+                        <i class="fas fa-barcode me-1"></i>{{ form.code.label }} <span class="text-danger">*</span>
+                    </label>
+                    {{ form.code }}
+                    {% if form.code.help_text %}
+                        <div class="form-text">{{ form.code.help_text }}</div>
+                    {% endif %}
+                    {% if form.code.errors %}
+                        <div class="text-danger mt-1">
+                            {% for error in form.code.errors %}
+                                <small><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</small><br>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Tên môn học -->
+                <div class="mb-4">
+                    <label for="{{ form.name.id_for_label }}" class="form-label">
+                        <i class="fas fa-book me-1"></i>{{ form.name.label }} <span class="text-danger">*</span>
+                    </label>
+                    {{ form.name }}
+                    {% if form.name.help_text %}
+                        <div class="form-text">{{ form.name.help_text }}</div>
+                    {% endif %}
+                    {% if form.name.errors %}
+                        <div class="text-danger mt-1">
+                            {% for error in form.name.errors %}
+                                <small><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</small><br>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Buttons -->
+                <div class="d-flex gap-3 pt-3">
+                    <button type="submit" class="btn btn-submit">
+                        <i class="fas fa-save me-2"></i>Lưu môn học
+                    </button>
+                    <a href="{% url 'books:home' %}" class="btn btn-cancel">
+                        <i class="fas fa-times me-2"></i>Hủy
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Tự động uppercase mã môn học khi nhập
+        const codeInput = document.getElementById('{{ form.code.id_for_label }}');
+        if (codeInput) {
+            codeInput.addEventListener('input', function() {
+                this.value = this.value.toUpperCase();
+            });
+        }
+    });
+</script>
+{% endblock %}

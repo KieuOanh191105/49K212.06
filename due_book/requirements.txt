@@ -10,7 +10,6 @@ crispy-bootstrap5>=0.7
 
 # Database (optional - for production)
 psycopg2-binary>=2.9.0  # PostgreSQL driver
-dj-database-url>=2.0.0  # Parse DATABASE_URL from Render/Heroku
 
 # Static Files
 whitenoise>=6.5.0

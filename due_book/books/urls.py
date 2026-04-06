@@ -21,9 +21,12 @@ urlpatterns = [
     path('sach/<int:pk>/', views.BookDetailView.as_view(), name='book_detail'),
     path('books/<int:pk>/', views.BookDetailView.as_view(), name='book_detail_alt'),
     
-    # US4 - ĐĂNG BÁN SÁCH - done 
+    # US4 - ĐĂNG BÁN SÁCH - done
     path('dang-ban-sach/', views.BookCreateView.as_view(), name='book_create'),
-    
+
+    # Thêm môn học mới
+    path('mon-hoc/them-moi/', views.subject_create, name='subject_create'),
+
     # Chỉnh sửa bài đăng
     path('sach/<int:pk>/chinh-sua/', views.edit_book, name='edit_book'),
     path('books/<int:pk>/edit/', views.edit_book, name='edit_book_alt'),

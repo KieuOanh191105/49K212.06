@@ -196,6 +196,9 @@
         font-size: 0.85rem;
         cursor: pointer;
         transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .btn-reset-filter:hover {
@@ -264,6 +267,9 @@
         box-shadow: 0 2px 15px rgba(0,0,0,0.08);
         transition: all 0.3s ease;
         overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
     }
     
     .book-card:hover {
@@ -311,6 +317,9 @@
     
     .book-card .card-body {
         padding: 15px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
     }
     
     .book-card .book-title {
@@ -319,39 +328,76 @@
         color: #333;
         margin-bottom: 8px;
         line-height: 1.4;
+        min-height: 2.8em; /* Fix height cho 2 dòng */
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
+        text-overflow: ellipsis;
     }
     
     .book-card .book-subject {
         font-size: 0.85rem;
         color: #666;
         margin-bottom: 5px;
+        min-height: 1.2em; /* Fix chiều cao */
     }
     
     .book-card .book-subject i {
         color: #004080;
     }
-    
+
+    .book-card .book-badge {
+        display: inline-block;
+        background: #e3f2fd;
+        color: #004080;
+        padding: 3px 10px;
+        border-radius: 15px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+        min-height: 24px; /* Fix chiều cao badge để giữ chỗ khi thiếu subject */
+        line-height: 18px;
+    }
+
+    .book-card .book-badge.placeholder {
+        background: transparent;
+        color: transparent;
+        visibility: hidden; /* Ẩn nhưng vẫn giữ chỗ */
+    }
+
+    .book-card .book-seller {
+        font-size: 0.85rem;
+        color: #666;
+        margin-bottom: 5px;
+        min-height: 1.2em; /* Fix chiều cao */
+    }
+
+    .book-card .book-seller i {
+        color: #004080;
+        margin-right: 4px;
+    }
+
     .book-card .book-condition {
         font-size: 0.8rem;
         color: #888;
         margin-bottom: 10px;
+        min-height: 1.2em; /* Fix chiều cao */
     }
-    
+
     .book-card .book-price {
         font-size: 1.2rem;
         font-weight: 700;
         color: #e74c3c;
-        margin-bottom: 0;
+        margin-bottom: 4px;
+        min-height: 1.5em; /* Fix chiều cao giá để giữ chỗ */
     }
-    
+
     .book-card .card-footer {
         background: white;
         border-top: 1px solid #eee;
         padding: 12px 15px;
+        margin-top: auto; /* Đẩy footer xuống đáy card */
     }
     
     .btn-view-detail {
@@ -564,11 +610,26 @@
                             <label class="filter-label">
                                 <i class="fas fa-search"></i>Tìm kiếm
                             </label>
-                            <input type="text" 
-                                   name="q" 
-                                   class="filter-input" 
-                                   placeholder="Tên sách, môn học..."
+                            <input type="text"
+                                   name="q"
+                                   class="filter-input"
+                                   placeholder="Tên sách, mô tả..."
                                    value="{{ query|default:'' }}">
+                        </div>
+
+                        <!-- Lọc theo môn học -->
+                        <div class="filter-group">
+                            <label class="filter-label">
+                                <i class="fas fa-book"></i>Môn học
+                            </label>
+                            <select name="subject_id" class="filter-select">
+                                <option value="">Tất cả môn học</option>
+                                {% for subject in subjects %}
+                                    <option value="{{ subject.id }}" {% if subject_id == subject.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ subject.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
                         </div>
 
                         <!-- Tình trạng sách -->
@@ -632,13 +693,21 @@
                         </div>
 
                         <!-- Active filters display -->
-                        {% if query or condition or price_min or price_max %}
+                        {% if query or subject_id or condition or price_min or price_max %}
                         <div class="active-filters">
                             <small class="text-muted">Đang lọc theo:</small><br>
                             {% if query %}
                                 <span class="active-filter-tag">
                                     "{{ query }}"
-                                    <a href="?{% if condition %}condition={{ condition }}{% endif %}{% if price_min %}&price_min={{ price_min }}{% endif %}{% if price_max %}&price_max={{ price_max }}{% endif %}{% if sort and sort != 'newest' %}&sort={{ sort }}{% endif %}" class="remove-filter">
+                                    <a href="?{% if subject_id %}subject_id={{ subject_id }}{% endif %}{% if condition %}&condition={{ condition }}{% endif %}{% if price_min %}&price_min={{ price_min }}{% endif %}{% if price_max %}&price_max={{ price_max }}{% endif %}{% if sort and sort != 'newest' %}&sort={{ sort }}{% endif %}" class="remove-filter">
+                                        <i class="fas fa-times"></i>
+                                    </a>
+                                </span>
+                            {% endif %}
+                            {% if subject_id %}
+                                <span class="active-filter-tag">
+                                    {% for subject in subjects %}{% if subject.id|stringformat:"s" == subject_id %}{{ subject.name }}{% endif %}{% endfor %}
+                                    <a href="?{% if query %}q={{ query }}{% endif %}{% if condition %}&condition={{ condition }}{% endif %}{% if price_min %}&price_min={{ price_min }}{% endif %}{% if price_max %}&price_max={{ price_max }}{% endif %}{% if sort and sort != 'newest' %}&sort={{ sort }}{% endif %}" class="remove-filter">
                                         <i class="fas fa-times"></i>
                                     </a>
                                 </span>
@@ -646,7 +715,7 @@
                             {% if condition %}
                                 <span class="active-filter-tag">
                                     {% for value, label in condition_choices %}{% if value == condition %}{{ label }}{% endif %}{% endfor %}
-                                    <a href="?{% if query %}q={{ query }}{% endif %}{% if price_min %}&price_min={{ price_min }}{% endif %}{% if price_max %}&price_max={{ price_max }}{% endif %}{% if sort and sort != 'newest' %}&sort={{ sort }}{% endif %}" class="remove-filter">
+                                    <a href="?{% if query %}q={{ query }}{% endif %}{% if subject_id %}&subject_id={{ subject_id }}{% endif %}{% if price_min %}&price_min={{ price_min }}{% endif %}{% if price_max %}&price_max={{ price_max }}{% endif %}{% if sort and sort != 'newest' %}&sort={{ sort }}{% endif %}" class="remove-filter">
                                         <i class="fas fa-times"></i>
                                     </a>
                                 </span>
@@ -654,7 +723,7 @@
                             {% if price_min or price_max %}
                                 <span class="active-filter-tag">
                                     {% if price_min %}{{ price_min }}{% else %}0{% endif %}đ - {% if price_max %}{{ price_max }}{% else %}∞{% endif %}đ
-                                    <a href="?{% if query %}q={{ query }}{% endif %}{% if condition %}&condition={{ condition }}{% endif %}{% if sort and sort != 'newest' %}&sort={{ sort }}{% endif %}" class="remove-filter">
+                                    <a href="?{% if query %}q={{ query }}{% endif %}{% if subject_id %}&subject_id={{ subject_id }}{% endif %}{% if condition %}&condition={{ condition }}{% endif %}{% if sort and sort != 'newest' %}&sort={{ sort }}{% endif %}" class="remove-filter">
                                         <i class="fas fa-times"></i>
                                     </a>
                                 </span>
@@ -669,15 +738,18 @@
         <!-- ========== MAIN CONTENT ========== -->
         <main class="main-content">
             <!-- ========== RESULTS INFO ========== -->
-            {% if query or condition or price_min or price_max %}
+            {% if query or subject_id or condition or price_min or price_max %}
                 <div class="results-info">
                     Tìm thấy <strong>{{ total_count }}</strong> kết quả
                     {% if query %}cho "<strong>{{ query }}</strong>"{% endif %}
+                    {% if subject_id %}
+                        {% for subject in subjects %}{% if subject.id|stringformat:"s" == subject_id %}ở môn <strong>{{ subject.name }}</strong>{% endif %}{% endfor %}
+                    {% endif %}
                     {% if condition %}với tình trạng <strong>{% for value, label in condition_choices %}{% if value == condition %}{{ label }}{% endif %}{% endfor %}</strong>{% endif %}
                     {% if price_min or price_max %}
                         trong khoảng giá <strong>{% if price_min %}{{ price_min|floatformat:0 }}{% else %}0{% endif %}đ - {% if price_max %}{{ price_max|floatformat:0 }}{% else %}∞{% endif %}đ</strong>
                     {% endif %}
-                    <a href="{% url 'books:book_list' %}" class="ms-2 text-decoration-none">
+                    <a href="{% url 'books:book_list' %}" class="ms-2 text-decoration-none" style="background-color: #004080; color: #ffffff; border-radius: 20px; padding: 8px 16px; font-size: 0.85rem; border: 2px solid #004080; display: inline-block; transition: all 0.3s ease;">
                         <i class="fas fa-times-circle"></i> Xóa lọc
                     </a>
                 </div>
@@ -718,22 +790,39 @@
                             
                             <!-- Thông tin sách -->
                             <div class="card-body">
-                                <h5 class="book-title">{{ book.title }}</h5>
-                                
+                                <!-- Badge môn học (luôn render để giữ chỗ) -->
                                 {% if book.subject %}
-                                    <p class="book-subject">
-                                        <i class="fas fa-book-open me-1"></i>{{ book.subject.name }}
-                                    </p>
+                                <span class="book-badge">
+                                    {% if book.subject.code %}
+                                        {{ book.subject.code|truncatechars:15 }}
+                                    {% else %}
+                                        {{ book.subject.name|truncatechars:15 }}
+                                    {% endif %}
+                                </span>
+                                {% else %}
+                                <span class="book-badge placeholder">&nbsp;</span>
                                 {% endif %}
-                                
+
+                                <h5 class="book-title">{{ book.title|truncatewords:10 }}</h5>
+
+                                <p class="book-seller">
+                                    <i class="fas fa-user"></i> {{ book.seller.get_full_name|default:"Người bán" }}
+                                </p>
+
                                 <p class="book-price">{{ book.price|floatformat:0 }}đ</p>
                             </div>
-                            
+
                             <!-- Nút xem chi tiết -->
                             <div class="card-footer">
-                                <a href="{% url 'books:book_detail' book.pk %}" class="btn-view-detail">
-                                    <i class="fas fa-eye me-1"></i>Xem chi tiết
-                                </a>
+                                {% if user.is_authenticated and book.seller == user %}
+                                    <a href="{% url 'books:my_books' %}" class="btn-view-detail" style="background: #28a745;">
+                                        <i class="fas fa-book me-1"></i>Sách của tôi
+                                    </a>
+                                {% else %}
+                                    <a href="{% url 'books:book_detail' book.pk %}" class="btn-view-detail">
+                                        <i class="fas fa-eye me-1"></i>Xem chi tiết
+                                    </a>
+                                {% endif %}
                             </div>
                         </div>
                     {% endfor %}
@@ -742,11 +831,11 @@
                 <!-- Empty State -->
                 <div class="empty-state">
                     <i class="fas fa-book-open"></i>
-                    {% if query or condition or price_min or price_max %}
-                        <h4>Không tìm thấy sách</h4>
-                        <p>Không có sách nào phù hợp với bộ lọc của bạn</p>
-                        <a href="{% url 'books:book_list' %}" class="btn btn-outline-primary mt-3">
-                            <i class="fas fa-redo me-2"></i>Xóa bộ lọc
+                    {% if query or subject_id or condition or price_min or price_max %}
+                        <h4>Không có sách nào phù hợp với bộ lọc của bạn</h4>
+
+                        <a href="{% url 'books:book_list' %}" class="btn btn-outline-primary mt-3" style="background: #ffffff; border: 3px solid #004080; color: #004080; border-radius: 6px; padding: 6px 10px; font-size: 1rem; font-weight: 700; transition: all 0.3s ease; text-decoration: none; display: inline-block;">
+                            <i class="fas fa-redo me-2" style="font-size: 1rem; color:#004080 "></i>Xóa bộ lọc
                         </a>
                     {% else %}
                         <h4>Chưa có sách nào</h4>
@@ -772,7 +861,7 @@
                             <!-- Previous -->
                             {% if page_obj.has_previous %}
                                 <li class="page-item">
-                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if condition %}&condition={{ condition }}{% endif %}{% if price_min %}&price_min={{ price_min }}{% endif %}{% if price_max %}&price_max={{ price_max }}{% endif %}{% if sort and sort != 'newest' %}&sort={{ sort }}{% endif %}">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if subject_id %}&subject_id={{ subject_id }}{% endif %}{% if condition %}&condition={{ condition }}{% endif %}{% if price_min %}&price_min={{ price_min }}{% endif %}{% if price_max %}&price_max={{ price_max }}{% endif %}{% if sort and sort != 'newest' %}&sort={{ sort }}{% endif %}">
                                         <i class="fas fa-chevron-left"></i>
                                     </a>
                                 </li>
@@ -781,7 +870,7 @@
                                     <span class="page-link"><i class="fas fa-chevron-left"></i></span>
                                 </li>
                             {% endif %}
-                            
+
                             <!-- Page Numbers -->
                             {% for num in page_obj.paginator.page_range %}
                                 {% if page_obj.number == num %}
@@ -790,15 +879,15 @@
                                     </li>
                                 {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
                                     <li class="page-item">
-                                        <a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if condition %}&condition={{ condition }}{% endif %}{% if price_min %}&price_min={{ price_min }}{% endif %}{% if price_max %}&price_max={{ price_max }}{% endif %}{% if sort and sort != 'newest' %}&sort={{ sort }}{% endif %}">{{ num }}</a>
+                                        <a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if subject_id %}&subject_id={{ subject_id }}{% endif %}{% if condition %}&condition={{ condition }}{% endif %}{% if price_min %}&price_min={{ price_min }}{% endif %}{% if price_max %}&price_max={{ price_max }}{% endif %}{% if sort and sort != 'newest' %}&sort={{ sort }}{% endif %}">{{ num }}</a>
                                     </li>
                                 {% endif %}
                             {% endfor %}
-                            
+
                             <!-- Next -->
                             {% if page_obj.has_next %}
                                 <li class="page-item">
-                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if condition %}&condition={{ condition }}{% endif %}{% if price_min %}&price_min={{ price_min }}{% endif %}{% if price_max %}&price_max={{ price_max }}{% endif %}{% if sort and sort != 'newest' %}&sort={{ sort }}{% endif %}">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if subject_id %}&subject_id={{ subject_id }}{% endif %}{% if condition %}&condition={{ condition }}{% endif %}{% if price_min %}&price_min={{ price_min }}{% endif %}{% if price_max %}&price_max={{ price_max }}{% endif %}{% if sort and sort != 'newest' %}&sort={{ sort }}{% endif %}">
                                         <i class="fas fa-chevron-right"></i>
                                     </a>
                                 </li>

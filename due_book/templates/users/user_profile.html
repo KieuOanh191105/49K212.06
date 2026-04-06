@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load custom_filters %}
 
 {% block title %}Hồ sơ - {{ profile_user.get_full_name|default:profile_user.username }} - DUE Book{% endblock %}
 
@@ -192,7 +193,19 @@
     }
 
     .book-item:hover { box-shadow: 0 4px 18px rgba(30,95,168,.12); transform: translateY(-2px); }
-    .book-title { font-size: .88rem; font-weight: 700; color: var(--text); margin-bottom: 6px; line-height: 1.3; }
+    .book-title {
+        font-size: .88rem;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 6px;
+        line-height: 1.3;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        min-height: 2.6em; /* Fix height cho 2 dòng */
+    }
     .book-price { font-size: .92rem; font-weight: 800; color: var(--blue); margin-bottom: 10px; }
     .btn-view {
         width: 100%; padding: 7px;
@@ -249,24 +262,27 @@
                 {% if profile.avatar %}
                     <img src="{{ profile.avatar.url }}" alt="{{ profile_user.username }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;"/>
                 {% else %}
-                    {{ profile_user.username|first|upper }}
+                    {% if profile_user.get_full_name %}
+                        {{ profile_user.get_full_name|first|upper }}
+                    {% else %}
+                        {{ profile_user.username|first|upper }}
+                    {% endif %}
                 {% endif %}
             </div>
         </div>
-        <div class="profile-name">{{ profile_user.get_full_name|default:profile_user.username|upper }}</div>
+        <div class="profile-name">{{ profile_user.get_full_name|default:"Người dùng"|upper }}</div>
         <div class="profile-stars" style="color: var(--accent); font-size: 1.1rem; margin-bottom: 8px;">
             {% if seller_stats.avg_rating > 0 %}
-                {% widthratio seller_stats.avg_rating 1 1 as full_stars %}
                 {% for i in "12345" %}
-                    {% if forloop.counter <= full_stars %}★{% else %}☆{% endif %}
+                    {% if forloop.counter <= seller_stats.avg_rating %}★{% else %}☆{% endif %}
                 {% endfor %}
-                <span style="font-size: 0.8rem; color: var(--muted); margin-left: 6px;">({{ seller_stats.avg_rating }}/5 - {{ seller_stats.total_reviews }} đánh giá)</span>
+                <span style="font-size: 0.8rem; color: var(--muted); margin-left: 6px;">({{ seller_stats.avg_rating|floatformat:1 }}/5 - {{ seller_stats.total_reviews }} đánh giá)</span>
             {% else %}
                 ☆☆☆☆☆
                 <span style="font-size: 0.8rem; color: var(--muted); margin-left: 6px;">(Chưa có đánh giá)</span>
             {% endif %}
         </div>
-        <div class="profile-username">@{{ profile_user.username }}</div>
+        {% comment %} Ẩn username để bảo mật {% endcomment %}
 
         <div class="stats-row">
             <div class="stat-item">
@@ -344,7 +360,7 @@
             <div class="books-grid">
                 {% for book in books_for_sale %}
                 <a href="{% url 'books:book_detail' book.pk %}" class="book-item">
-                    <div class="book-title">{{ book.title|truncatewords:8 }}</div>
+                    <div class="book-title">{{ book.title|truncatewords:10 }}</div>
                     <div class="book-price">{{ book.price|floatformat:0 }}đ</div>
                     <button class="btn-view">Xem</button>
                 </a>
@@ -369,8 +385,8 @@
                 {% for review in reviews %}
                 <div class="review-item">
                     <div class="review-top">
-                        <span class="reviewer">{{ review.buyer.get_full_name|default:review.buyer.username }}</span>
-                        <span class="review-date">{{ review.created_at|date:"d/m/Y" }}</span>
+                        <span class="reviewer">{{ review.buyer.get_full_name|default:"Người mua" }}</span>
+                        <span class="review-date">{{ review.created_at|to_local_time|date:"d/m/Y" }}</span>
                     </div>
                     <div class="review-stars">{{ review.rating_stars }}</div>
                     {% if review.comment %}

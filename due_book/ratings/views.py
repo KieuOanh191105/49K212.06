@@ -8,6 +8,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_protect
 from django.db import transaction
 
 from books.models import PurchaseRequest
@@ -196,13 +197,13 @@ def get_review_modal(request, purchase_request_id):
 
 
 @login_required
+@require_POST
+@csrf_protect
 def submit_review(request):
     """
     Submit đánh giá từ form modal (POST thông thường, không dùng AJAX)
     """
-    if request.method != 'POST':
-        messages.error(request, 'Yêu cầu không hợp lệ.')
-        return redirect('books:purchased_books')
+    purchase_request_id = request.POST.get('purchase_request_id')
     
     purchase_request_id = request.POST.get('purchase_request_id')
     rating = request.POST.get('rating')
@@ -259,7 +260,7 @@ def submit_review(request):
         
         messages.success(
             request,
-            f'Đánh giá thành công! Cảm ơn bạn đã đánh giá {purchase_request.seller.username|title}.'
+            f'Đánh giá thành công! Cảm ơn bạn đã đánh giá người bán.'
         )
     except Exception as e:
         messages.error(request, 'Có lỗi xảy ra. Vui lòng thử lại.')
