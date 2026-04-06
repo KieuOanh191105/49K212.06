@@ -357,6 +357,10 @@ class CustomPasswordResetView(PasswordResetView):
             print(body)
             print("="*80 + "\n")
 
+            # Thử gửi email với timeout để tránh worker timeout
+            import socket
+            socket.setdefaulttimeout(10)  # 10 seconds timeout
+
             send_mail(
                 subject,
                 body,
