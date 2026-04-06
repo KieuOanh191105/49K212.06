@@ -303,12 +303,22 @@ class CustomPasswordResetView(PasswordResetView):
                 raise
 
             # Lấy domain từ SITE_URL (biến môi trường)
+            # Ưu tiên đọc trực tiếp từ os.environ (tránh load_dotenv issue trên Render)
+            import os
             from urllib.parse import urlparse
-            site_url = getattr(settings, 'SITE_URL', 'http://127.0.0.1:8000')
+
+            site_url_env = os.environ.get('SITE_URL')
+            if site_url_env:
+                site_url = site_url_env
+            else:
+                # Fallback: Try getattr settings
+                site_url = getattr(settings, 'SITE_URL', 'http://127.0.0.1:8000')
+
             parsed_url = urlparse(site_url)
 
             # DEBUG: In ra SITE_URL để kiểm tra
-            print(f"🔍 DEBUG: SITE_URL = {site_url}")
+            print(f"🔍 DEBUG: SITE_URL from env = {site_url_env}")
+            print(f"🔍 DEBUG: Final SITE_URL = {site_url}")
             print(f"🔍 DEBUG: protocol = {parsed_url.scheme}")
             print(f"🔍 DEBUG: domain = {parsed_url.netloc}")
 
