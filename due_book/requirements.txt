@@ -28,3 +28,6 @@ python-decouple>=3.8
 gunicorn>=21.0.0
 
 python-dotenv>=1.0.0
+
+# Email Services
+sendgrid>=6.10.0

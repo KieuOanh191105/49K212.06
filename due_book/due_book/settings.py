@@ -198,56 +198,53 @@ LOGIN_REDIRECT_URL = 'books:home'
 LOGOUT_REDIRECT_URL = 'books:home'
 
 # ==================== EMAIL SETTINGS ====================
-# Backend để gửi email
-# Development: Dùng console backend để xem email trong terminal
-# thay rôi nha Oanh thay ngày 2/4/26
+# Ưu tiên: 1) SendGrid API (Render production), 2) SMTP Gmail (local), 3) Console (dev)
 
-# Auto-detect environment và chọn backend phù hợp
-# Production (DEBUG=False) luôn dùng SMTP, Development dùng Console
-EMAIL_HOST_USER_ENV = os.getenv('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD_ENV = os.getenv('EMAIL_HOST_PASSWORD')
+# Check if SendGrid API key is available
+SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
 
-# Production: Luôn dùng SMTP
-if not DEBUG:
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    print("Using SMTP backend (production)")
+if SENDGRID_API_KEY:
+    # Production: Use SendGrid API (works on Render free tier)
+    EMAIL_BACKEND = 'due_book.sendgrid_backend.SendGridBackend'
+    DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'DUE Book <noreply@due-book.onrender.com>')
+    print(f"✅ Using SendGrid API backend")
 else:
-    # Development: Dùng SMTP nếu có credentials, ngược lại dùng Console
-    HAS_SMTP_CREDENTIALS = all([
-        EMAIL_HOST_USER_ENV,
-        EMAIL_HOST_PASSWORD_ENV,
-    ])
+    # Fallback: SMTP or Console
+    EMAIL_HOST_USER_ENV = os.getenv('EMAIL_HOST_USER')
+    EMAIL_HOST_PASSWORD_ENV = os.getenv('EMAIL_HOST_PASSWORD')
 
-    if HAS_SMTP_CREDENTIALS:
+    if not DEBUG:
+        # Production without SendGrid: Try SMTP
         EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-        print("Using SMTP backend (development with credentials)")
+        print("⚠️ Using SMTP backend (production, no SendGrid)")
     else:
-        EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-        print("Using Console backend (development/no SMTP config)")
+        # Development: Use SMTP if configured, otherwise Console
+        HAS_SMTP_CREDENTIALS = all([
+            EMAIL_HOST_USER_ENV,
+            EMAIL_HOST_PASSWORD_ENV,
+        ])
 
+        if HAS_SMTP_CREDENTIALS:
+            EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+            print("🔧 Using SMTP backend (development with credentials)")
+        else:
+            EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+            print("💻 Using Console backend (development/no config)")
 
-# Production: Comment dòng trên và dùng SMTP backend
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    # SMTP Configuration (chỉ dùng khi không có SendGrid)
+    EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
+    try:
+        EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
+    except (ValueError, TypeError):
+        EMAIL_PORT = 587
+    EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
+    EMAIL_HOST_USER = EMAIL_HOST_USER_ENV
+    EMAIL_HOST_PASSWORD = EMAIL_HOST_PASSWORD_ENV
 
-# Cấu hình SMTP Gmail (đọc từ .env file) - Safe parsing
-EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
-
-# Safe parse EMAIL_PORT
-try:
-    EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
-except (ValueError, TypeError):
-    EMAIL_PORT = 587
-    # print(f"⚠️ EMAIL: Invalid EMAIL_PORT, using default 587")
-
-EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
-EMAIL_HOST_USER = EMAIL_HOST_USER_ENV
-EMAIL_HOST_PASSWORD = EMAIL_HOST_PASSWORD_ENV
-
-# Safe parse DEFAULT_FROM_EMAIL
-if EMAIL_HOST_USER_ENV:
-    DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', f'DUE Book <{EMAIL_HOST_USER_ENV}>')
-else:
-    DEFAULT_FROM_EMAIL = 'DUE Book <noreply@example.com>'
+    if EMAIL_HOST_USER_ENV:
+        DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', f'DUE Book <{EMAIL_HOST_USER_ENV}>')
+    else:
+        DEFAULT_FROM_EMAIL = 'DUE Book <noreply@example.com>'
 
 # Site URL cho password reset
 SITE_URL = os.getenv('SITE_URL', 'http://127.0.0.1:8000')
