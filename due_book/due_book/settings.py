@@ -203,21 +203,27 @@ LOGOUT_REDIRECT_URL = 'books:home'
 # thay rôi nha Oanh thay ngày 2/4/26
 
 # Auto-detect environment và chọn backend phù hợp
-# Nếu có SMTP credentials thì dùng SMTP, ngược lại dùng Console
+# Production (DEBUG=False) luôn dùng SMTP, Development dùng Console
 EMAIL_HOST_USER_ENV = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD_ENV = os.getenv('EMAIL_HOST_PASSWORD')
 
-HAS_SMTP_CREDENTIALS = all([
-    EMAIL_HOST_USER_ENV,
-    EMAIL_HOST_PASSWORD_ENV,
-])
-
-if HAS_SMTP_CREDENTIALS:
+# Production: Luôn dùng SMTP
+if not DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    # print("✅ EMAIL: Using SMTP backend (production)")
+    print("Using SMTP backend (production)")
 else:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-    # print("⚠️ EMAIL: Using Console backend (development/no SMTP config)")
+    # Development: Dùng SMTP nếu có credentials, ngược lại dùng Console
+    HAS_SMTP_CREDENTIALS = all([
+        EMAIL_HOST_USER_ENV,
+        EMAIL_HOST_PASSWORD_ENV,
+    ])
+
+    if HAS_SMTP_CREDENTIALS:
+        EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+        print("Using SMTP backend (development with credentials)")
+    else:
+        EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+        print("Using Console backend (development/no SMTP config)")
 
 
 # Production: Comment dòng trên và dùng SMTP backend
