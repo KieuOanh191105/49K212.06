@@ -302,25 +302,37 @@ class CustomPasswordResetView(PasswordResetView):
                 logging.getLogger(__name__).exception(f"Error getting Gmail for user {user.username}")
                 raise
 
-            # Lấy domain từ SITE_URL (biến môi trường)
-            # Ưu tiên đọc trực tiếp từ os.environ (tránh load_dotenv issue trên Render)
-            import os
+            # Lấy domain từ request (dynamic) thay vì hardcode SITE_URL
+            # Điều này đảm bảo link reset luôn đúng với domain hiện tại
             from urllib.parse import urlparse
 
-            site_url_env = os.environ.get('SITE_URL')
-            if site_url_env:
-                site_url = site_url_env
+            # Ưu tiên dùng request.build_absolute_uri() để lấy domain động
+            if hasattr(self, 'request') and self.request:
+                # Dynamic: Lấy domain từ request hiện tại
+                current_url = self.request.build_absolute_uri('/')
+                parsed_url = urlparse(current_url)
+                protocol = parsed_url.scheme
+                domain = parsed_url.netloc
+
+                print(f"🔍 DEBUG: Using dynamic URL from request")
+                print(f"🔍 DEBUG: Current URL = {current_url}")
+                print(f"🔍 DEBUG: protocol = {protocol}")
+                print(f"🔍 DEBUG: domain = {domain}")
             else:
-                # Fallback: Try getattr settings
-                site_url = getattr(settings, 'SITE_URL', 'http://127.0.0.1:8000')
+                # Fallback: Dùng SITE_URL từ environment (cho trường hợp test)
+                import os
+                site_url_env = os.environ.get('SITE_URL')
+                if site_url_env:
+                    site_url = site_url_env
+                else:
+                    site_url = getattr(settings, 'SITE_URL', 'http://127.0.0.1:8000')
 
-            parsed_url = urlparse(site_url)
+                parsed_url = urlparse(site_url)
+                protocol = parsed_url.scheme
+                domain = parsed_url.netloc
 
-            # DEBUG: In ra SITE_URL để kiểm tra
-            print(f"🔍 DEBUG: SITE_URL from env = {site_url_env}")
-            print(f"🔍 DEBUG: Final SITE_URL = {site_url}")
-            print(f"🔍 DEBUG: protocol = {parsed_url.scheme}")
-            print(f"🔍 DEBUG: domain = {parsed_url.netloc}")
+                print(f"⚠️ DEBUG: Using SITE_URL from env (no request available)")
+                print(f"🔍 DEBUG: SITE_URL = {site_url}")
 
             # Tạo context cho email template
             from django.contrib.auth.tokens import default_token_generator
@@ -330,8 +342,8 @@ class CustomPasswordResetView(PasswordResetView):
             context = {
                 'email': recipient_email,
                 'user': user,
-                'protocol': parsed_url.scheme,  # http hoặc https từ SITE_URL
-                'domain': parsed_url.netloc,     # domain từ SITE_URL (ví dụ: example.com)
+                'protocol': protocol,
+                'domain': domain,
                 'uid': urlsafe_base64_encode(force_bytes(user.pk)),
                 'token': default_token_generator.make_token(user),
                 'site_name': 'DUE Book',
