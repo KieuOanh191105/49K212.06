@@ -307,6 +307,11 @@ class CustomPasswordResetView(PasswordResetView):
             site_url = getattr(settings, 'SITE_URL', 'http://127.0.0.1:8000')
             parsed_url = urlparse(site_url)
 
+            # DEBUG: In ra SITE_URL để kiểm tra
+            print(f"🔍 DEBUG: SITE_URL = {site_url}")
+            print(f"🔍 DEBUG: protocol = {parsed_url.scheme}")
+            print(f"🔍 DEBUG: domain = {parsed_url.netloc}")
+
             # Tạo context cho email template
             from django.contrib.auth.tokens import default_token_generator
             from django.utils.http import urlsafe_base64_encode
