@@ -251,3 +251,4 @@ else:
 
 # Site URL cho password reset
 SITE_URL = os.getenv('SITE_URL', 'http://127.0.0.1:8000')
+
