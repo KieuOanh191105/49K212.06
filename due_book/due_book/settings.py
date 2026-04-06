@@ -203,7 +203,18 @@ LOGOUT_REDIRECT_URL = 'books:home'
 # Check if SendGrid API key is available
 SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
 
+# Try to use SendGrid if API key exists AND module is installed
+USE_SENDGRID = False
 if SENDGRID_API_KEY:
+    try:
+        import sendgrid
+        USE_SENDGRID = True
+    except ImportError:
+        print("⚠️ SENDGRID_API_KEY found but 'sendgrid' module not installed")
+        print("   Install with: pip install sendgrid")
+        USE_SENDGRID = False
+
+if USE_SENDGRID:
     # Production: Use SendGrid API (works on Render free tier)
     EMAIL_BACKEND = 'due_book.sendgrid_backend.SendGridBackend'
     DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'DUE Book <noreply@due-book.onrender.com>')

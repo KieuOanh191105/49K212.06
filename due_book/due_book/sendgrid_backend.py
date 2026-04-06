@@ -6,7 +6,7 @@ import os
 from django.core.mail.backends.base import BaseEmailBackend
 from django.core.mail.message import EmailMessage, EmailMultiAlternatives
 from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail, Email, To, Content, Attachment
+from sendgrid.helpers.mail import Mail, From, To, Content, Attachment
 import logging
 
 logger = logging.getLogger(__name__)
@@ -48,8 +48,25 @@ class SendGridBackend(BaseEmailBackend):
         """
         Send a single email message via SendGrid
         """
-        from_email = Email(email_message.from_email)
-        to_emails = [Email(to) for to in email_message.to]
+        # Parse from_email - handle both "email" and "Name <email>" formats
+        from_email_str = email_message.from_email
+        if '<' in from_email_str and '>' in from_email_str:
+            # Format: "Name <email@example.com>"
+            name = from_email_str.split('<')[0].strip().strip('"').strip("'")
+            email_addr = from_email_str.split('<')[1].split('>')[0].strip()
+            from_email = From(email_addr, name)
+        else:
+            # Simple format: "email@example.com"
+            from_email = From(from_email_str)
+
+        # Parse to_email - handle both "email" and "Name <email>" formats
+        to_email_str = email_message.to[0]
+        if '<' in to_email_str and '>' in to_email_str:
+            name = to_email_str.split('<')[0].strip().strip('"').strip("'")
+            email_addr = to_email_str.split('<')[1].split('>')[0].strip()
+            to_email = To(email_addr, name)
+        else:
+            to_email = To(to_email_str)
 
         # Create the email content
         subject = email_message.subject
@@ -70,7 +87,7 @@ class SendGridBackend(BaseEmailBackend):
             text_content = email_message.body
 
         # Create SendGrid mail object
-        mail = Mail(from_email, to_emails[0], subject)
+        mail = Mail(from_email, to_email, subject)
 
         if html_content:
             mail.content = Content("text/html", html_content)
@@ -80,12 +97,12 @@ class SendGridBackend(BaseEmailBackend):
         # Add CC recipients
         if email_message.cc:
             for cc_email in email_message.cc:
-                mail.add_cc(Email(cc_email))
+                mail.add_cc(cc_email)
 
         # Add BCC recipients
         if email_message.bcc:
             for bcc_email in email_message.bcc:
-                mail.add_bcc(Email(bcc_email))
+                mail.add_bcc(bcc_email)
 
         # Send via SendGrid API
         sg = SendGridAPIClient(self.api_key)
