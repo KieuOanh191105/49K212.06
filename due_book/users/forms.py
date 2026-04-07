@@ -49,7 +49,7 @@ class UserRegisterForm(forms.ModelForm):
     zalo_link = forms.URLField(
         widget=forms.URLInput(attrs={
             'class': 'form-control',
-            'placeholder': 'VD: https://zalo.me/09xxxxxxxxx'
+            'placeholder': 'VD: https://zalo.me/xxxxxxxxxxx'
         }),
         label='Link Zalo *',
         required=True,

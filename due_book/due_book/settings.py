@@ -260,3 +260,30 @@ else:
 # Site URL cho password reset
 SITE_URL = os.getenv('SITE_URL', 'http://127.0.0.1:8000')
 
+# ==================== CSRF CONFIGURATION ====================
+# Cấu hình CSRF cho production
+if not DEBUG:
+    # Production: Cấu hình CSRF strict hơn
+    CSRF_COOKIE_SECURE = True  # Chỉ gửi cookie qua HTTPS
+    SESSION_COOKIE_SECURE = True  # Chỉ gửi session cookie qua HTTPS
+    CSRF_COOKIE_HTTPONLY = False  # Cho phép JavaScript đọc cookie (cần cho AJAX)
+    SESSION_COOKIE_HTTPONLY = True  # Không cho JavaScript đọc session cookie
+    CSRF_COOKIE_SAMESITE = 'Lax'  # 'Lax' cho POST từ cùng site, 'Strict' cho bảo mật cao hơn
+    SESSION_COOKIE_SAMESITE = 'Lax'
+
+    # Trusted origins cho CSRF
+    CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')
+    if not CSRF_TRUSTED_ORIGINS:
+        # Tự động detect từ ALLOWED_HOSTS
+        CSRF_TRUSTED_ORIGINS = [f'https://{host.strip()}' for host in ALLOWED_HOSTS if host not in ['localhost', '127.0.0.1']]
+
+    print(f"CSRF Trusted Origins: {CSRF_TRUSTED_ORIGINS}")
+else:
+    # Development: CSRF lỏng hơn
+    CSRF_COOKIE_SECURE = False
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SAMESITE = 'Lax'
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    print("Using relaxed CSRF settings (development)")
+
+
