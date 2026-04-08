@@ -293,10 +293,17 @@ else:
 # ==================== Load ảnh====================
 
 
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
-    'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
-    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
-}
+# ==================== CLOUDINARY CONFIGURATION ====================
+# TẠM THỜI TẮT Cloudinary - BẬT LẠI KHI ĐÃ CẤU HÌNH ENV VAR TRÊN RENDER
+# Uncomment khi đã thêm CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET vào Render Environment
 
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+# CLOUDINARY_STORAGE = {
+#     'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
+#     'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
+#     'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
+# }
+#
+# DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+# Tạm thời dùng local storage cho development
+DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
