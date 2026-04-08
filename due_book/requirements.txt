@@ -31,3 +31,7 @@ python-dotenv>=1.0.0
 
 # Email Services
 sendgrid>=6.10.0
+
+#Cài đặt thư viện django-cloudinary-storage tải ảnh lên 
+django-cloudinary-storage==0.4.0
+cloudinary==1.36.0

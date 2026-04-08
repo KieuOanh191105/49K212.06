@@ -42,6 +42,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    #Thêm Cloudinary  tải ảnh
+    'cloudinary_storage',
+    'cloudinary',
 
     # Third-party apps
     # 'whitenoise.runserver_nostatic',  # Tùy chọn: Chỉ cần nếu muốn Whitenoise thay thế Django's runserver trong development
@@ -287,3 +290,13 @@ else:
     print("Using relaxed CSRF settings (development)")
 
 
+# ==================== Load ảnh====================
+
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
+}
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'

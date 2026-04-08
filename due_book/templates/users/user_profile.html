@@ -270,7 +270,13 @@
                 {% endif %}
             </div>
         </div>
-        <div class="profile-name">{{ profile_user.get_full_name|default:"Người dùng"|upper }}</div>
+        <div class="profile-name">
+            {% if profile_user.get_full_name %}
+                {{ profile_user.get_full_name|upper }}
+            {% else %}
+                {{ profile_user.username|upper|default:"Người dùng" }}
+            {% endif %}
+        </div>
         <div class="profile-stars" style="color: var(--accent); font-size: 1.1rem; margin-bottom: 8px;">
             {% if seller_stats.avg_rating > 0 %}
                 {% for i in "12345" %}
