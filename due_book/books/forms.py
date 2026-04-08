@@ -94,17 +94,26 @@ class BookForm(forms.ModelForm):
         self.fields['cover_image'].required = False
 
     def clean_title(self):
-        """Validate tên sách"""
-        title = self.cleaned_data.get('title', '')
-        
-        if not title or not title.strip():
+        """
+        Validate tên sách - Check raw data TRƯỚC KHI Django cắt
+        để đảm bảo không tự động cắt chuỗi xuống 300 ký tự
+        """
+        # Lấy raw data từ request (chưa bị Django cắt)
+        raw_title = self.data.get('title', '')
+
+        # Check nếu rỗng
+        if not raw_title or not raw_title.strip():
             raise ValidationError('Vui lòng nhập Tên sách')
-        
-        title = title.strip()
-        
+
+        # Check độ dài TRƯỚC KHI Django cắt
+        if len(raw_title) > 300:
+            raise ValidationError('Tên sách không được vượt quá 300 ký tự.')
+
+        # Check sau khi strip
+        title = raw_title.strip()
         if len(title) > 300:
-            raise ValidationError('Tên sách không được vượt quá 300 ký tự')
-        
+            raise ValidationError('Tên sách không được vượt quá 300 ký tự.')
+
         return title
 
     def clean_price(self):

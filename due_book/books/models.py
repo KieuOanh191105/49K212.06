@@ -4,8 +4,21 @@ Models for Books App
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.exceptions import ValidationError
 from django.utils.text import slugify
 import os
+
+
+def validate_title_length(value):
+    """
+    Validator cho title field - đảm bảo không vượt quá 300 ký tự
+    và KHÔNG tự động cắt chuỗi như Django CharField mặc định
+    """
+    if len(value) > 300:
+        raise ValidationError(
+            'Tên sách không được vượt quá 300 ký tự.',
+            code='max_length'
+        )
 
 
 def get_book_image_upload_path(instance, filename):
@@ -57,7 +70,14 @@ class Book(models.Model):
     ]
 
     # Thông tin cơ bản
-    title = models.CharField(max_length=300, verbose_name='Tên sách')
+    title = models.CharField(
+        max_length=300,
+        verbose_name='Tên sách',
+        validators=[validate_title_length],
+        error_messages={
+            'max_length': 'Tên sách không được vượt quá 300 ký tự.'
+        }
+    )
     subject = models.ForeignKey(Subject,
                                 on_delete=models.SET_NULL,
                                 null=True,

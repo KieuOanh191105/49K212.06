@@ -140,14 +140,18 @@
                                 {{ form.title.label }} <span class="text-danger">*</span>
                             </label>
                             {{ form.title }}
-                            <div class="form-text">
-                                <span class="char-counter" data-target="id_title" data-max="300">0/300</span>
-                                <span class="ms-2">ký tự</span>
+                            <div class="form-text d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="char-counter" data-target="id_title" data-max="300">0/300</span>
+                                    <span class="ms-2">ký tự</span>
+                                </div>
+                                <small class="text-danger" id="title-error" style="display: none;"></small>
                             </div>
                             {% if form.title.errors %}
                                 <div class="invalid-feedback d-block">
                                     {% for error in form.title.errors %}{{ error }}{% endfor %}
                                 </div>
+                           
                             {% endif %}
                         </div>
 
@@ -320,23 +324,112 @@
             const targetInput = document.getElementById(targetId);
 
             if (targetInput) {
-                // Function để update counter
+                const errorDisplay = document.getElementById(targetId === 'id_title' ? 'title-error' : '');
+                const validationError = document.getElementById(targetId === 'id_title' ? 'title-validation-error' : '');
+
+                // Function để update counter và validate
                 function updateCounter() {
                     const currentLength = targetInput.value.length;
                     counter.textContent = currentLength + '/' + maxChars;
 
-                    // Thay đổi màu khi gần đạt giới hạn
-                    if (currentLength > maxChars * 0.9) {
-                        counter.style.color = '#dc3545'; // Đỏ
-                    } else if (currentLength > maxChars * 0.7) {
-                        counter.style.color = '#ffc107'; // Vàng
-                    } else {
-                        counter.style.color = ''; // Mặc định
+                    // Chỉ xử lý validation cho title field
+                    if (targetId === 'id_title') {
+                        // Reset error state
+                        targetInput.classList.remove('is-invalid');
+                        if (validationError) validationError.style.display = 'none';
+                        if (errorDisplay) errorDisplay.style.display = 'none';
+
+                        // Validate độ dài và thay đổi màu theo cấp độ
+                        if (currentLength > maxChars) {
+                            // VƯỢT QUÁ GIỚI HẠN
+                            counter.style.color = '#dc3545'; // Đỏ
+                            counter.style.fontWeight = 'bold';
+
+                            // Hiển thị error
+                            targetInput.classList.add('is-invalid');
+                            const errorMsg = 'Tên sách không được vượt quá 300 ký tự!';
+                            if (validationError) {
+                                validationError.textContent = errorMsg;
+                                validationError.style.display = 'block';
+                            }
+                            if (errorDisplay) {
+                                errorDisplay.textContent = errorMsg;
+                                errorDisplay.style.display = 'block';
+                            }
+
+                            // Cắt bớt xuống 300 ký tự
+                            targetInput.value = targetInput.value.substring(0, maxChars);
+                            updateCounter(); // Recursively update
+
+                        } else if (currentLength >= maxChars * 0.95) {
+                            // 95-100%: Đỏ đậm - Cảnh báo nguy cấp
+                            counter.style.color = '#dc3545';
+                            counter.style.fontWeight = 'bold';
+
+                        } else if (currentLength >= maxChars * 0.9) {
+                            // 90-95%: Cam - Sắp đạt giới hạn
+                            counter.style.color = '#fd7e14';
+                            counter.style.fontWeight = '600';
+
+                        } else if (currentLength >= maxChars * 0.7) {
+                            // 70-90%: Vàng - Đang gần giới hạn
+                            counter.style.color = '#ffc107';
+                            counter.style.fontWeight = 'normal';
+
+                        } else {
+                            // < 70%: Màu mặc định - An toàn
+                            counter.style.color = '';
+                            counter.style.fontWeight = 'normal';
+                        }
                     }
                 }
 
-                // Update khi input event
-                targetInput.addEventListener('input', updateCounter);
+                // Event listener cho input
+                targetInput.addEventListener('input', function(e) {
+                    const maxLength = parseInt(targetInput.getAttribute('maxlength') || maxChars);
+
+                    // Chặn nếu đã đạt giới hạn (chỉ cho title)
+                    if (targetId === 'id_title' && this.value.length >= maxLength) {
+                        // Không cho phép nhập thêm ký tự
+                        // Nhưng vẫn cho phép xóa/backspace
+                        // Được xử lý bởi maxlength attribute của HTML5
+                    }
+
+                    updateCounter();
+                });
+
+                // Ngăn paste nếu vượt quá giới hạn
+                targetInput.addEventListener('paste', function(e) {
+                    if (targetId === 'id_title') {
+                        const pasteData = (e.clipboardData || window.clipboardData).getData('text');
+                        const currentLength = this.value.length;
+                        const maxLength = parseInt(this.getAttribute('maxlength') || maxChars);
+
+                        // Nếu paste sẽ vượt quá giới hạn
+                        if (currentLength + pasteData.length > maxLength) {
+                            e.preventDefault(); // Chặn paste
+
+                            // Hiển thị error
+                            const errorMsg = 'Không thể paste! Dữ liệu sẽ vượt quá 300 ký tự.';
+                            if (validationError) {
+                                validationError.textContent = errorMsg;
+                                validationError.style.display = 'block';
+                            }
+                            if (errorDisplay) {
+                                errorDisplay.textContent = errorMsg;
+                                errorDisplay.style.display = 'block';
+                            }
+
+                            // Tự động ẩn error sau 3 giây
+                            setTimeout(function() {
+                                if (validationError) validationError.style.display = 'none';
+                                if (errorDisplay) errorDisplay.style.display = 'none';
+                            }, 3000);
+
+                            return false;
+                        }
+                    }
+                });
 
                 // Update ban đầu (cho form edit)
                 updateCounter();
