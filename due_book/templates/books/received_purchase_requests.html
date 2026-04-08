@@ -164,6 +164,13 @@
         justify-content: center;
         color: white;
         font-weight: 600;
+        overflow: hidden;
+    }
+
+    .buyer-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
     }
     
     .buyer-details a {
@@ -189,11 +196,26 @@
         font-size: 0.9rem;
         color: #555;
         margin-top: 10px;
+        word-break: break-word;
+        overflow-wrap: break-word;
     }
-    
+
     .message-box i {
         color: #004080;
         margin-right: 5px;
+    }
+
+    /* Fix text overflow for long strings without spaces */
+    .book-details h5 a {
+        word-break: break-word;
+        overflow-wrap: break-word;
+        max-width: 100%;
+    }
+
+    .buyer-details a {
+        word-break: break-word;
+        overflow-wrap: break-word;
+        max-width: 100%;
     }
 
     /* Status badge */
@@ -297,16 +319,6 @@
     
     .empty-state p {
         color: #888;
-    }
-
-    /* Modal */
-    .modal-header {
-        background: linear-gradient(135deg, #004080, #0066cc);
-        color: white;
-    }
-    
-    .modal-header .btn-close {
-        filter: brightness(0) invert(1);
     }
 </style>
 {% endblock %}
@@ -422,7 +434,11 @@
                         <div class="col-md-4">
                             <div class="buyer-info">
                                 <div class="buyer-avatar">
-                                    {{ req.buyer.username|slice:":1"|upper }}
+                                    {% if req.buyer.profile.avatar %}
+                                        <img src="{{ req.buyer.profile.avatar.url }}" alt="{{ req.buyer.username }}">
+                                    {% else %}
+                                        {{ req.buyer.username|slice:":1"|upper }}
+                                    {% endif %}
                                 </div>
                                 <div class="buyer-details">
                                     <a href="{% url 'users:user_profile_by_username' req.buyer.username %}">
@@ -462,13 +478,16 @@
                                 <div class="action-buttons justify-content-md-end">
                                     <form action="{% url 'books:approve_purchase_request' req.pk %}" method="post" style="display: inline;">
                                         {% csrf_token %}
-                                        <button type="submit" class="btn btn-approve" onclick="return confirm('Bạn có chắc muốn duyệt yêu cầu này?\\n\\nLưu ý: Tất cả các yêu cầu mua khác của cuốn sách này sẽ bị từ chối tự động và sách sẽ được đánh dấu là đã bán.')">
+                                        <button type="submit" class="btn btn-approve" onclick="return confirm('Bạn có chắc muốn duyệt yêu cầu này?\n\nLưu ý: Tất cả các yêu cầu mua khác của cuốn sách này sẽ bị từ chối tự động và sách sẽ được đánh dấu là đã bán.')">
                                             <i class="fas fa-check me-1"></i>Duyệt
                                         </button>
                                     </form>
-                                    <button type="button" class="btn btn-reject" onclick="showRejectModal({{ req.pk }})">
-                                        <i class="fas fa-times me-1"></i>Từ chối
-                                    </button>
+                                    <form action="{% url 'books:reject_purchase_request' req.pk %}" method="post" style="display: inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-reject" onclick="return confirm('Bạn có chắc muốn từ chối yêu cầu mua này?')">
+                                            <i class="fas fa-times me-1"></i>Từ chối
+                                        </button>
+                                    </form>
                                 </div>
                             {% elif req.status == 'approved' %}
                                 <small class="text-success">
@@ -541,45 +560,4 @@
         </p>
     {% endif %}
 </div>
-
-<!-- Reject Modal -->
-<div class="modal fade" id="rejectModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="fas fa-times-circle me-2"></i>Từ chối yêu cầu mua
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form id="rejectForm" method="post">
-                {% csrf_token %}
-                <div class="modal-body">
-                    <p>Bạn có chắc muốn từ chối yêu cầu mua này?</p>
-                    <div class="mb-3">
-                        <label class="form-label">Lý do từ chối (tùy chọn):</label>
-                        <textarea name="reason" class="form-control" rows="3" placeholder="Ví dụ: Sách đã có người đặt trước..."></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="submit" class="btn btn-danger">
-                        <i class="fas fa-times me-1"></i>Từ chối
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-    function showRejectModal(requestId) {
-        const modal = new bootstrap.Modal(document.getElementById('rejectModal'));
-        const form = document.getElementById('rejectForm');
-        form.action = '/yeu-cau-mua/' + requestId + '/tu-choi/';
-        modal.show();
-    }
-</script>
 {% endblock %}

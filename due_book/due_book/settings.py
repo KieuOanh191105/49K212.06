@@ -218,7 +218,7 @@ if USE_SENDGRID:
     # Production: Use SendGrid API (works on Render free tier)
     EMAIL_BACKEND = 'due_book.sendgrid_backend.SendGridBackend'
     DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'DUE Book <noreply@due-book.onrender.com>')
-    print(f"✅ Using SendGrid API backend")
+    print(f"[OK] Using SendGrid API backend")
 else:
     # Fallback: SMTP or Console
     EMAIL_HOST_USER_ENV = os.getenv('EMAIL_HOST_USER')
@@ -227,7 +227,7 @@ else:
     if not DEBUG:
         # Production without SendGrid: Try SMTP
         EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-        print("⚠️ Using SMTP backend (production, no SendGrid)")
+        print("[WARN] Using SMTP backend (production, no SendGrid)")
     else:
         # Development: Use SMTP if configured, otherwise Console
         HAS_SMTP_CREDENTIALS = all([
@@ -237,10 +237,10 @@ else:
 
         if HAS_SMTP_CREDENTIALS:
             EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-            print("🔧 Using SMTP backend (development with credentials)")
+            print("[DEV] Using SMTP backend (development with credentials)")
         else:
             EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-            print("💻 Using Console backend (development/no config)")
+            print("[DEV] Using Console backend (development/no config)")
 
     # SMTP Configuration (chỉ dùng khi không có SendGrid)
     EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')

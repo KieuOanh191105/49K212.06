@@ -49,7 +49,7 @@ class UserRegisterForm(forms.ModelForm):
     zalo_link = forms.URLField(
         widget=forms.URLInput(attrs={
             'class': 'form-control',
-            'placeholder': 'VD: https://zalo.me/xxxxxxxxxxx'
+            'placeholder': 'VD: https://zalo.me/0xxxxxxxxx'
         }),
         label='Link Zalo *',
         required=True,
@@ -176,8 +176,10 @@ class UserRegisterForm(forms.ModelForm):
         if not phone or not phone.strip():
             raise forms.ValidationError('Số điện thoại không được để trống!')
         phone = phone.strip().replace(' ', '').replace('.', '')
-        if not phone.isdigit() or len(phone) < 9:
-            raise forms.ValidationError('Số điện thoại không hợp lệ!')
+        if not phone.isdigit():
+            raise forms.ValidationError('Số điện thoại chỉ được chứa chữ số!')
+        if len(phone) != 10:
+            raise forms.ValidationError('Số điện thoại phải có đúng 10 chữ số!')
         return phone
 
     def clean_facebook_link(self):
@@ -327,7 +329,7 @@ class UserProfileForm(forms.ModelForm):
             }),
             'zalo_link': forms.URLInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'https://zalo.me/09xxxxxxxxx'
+                'placeholder': 'https://zalo.me/0xxxxxxxxx'
             }),
             'address': forms.TextInput(attrs={
                 'class': 'form-control',

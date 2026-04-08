@@ -693,7 +693,7 @@
                         </div>
 
                         <!-- Active filters display -->
-                        {% if query or subject_id or condition or price_min or price_max %}
+                        {% if query or subject_id or condition or price_min or price_max or sort and sort != 'newest' %}
                         <div class="active-filters">
                             <small class="text-muted">Đang lọc theo:</small><br>
                             {% if query %}
@@ -728,6 +728,17 @@
                                     </a>
                                 </span>
                             {% endif %}
+                            {% if sort and sort != 'newest' %}
+                                <span class="active-filter-tag">
+                                    {% if sort == 'price_asc' %}Giá tăng dần
+                                    {% elif sort == 'price_desc' %}Giá giảm dần
+                                    {% elif sort == 'title_asc' %}Tên A-Z
+                                    {% endif %}
+                                    <a href="?{% if query %}q={{ query }}{% endif %}{% if subject_id %}&subject_id={{ subject_id }}{% endif %}{% if condition %}&condition={{ condition }}{% endif %}{% if price_min %}&price_min={{ price_min }}{% endif %}{% if price_max %}&price_max={{ price_max }}{% endif %}" class="remove-filter">
+                                        <i class="fas fa-times"></i>
+                                    </a>
+                                </span>
+                            {% endif %}
                         </div>
                         {% endif %}
                     </form>
@@ -738,7 +749,7 @@
         <!-- ========== MAIN CONTENT ========== -->
         <main class="main-content">
             <!-- ========== RESULTS INFO ========== -->
-            {% if query or subject_id or condition or price_min or price_max %}
+            {% if query or subject_id or condition or price_min or price_max or sort and sort != 'newest' %}
                 <div class="results-info">
                     Tìm thấy <strong>{{ total_count }}</strong> kết quả
                     {% if query %}cho "<strong>{{ query }}</strong>"{% endif %}
@@ -748,6 +759,11 @@
                     {% if condition %}với tình trạng <strong>{% for value, label in condition_choices %}{% if value == condition %}{{ label }}{% endif %}{% endfor %}</strong>{% endif %}
                     {% if price_min or price_max %}
                         trong khoảng giá <strong>{% if price_min %}{{ price_min|floatformat:0 }}{% else %}0{% endif %}đ - {% if price_max %}{{ price_max|floatformat:0 }}{% else %}∞{% endif %}đ</strong>
+                    {% endif %}
+                    {% if sort and sort != 'newest' %}
+                        {% if sort == 'price_asc' %}sắp xếp theo <strong>Giá tăng dần</strong>
+                        {% elif sort == 'price_desc' %}sắp xếp theo <strong>Giá giảm dần</strong>
+                        {% elif sort == 'title_asc' %}sắp xếp theo <strong>Tên A-Z</strong>{% endif %}
                     {% endif %}
                     <a href="{% url 'books:book_list' %}" class="ms-2 text-decoration-none" style="background-color: #004080; color: #ffffff; border-radius: 20px; padding: 8px 16px; font-size: 0.85rem; border: 2px solid #004080; display: inline-block; transition: all 0.3s ease;">
                         <i class="fas fa-times-circle"></i> Xóa lọc
