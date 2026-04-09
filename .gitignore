@@ -20,8 +20,9 @@ db.sqlite3-journal
 *.db
 
 # Static files (collected)
+# Chỉ ignore staticfiles/ (thư mục collected), KHÔNG ignore static/ (source files)
 staticfiles/
-static/
+# static/  # ← ĐÃ XÓA: Cần push source files lên GitHub
 
 # Media files (user uploads)
 media/
