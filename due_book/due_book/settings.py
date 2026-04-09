@@ -294,15 +294,12 @@ else:
 
 
 # ==================== CLOUDINARY CONFIGURATION ====================
-# TẠM THỜI TẮT Cloudinary - Sẽ bật lại sau khi thêm environment variables vào Render
+# ĐÃ BẬT LẠI - Environment variables đã được thêm vào Render Dashboard
 
-# CLOUDINARY_STORAGE = {
-#     'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
-#     'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
-#     'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
-# }
-#
-# DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
+}
 
-# Tạm thời dùng FileSystemStorage (ảnh sẽ mất khi deploy, nhưng web sẽ chạy được)
-DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
