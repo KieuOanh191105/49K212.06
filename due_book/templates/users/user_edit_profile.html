@@ -162,6 +162,10 @@
 
     .error-message {
         animation: shake .3s ease;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        max-width: 100%;
+        line-height: 1.4;
     }
     @keyframes shake {
         0%, 100% { transform: translateX(0); }
@@ -268,15 +272,10 @@
                         </label>
                         {{ user_form.email }}
                         {% if user_form.email.errors %}
-                            <div class="error-message" style="margin-top: 5px; padding: 8px 12px; background: #fee; border: 1px solid #fcc; border-left: 3px solid #e74c3c; border-radius: 6px; font-size: 0.8rem; color: #c0392b;">
+                            <div class="error-message" style="margin-top: 5px; padding: 8px 12px; background: #fee; border: 1px solid #fcc; border-left: 3px solid #e74c3c; border-radius: 6px; font-size: 0.8rem; color: #c0392b; word-wrap: break-word; overflow-wrap: break-word; max-width: 100%;">
                                 <i class="fas fa-exclamation-circle" style="margin-right: 5px;"></i>
                                 {{ user_form.email.errors.0 }}
                             </div>
-                        {% else %}
-                            <span class="hint" style="color: var(--muted);">
-                                <i class="fas fa-info-circle" style="margin-right: 3px;"></i>
-                                Email này là email của Trường có đuôi @due.udn.vn
-                            </span>
                         {% endif %}
                     </div>
                 </div>
@@ -292,15 +291,10 @@
                         </label>
                         {{ profile_form.gmail_address }}
                         {% if profile_form.gmail_address.errors %}
-                            <div class="error-message" style="margin-top: 5px; padding: 8px 12px; background: #fee; border: 1px solid #fcc; border-left: 3px solid #e74c3c; border-radius: 6px; font-size: 0.8rem; color: #c0392b;">
+                            <div class="error-message" style="margin-top: 5px; padding: 8px 12px; background: #fee; border: 1px solid #fcc; border-left: 3px solid #e74c3c; border-radius: 6px; font-size: 0.8rem; color: #c0392b; word-wrap: break-word; overflow-wrap: break-word; max-width: 100%;">
                                 <i class="fas fa-exclamation-circle" style="margin-right: 5px;"></i>
                                 {{ profile_form.gmail_address.errors.0 }}
                             </div>
-                        {% else %}
-                            <span class="hint" style="color: var(--muted);">
-                                <i class="fas fa-key" style="margin-right: 3px;"></i>
-                                Dùng để khôi phục mật khẩu (tùy chọn, phải có đuôi @gmail.com)
-                            </span>
                         {% endif %}
                     </div>
                 </div>
@@ -322,6 +316,12 @@
                             Mã số sinh viên
                         </label>
                         {{ profile_form.student_id }}
+                        {% if profile_form.student_id.errors %}
+                            <div class="error-message" style="margin-top: 5px; padding: 8px 12px; background: #fee; border: 1px solid #fcc; border-left: 3px solid #e74c3c; border-radius: 6px; font-size: 0.8rem; color: #c0392b; word-wrap: break-word; overflow-wrap: break-word; max-width: 100%;">
+                                <i class="fas fa-exclamation-circle" style="margin-right: 5px;"></i>
+                                {{ profile_form.student_id.errors.0 }}
+                            </div>
+                        {% endif %}
                     </div>
                     <div class="form-group">
                         <label>
@@ -331,6 +331,12 @@
                             Số điện thoại
                         </label>
                         {{ profile_form.phone_number }}
+                        {% if profile_form.phone_number.errors %}
+                            <div class="error-message" style="margin-top: 5px; padding: 8px 12px; background: #fee; border: 1px solid #fcc; border-left: 3px solid #e74c3c; border-radius: 6px; font-size: 0.8rem; color: #c0392b; word-wrap: break-word; overflow-wrap: break-word; max-width: 100%;">
+                                <i class="fas fa-exclamation-circle" style="margin-right: 5px;"></i>
+                                {{ profile_form.phone_number.errors.0 }}
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
 
@@ -343,6 +349,12 @@
                             Link Facebook
                         </label>
                         {{ profile_form.facebook_link }}
+                        {% if profile_form.facebook_link.errors %}
+                            <div class="error-message" style="margin-top: 5px; padding: 8px 12px; background: #fee; border: 1px solid #fcc; border-left: 3px solid #e74c3c; border-radius: 6px; font-size: 0.8rem; color: #c0392b; word-wrap: break-word; overflow-wrap: break-word; max-width: 100%;">
+                                <i class="fas fa-exclamation-circle" style="margin-right: 5px;"></i>
+                                {{ profile_form.facebook_link.errors.0 }}
+                            </div>
+                        {% endif %}
                     </div>
                     <div class="form-group">
                         <label>
@@ -352,6 +364,12 @@
                             Link Zalo
                         </label>
                         {{ profile_form.zalo_link }}
+                        {% if profile_form.zalo_link.errors %}
+                            <div class="error-message" style="margin-top: 5px; padding: 8px 12px; background: #fee; border: 1px solid #fcc; border-left: 3px solid #e74c3c; border-radius: 6px; font-size: 0.8rem; color: #c0392b; word-wrap: break-word; overflow-wrap: break-word; max-width: 100%;">
+                                <i class="fas fa-exclamation-circle" style="margin-right: 5px;"></i>
+                                {{ profile_form.zalo_link.errors.0 }}
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
 
@@ -462,14 +480,15 @@
             emailInput.addEventListener('blur', function() {
                 const email = this.value.trim().toLowerCase();
 
-                // Clear previous error
+                // Clear previous JS error only
                 const existingError = this.parentElement.querySelector('.email-validation-error');
                 if (existingError) {
                     existingError.remove();
                 }
 
-                // Skip if empty
+                // Skip if empty or if Django already showed an error
                 if (!email) return;
+                if (this.parentElement.querySelector('.error-message')) return; // Django error exists
 
                 // Validate email format
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -497,14 +516,15 @@
             gmailInput.addEventListener('blur', function() {
                 const gmail = this.value.trim().toLowerCase();
 
-                // Clear previous error
+                // Clear previous JS error only
                 const existingError = this.parentElement.querySelector('.gmail-validation-error');
                 if (existingError) {
                     existingError.remove();
                 }
 
-                // Skip if empty
+                // Skip if empty or if Django already showed an error
                 if (!gmail) return;
+                if (this.parentElement.querySelector('.error-message')) return; // Django error exists
 
                 // Validate Gmail format
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

@@ -261,7 +261,7 @@ class UserUpdateForm(forms.ModelForm):
             }),
             'email': forms.EmailInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Email'
+                'placeholder': '@due.udn.vn'
             }),
         }
         labels = {
@@ -271,20 +271,33 @@ class UserUpdateForm(forms.ModelForm):
         }
 
     def clean_email(self):
-        """Validate email: unique, lowercase, format"""
-        email = self.cleaned_data.get('email', '').strip().lower()
+        """Validate email sinh viên DUE: 12 chữ số + @due.udn.vn"""
+        email = self.cleaned_data.get('email')
+
+        # Xử lý None
+        if email is None:
+            email = ''
+        else:
+            email = email.strip().lower()
 
         # Kiểm tra email không được để trống
         if not email:
-            raise forms.ValidationError('Email không được để trống.')
+            raise forms.ValidationError('Email không được để trống!')
 
-        # Kiểm tra định dạng email cơ bản
-        from django.core.validators import validate_email
-        from django.core.exceptions import ValidationError
-        try:
-            validate_email(email)
-        except ValidationError:
-            raise forms.ValidationError('Email không đúng định dạng.')
+        # Kiểm tra đuôi email phải là @due.udn.vn
+        if not email.endswith('@due.udn.vn'):
+            raise forms.ValidationError('Email không hợp lệ.')
+
+        # Lấy phần trước dấu @
+        local_part = email.split('@')[0]
+
+        # Kiểm tra phải có đúng 12 ký tự
+        if len(local_part) != 12:
+            raise forms.ValidationError('Email không hợp lệ.')
+
+        # Kiểm tra chỉ gồm số
+        if not local_part.isdigit():
+            raise forms.ValidationError('Email không hợp lệ.')
 
         # Kiểm tra email uniqueness (ngoại trừ user hiện tại)
         existing_user = User.objects.filter(email__iexact=email).exclude(
@@ -293,16 +306,45 @@ class UserUpdateForm(forms.ModelForm):
 
         if existing_user:
             raise forms.ValidationError(
-                f'Email này đã được sử dụng bởi tài khoản "{existing_user.username}". '
-                f'Vui lòng chọn email khác.'
+                'Email này đã được sử dụng. Vui lòng chọn email khác.'
             )
 
         return email
 
 
+
+
 # ==================== USER PROFILE FORM ====================
 class UserProfileForm(forms.ModelForm):
     """Form cập nhật thông tin UserProfile"""
+
+    # Override fields để enforce required=True
+    phone_number = forms.CharField(
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Số điện thoại'
+        }),
+        label='Số điện thoại'
+    )
+
+    facebook_link = forms.URLField(
+        required=True,
+        widget=forms.URLInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'https://facebook.com/username'
+        }),
+        label='Link Facebook'
+    )
+
+    zalo_link = forms.URLField(
+        required=True,
+        widget=forms.URLInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'https://zalo.me/0xxxxxxxxx'
+        }),
+        label='Link Zalo'
+    )
 
     class Meta:
         model = UserProfile
@@ -315,21 +357,9 @@ class UserProfileForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': 'Mã số sinh viên'
             }),
-            'phone_number': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Số điện thoại'
-            }),
             'gmail_address': forms.EmailInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'your-email@gmail.com'
-            }),
-            'facebook_link': forms.URLInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'https://facebook.com/username'
-            }),
-            'zalo_link': forms.URLInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'https://zalo.me/0xxxxxxxxx'
             }),
             'address': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -342,17 +372,113 @@ class UserProfileForm(forms.ModelForm):
         }
         labels = {
             'student_id': 'Mã số sinh viên',
-            'phone_number': 'Số điện thoại',
             'gmail_address': 'Email Gmail (khôi phục mật khẩu)',
-            'facebook_link': 'Link Facebook',
-            'zalo_link': 'Link Zalo',
             'address': 'Địa chỉ',
             'avatar': 'Ảnh đại diện',
         }
 
+    def clean_student_id(self):
+        """Validate mã số sinh viên: 12 chữ số"""
+        student_id = self.cleaned_data.get('student_id')
+
+        # Xử lý None
+        if student_id is None:
+            student_id = ''
+        else:
+            student_id = student_id.strip()
+
+        # Cho phép để trống (optional field)
+        if not student_id:
+            return student_id
+
+        # Kiểm tra phải là số
+        if not student_id.isdigit():
+            raise forms.ValidationError('Mã số sinh viên không hợp lệ')
+
+        # Kiểm tra độ dài 12 chữ số
+        if len(student_id) != 12:
+            raise forms.ValidationError('Mã số sinh viên không hợp lệ')
+
+        return student_id
+
+    def clean_phone_number(self):
+        """Validate số điện thoại"""
+        phone = self.cleaned_data.get('phone_number')
+
+        # Xử lý None
+        if phone is None:
+            phone = ''
+        else:
+            phone = phone.strip()
+
+        if not phone:
+            raise forms.ValidationError('Số điện thoại không được để trống!')
+
+        # Loại bỏ khoảng trắng và dấu chấm
+        phone = phone.replace(' ', '').replace('.', '')
+
+        # Kiểm tra chỉ gồm số
+        if not phone.isdigit():
+            raise forms.ValidationError('Số điện thoại chỉ được chứa chữ số!')
+
+        # Kiểm tra bắt đầu bằng số 0
+        if not phone.startswith('0'):
+            raise forms.ValidationError('Số điện thoại phải bắt đầu bằng số 0')
+
+        # Kiểm tra độ dài 10 chữ số
+        if len(phone) != 10:
+            raise forms.ValidationError('Số điện thoại phải có đúng 10 chữ số!')
+
+        return phone
+
+    def clean_facebook_link(self):
+        """Validate Facebook link"""
+        link = self.cleaned_data.get('facebook_link')
+
+        # Xử lý None
+        if link is None:
+            link = ''
+        else:
+            link = link.strip()
+
+        if not link:
+            raise forms.ValidationError('Vui lòng điền vào trường này.')
+
+        # Kiểm tra bắt đầu bằng http:// hoặc https://
+        if not (link.startswith('http://') or link.startswith('https://')):
+            raise forms.ValidationError('Vui lòng nhập URL (bắt đầu bằng http:// hoặc https://)')
+
+        return link
+
+    def clean_zalo_link(self):
+        """Validate Zalo link"""
+        link = self.cleaned_data.get('zalo_link')
+
+        # Xử lý None
+        if link is None:
+            link = ''
+        else:
+            link = link.strip()
+
+        if not link:
+            raise forms.ValidationError('Vui lòng điền vào trường này.')
+
+        # Kiểm tra bắt đầu bằng http:// hoặc https://
+        if not (link.startswith('http://') or link.startswith('https://')):
+            raise forms.ValidationError('Vui lòng nhập URL (bắt đầu bằng http:// hoặc https://)')
+
+        return link
+
+
     def clean_gmail_address(self):
         """Validate Gmail address (optional, must end with @gmail.com)"""
-        gmail = self.cleaned_data.get('gmail_address', '').strip()
+        gmail = self.cleaned_data.get('gmail_address')
+
+        # Xử lý None hoặc empty string
+        if gmail is None:
+            gmail = ''
+        else:
+            gmail = gmail.strip()
 
         # Nếu rỗng, cho phép (optional field)
         if not gmail:
@@ -385,8 +511,8 @@ class UserProfileForm(forms.ModelForm):
 
         if existing_profile:
             raise forms.ValidationError(
-                f'Email Gmail này đã được sử dụng bởi tài khoản "{existing_profile.user.username}". '
-                f'Vui lòng sử dụng email khác.'
+                'Email Gmail này đã được sử dụng. Vui lòng sử dụng email khác.'
             )
 
         return gmail
+
