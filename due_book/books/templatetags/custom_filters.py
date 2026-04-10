@@ -1,7 +1,34 @@
 from django import template
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 
 register = template.Library()
+
+
+@register.filter
+def format_price(value):
+    """
+    Format giá tiền với dấu chấm phân cách hàng nghìn và ký hiệu 'đ' superscript
+
+    Example: 1200 → '1.200<span class="currency-symbol">đ</span>'
+
+    Usage: {{ book.price|format_price }}
+    """
+    if value is None:
+        return mark_safe('0<span class="currency-symbol">đ</span>')
+
+    try:
+        # Chuyển thành int
+        price_int = int(value)
+
+        # Format với dấu chấm phân cách hàng nghìn
+        # VD: 1200 → "1.200"
+        price_str = "{:,}".format(price_int).replace(",", ".")
+
+        # Trả về HTML với số và ký hiệu 'đ' superscript
+        return mark_safe(f'{price_str}<span class="currency-symbol">đ</span>')
+    except (ValueError, TypeError):
+        return mark_safe(f'{value}<span class="currency-symbol">đ</span>')
 
 
 @register.filter

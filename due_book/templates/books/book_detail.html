@@ -222,6 +222,14 @@
         font-size: 1.8rem;
         font-weight: 700;
         color: #e74c3c;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .price-main .currency-symbol {
+        font-size: 0.666em;  /* 2/3 kích thước số */
+        vertical-align: super;  /* Superscript - nằm phía trên */
+        margin-left: 2px;
+        color: #e74c3c;  /* Giữ nguyên màu đỏ */
     }
 
     .price-note {
@@ -404,7 +412,7 @@
     /* ========== DESCRIPTION ========== */
     .description-content {
         color: #555;
-        line-height: 1.6;
+        line-height: 1;
         white-space: pre-wrap;
         text-align: left;
         word-wrap: break-word;
@@ -599,7 +607,7 @@
 
                     <!-- Price Section -->
                     <div class="price-section">
-                        <div class="price-main">{{ book.price|floatformat:0 }}đ</div>
+                        <div class="price-main">{{ book.price|format_price }}</div>
                         <div class="view-count">
                             <i class="fas fa-eye"></i>{{ book.view_count }} lượt xem
                         </div>

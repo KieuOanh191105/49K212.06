@@ -108,7 +108,7 @@
                                 <td>
                                     <a href="{% url 'users:user_profile_by_username' req.book.seller.username %}">{{ req.book.seller.username|title }}</a>
                                 </td>
-                                <td>{{ req.book.price|floatformat:0 }}đ</td>
+                                <td>{{ req.book.price|format_price }}</td>
                                 <td>
                                     {% if req.status == 'pending' %}
                                         <span class="badge bg-warning">Chờ duyệt</span>
@@ -186,5 +186,16 @@
             </ul>
         </nav>
     {% endif %}
+
+    <style>
+        /* Format price trong table */
+        td .currency-symbol {
+            font-size: 0.666em;
+            vertical-align: super;
+            margin-left: 2px;
+            color: #e74c3c;
+            font-weight: 700;
+        }
+    </style>
 </div>
 {% endblock %}

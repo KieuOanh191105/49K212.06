@@ -204,8 +204,16 @@
         font-weight: 700;
         color: #e74c3c;
         margin-bottom: 4px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
-    
+
+    .book-card .book-price .currency-symbol {
+        font-size: 0.666em;
+        vertical-align: super;
+        margin-left: 2px;
+        color: #e74c3c;
+    }
+
     /* Meta info - small text */
     .book-card .book-meta {
         font-size: 0.75rem;
@@ -461,7 +469,7 @@
                             <i class="fas fa-layer-group me-1"></i>{{ book.get_condition_display }}
                         </p>
                         
-                        <p class="book-price">{{ book.price|floatformat:0 }}đ</p>
+                        <p class="book-price">{{ book.price|format_price }}</p>
                         
                         <!-- Meta info -->
                         <div class="book-meta">

@@ -67,7 +67,7 @@
                                 <td>
                                     <a href="{% url 'users:user_profile_by_username' req.book.seller.username %}">{{ req.book.seller.username|title }}</a>
                                 </td>
-                                <td>{{ req.book.price|floatformat:0 }}đ</td>
+                                <td>{{ req.book.price|format_price }}</td>
                                 <td>
                                     {% if req.status == 'pending' %}
                                         <span class="badge bg-warning">Chờ duyệt</span>

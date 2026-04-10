@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load custom_filters %}
 
 {% block title %}Trang chủ - DUE Book{% endblock %}
 
@@ -391,6 +392,14 @@
     color: #e74c3c;
     margin-bottom: 4px;
     min-height: 1.5em; /* Fix chiều cao giá để giữ chỗ */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  .book-price .currency-symbol {
+    font-size: 0.666em;
+    vertical-align: super;
+    margin-left: 2px;
+    color: #e74c3c;
   }
 
   .card-footer {
@@ -679,7 +688,7 @@
               <p class="book-seller">
                 <i class="fas fa-user"></i> {{ book.seller.username }}
               </p>
-              <p class="book-price">{{ book.price|floatformat:0 }}đ</p>
+              <p class="book-price">{{ book.price|format_price }}</p>
             </div>
 
             <div class="card-footer">

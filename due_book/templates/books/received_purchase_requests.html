@@ -140,8 +140,16 @@
         font-size: 1.1rem;
         font-weight: 700;
         color: #e74c3c;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
-    
+
+    .book-details .book-price .currency-symbol {
+        font-size: 0.666em;
+        vertical-align: super;
+        margin-left: 2px;
+        color: #e74c3c;
+    }
+
     .book-details .book-meta {
         font-size: 0.85rem;
         color: #888;
@@ -422,7 +430,7 @@
                                     <h5>
                                         <a href="{% url 'books:book_detail' req.book.pk %}">{{ req.book.title }}</a>
                                     </h5>
-                                    <p class="book-price">{{ req.book.price|floatformat:0 }}đ</p>
+                                    <p class="book-price">{{ req.book.price|format_price }}</p>
                                     <p class="book-meta">
                                         <i class="fas fa-layer-group me-1"></i>{{ req.book.get_condition_display }}
                                     </p>

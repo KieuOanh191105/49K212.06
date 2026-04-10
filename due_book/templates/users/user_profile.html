@@ -206,7 +206,21 @@
         -webkit-box-orient: vertical;
         min-height: 2.6em; /* Fix height cho 2 dòng */
     }
-    .book-price { font-size: .92rem; font-weight: 800; color: var(--blue); margin-bottom: 10px; }
+    .book-price {
+        font-size: .92rem;
+        font-weight: 800;
+        color: var(--blue);
+        margin-bottom: 10px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .book-price .currency-symbol {
+        font-size: 0.666em;
+        vertical-align: super;
+        margin-left: 2px;
+        color: var(--blue);
+    }
+
     .btn-view {
         width: 100%; padding: 7px;
         background: none; border: 1.5px solid var(--blue);
@@ -367,7 +381,7 @@
                 {% for book in books_for_sale %}
                 <a href="{% url 'books:book_detail' book.pk %}" class="book-item">
                     <div class="book-title">{{ book.title|truncatewords:10 }}</div>
-                    <div class="book-price">{{ book.price|floatformat:0 }}đ</div>
+                    <div class="book-price">{{ book.price|format_price }}</div>
                     <button class="btn-view">Xem</button>
                 </a>
                 {% endfor %}
