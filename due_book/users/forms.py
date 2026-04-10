@@ -253,11 +253,11 @@ class UserUpdateForm(forms.ModelForm):
         widgets = {
             'first_name': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Tên'
+                'placeholder': 'Họ và đệm'
             }),
             'last_name': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Họ và đệm'
+                'placeholder': 'Tên'
             }),
             'email': forms.EmailInput(attrs={
                 'class': 'form-control',
@@ -265,8 +265,8 @@ class UserUpdateForm(forms.ModelForm):
             }),
         }
         labels = {
-            'first_name': 'Tên',
-            'last_name': 'Họ và đệm',
+            'first_name': 'Họ và đệm',
+            'last_name': 'Tên',
             'email': 'Email',
         }
 

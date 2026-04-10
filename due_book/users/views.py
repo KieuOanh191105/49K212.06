@@ -240,6 +240,20 @@ class CustomPasswordResetView(PasswordResetView):
     subject_template_name = 'users/password_reset_subject.txt'
     success_url = '/users/dang-nhap/?reset_sent=true'
 
+    def form_valid(self, form):
+        """
+        Override để thêm success message trước khi gửi email
+        """
+        email = form.cleaned_data['email']
+        # Thêm success message
+        messages.success(
+            self.request,
+            f'✅ Email khôi phục mật khẩu đã được gửi đến <strong>{email}</strong>! '
+            'Vui lòng kiểm tra hộp thư (bao gồm cả Spam).'
+        )
+        # Gọi form_valid của parent class để gửi email
+        return super().form_valid(form)
+
     def get_users(self, email):
         """
         CHỈ tìm user theo Gmail (UserProfile.gmail_address)
